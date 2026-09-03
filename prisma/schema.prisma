@@ -1,0 +1,63 @@
+// PhishNetra - Prisma Schema Definition
+// Milestone: 1
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  name         String
+  passwordHash String
+  role         String     @default("USER") // USER, ANALYST, ADMIN
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  analyses     Analysis[]
+
+  @@map("users")
+}
+
+model Analysis {
+  id            String             @id @default(uuid())
+  userId        String?
+  user          User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  url           String
+  normalizedUrl String
+  verdict       String             // SAFE, SUSPICIOUS, PHISHING
+  riskScore     Float              // 0.0 to 100.0
+  riskLevel     String             // LOW, MEDIUM, HIGH, CRITICAL
+  confidence    Float              // 0.0 to 1.0
+  mlProbability Float              // 0.0 to 1.0
+  status        String             @default("COMPLETED") // COMPLETED, FAILED
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  evidence      AnalysisEvidence[]
+
+  @@index([userId])
+  @@index([url])
+  @@index([createdAt])
+  @@map("analyses")
+}
+
+model AnalysisEvidence {
+  id           String    @id @default(uuid())
+  analysisId   String
+  analysis     Analysis  @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  featureKey   String
+  featureValue String
+  severity     String    // INFO, LOW, MEDIUM, HIGH, CRITICAL
+  description  String
+  contribution Float?    @default(0.0)
+  createdAt    DateTime  @default(now())
+
+  @@index([analysisId])
+  @@map("analysis_evidence")
+}
