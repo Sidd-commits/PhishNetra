@@ -1,0 +1,29 @@
+{
+  "name": "phishnetra-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PhishNetra — A MultiLayered AI-Driven Zero-Trust Framework for Real-Time Phishing Detection and Browser-Level Threat Mitigation",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev --workspace=@phishnetra/api",
+    "dev:web": "npm run dev --workspace=@phishnetra/web",
+    "build:api": "npm run build --workspace=@phishnetra/api",
+    "build:web": "npm run build --workspace=@phishnetra/web",
+    "build:shared": "npm run build --workspace=@phishnetra/shared",
+    "build": "npm run build:shared && npm run build:api && npm run build:web",
+    "test:api": "npm run test --workspace=@phishnetra/api",
+    "test": "npm run test:api"
+  },
+  "keywords": [
+    "cybersecurity",
+    "phishing-detection",
+    "machine-learning",
+    "zero-trust",
+    "threat-intelligence"
+  ],
+  "author": "PhishNetra Core Team",
+  "license": "MIT"
+}
