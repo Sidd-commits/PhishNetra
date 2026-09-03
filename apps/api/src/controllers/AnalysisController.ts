@@ -25,7 +25,7 @@ export class AnalysisController {
       const limit = parseInt(req.query.limit as string || '20', 10);
       const offset = parseInt(req.query.offset as string || '0', 10);
 
-      const history = await analysisService.getUserAnalyses(req.user.userId, limit, offset);
+      const history = await analysisService.getHistory(req.user.userId, limit, offset);
       res.status(200).json(history);
     } catch (error) {
       next(error);
@@ -35,7 +35,11 @@ export class AnalysisController {
   public async getById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
-      const result = await analysisService.getAnalysisById(id);
+      const result = await analysisService.getById(id);
+      if (!result) {
+        res.status(404).json({ error: 'Not Found', message: 'Analysis record not found' });
+        return;
+      }
       res.status(200).json(result);
     } catch (error) {
       next(error);

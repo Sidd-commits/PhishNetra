@@ -91,4 +91,5 @@ export class MLClientService {
   }
 }
 
-export const mlClient = new MLClientService();
+export const mlClientService = new MLClientService();
+export const mlClient = mlClientService;

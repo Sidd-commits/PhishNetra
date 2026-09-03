@@ -1,165 +1,337 @@
 import { prisma } from '../db/prisma';
-import { mlClient } from './MLClientService';
-import { riskEngine } from './RiskEngine';
 import {
   AnalysisResponse,
   AnalysisSummary,
+  EvidenceItem,
+  LayerStatus,
+  MultiLayerData,
   ThreatVerdict,
   RiskLevel
 } from '@phishnetra/shared';
+import { mlClientService } from './MLClientService';
+import { riskEngine } from './RiskEngine';
+import { canonicalizeUrl } from './analysis/canonicalization';
+import { urlLayer } from './analysis/urlLayer';
+import { domainLayer } from './analysis/domainLayer';
+import { dnsLayer } from './analysis/dnsLayer';
+import { tlsLayer } from './analysis/tlsLayer';
+import { reputationLayer } from './analysis/reputationLayer';
 
 export class AnalysisService {
-  public normalizeUrl(rawUrl: string): string {
-    let url = rawUrl.trim();
-    const lower = url.toLowerCase();
-    if (!lower.startsWith('http://') && !lower.startsWith('https://')) {
-      url = 'http://' + url;
-    }
-    try {
-      const parsed = new URL(url);
-      const scheme = parsed.protocol.toLowerCase();
-      let host = parsed.host.toLowerCase();
-
-      if (scheme === 'http:' && host.endsWith(':80')) {
-        host = host.slice(0, -3);
-      } else if (scheme === 'https:' && host.endsWith(':443')) {
-        host = host.slice(0, -4);
-      }
-
-      const path = parsed.pathname || '/';
-      const search = parsed.search || '';
-      const hash = parsed.hash || '';
-
-      return `${scheme}//${host}${path}${search}${hash}`;
-    } catch {
-      return rawUrl.trim();
-    }
-  }
-
+  /**
+   * Performs full Multi-Layer threat analysis on a target URL.
+   */
   public async analyze(rawUrl: string, userId?: string): Promise<AnalysisResponse> {
-    const normalizedUrl = this.normalizeUrl(rawUrl);
+    const startTime = Date.now();
 
-    const mlResult = await mlClient.predictURL(normalizedUrl);
+    // 1. Canonicalize URL
+    const canonical = canonicalizeUrl(rawUrl);
+    const { canonicalUrl, hostname, protocol, port } = canonical;
 
-    const riskResult = riskEngine.evaluate(
-      mlResult.phishing_probability,
-      mlResult.confidence,
-      mlResult.features
-    );
+    // 2. Query ML Inference Microservice (or local fallback)
+    const mlResponse = await mlClientService.predictURL(canonicalUrl);
 
-    const createdAnalysis = await prisma.analysis.create({
-      data: {
-        userId: userId || null,
-        url: rawUrl.trim(),
-        normalizedUrl,
-        verdict: riskResult.verdict,
-        riskScore: riskResult.riskScore,
-        riskLevel: riskResult.riskLevel,
-        confidence: riskResult.confidence,
-        mlProbability: mlResult.phishing_probability,
-        status: 'COMPLETED',
-        evidence: {
-          create: riskResult.evidence.map(e => ({
-            featureKey: e.featureKey,
-            featureValue: String(e.featureValue),
-            severity: e.severity,
-            description: e.description,
-            contribution: e.contribution ?? 0.0
-          }))
-        }
-      },
-      include: {
-        evidence: true
-      }
-    });
+    // 3. Execute all 5 Intelligence Layers in parallel
+    const [urlRes, domainRes, dnsRes, tlsRes, repRes] = await Promise.all([
+      // Layer 1: URL Intelligence
+      Promise.resolve(urlLayer.analyze(canonical, mlResponse.features)),
 
-    return {
-      analysisId: createdAnalysis.id,
-      url: createdAnalysis.url,
-      normalizedUrl: createdAnalysis.normalizedUrl,
-      verdict: createdAnalysis.verdict as ThreatVerdict,
-      riskScore: createdAnalysis.riskScore,
-      riskLevel: createdAnalysis.riskLevel as RiskLevel,
-      confidence: createdAnalysis.confidence,
-      mlProbability: createdAnalysis.mlProbability,
-      evidence: createdAnalysis.evidence.map(e => ({
-        featureKey: e.featureKey,
-        featureValue: e.featureValue,
-        severity: e.severity as any,
-        description: e.description,
-        contribution: e.contribution ?? 0.0
+      // Layer 2: Domain Intelligence & RDAP
+      domainLayer.analyze(hostname).catch(() => ({
+        data: {
+          status: 'FAILED' as LayerStatus,
+          domain: hostname,
+          registrableDomain: hostname,
+          tld: '',
+          subdomain: '',
+          registrar: null,
+          creationDate: null,
+          expirationDate: null,
+          domainAgeDays: null,
+          domainAgeCategory: 'unknown' as const,
+          isPrivacyProtected: false
+        },
+        evidence: []
       })),
-      features: mlResult.features,
-      createdAt: createdAnalysis.createdAt.toISOString()
-    };
-  }
 
-  public async getUserAnalyses(userId: string, limit: number = 20, offset: number = 0): Promise<{ items: AnalysisSummary[]; total: number }> {
-    const [items, total] = await Promise.all([
-      prisma.analysis.findMany({
-        where: { userId },
-        orderBy: { createdAt: 'desc' },
-        take: limit,
-        skip: offset,
-        select: {
-          id: true,
-          url: true,
-          verdict: true,
-          riskScore: true,
-          riskLevel: true,
-          confidence: true,
-          createdAt: true
-        }
-      }),
-      prisma.analysis.count({
-        where: { userId }
-      })
+      // Layer 3: DNS & IP Intelligence
+      dnsLayer.analyze(hostname).catch(err => ({
+        data: {
+          status: 'FAILED' as LayerStatus,
+          resolvedIps: [],
+          ipv4Count: 0,
+          ipv6Count: 0,
+          nameservers: [],
+          mxRecords: [],
+          cnameRecords: [],
+          txtRecords: [],
+          hasMx: false,
+          ipDetails: [],
+          error: err.message
+        },
+        evidence: []
+      })),
+
+      // Layer 4: TLS Socket Intelligence
+      tlsLayer.analyze(protocol, hostname, port).catch(err => ({
+        data: {
+          status: 'FAILED' as LayerStatus,
+          hasTls: protocol.toLowerCase() === 'https:',
+          certificateValid: false,
+          certificateExpired: false,
+          hostnameMatches: false,
+          validFrom: null,
+          validTo: null,
+          daysUntilExpiry: null,
+          issuer: null,
+          subject: null,
+          sans: [],
+          tlsVersion: null,
+          zeroTrustWarning: 'TLS inspection failed or timed out.',
+          error: err.message
+        },
+        evidence: []
+      })),
+
+      // Layer 5: Reputation Intelligence
+      reputationLayer.analyze(canonicalUrl, hostname).catch(() => ({
+        data: {
+          status: 'PARTIAL' as LayerStatus,
+          providers: [],
+          isListedMalicious: false,
+          reputationScore: 0
+        },
+        evidence: []
+      }))
     ]);
 
-    return {
-      items: items.map(item => ({
-        id: item.id,
-        url: item.url,
-        verdict: item.verdict as ThreatVerdict,
-        riskScore: item.riskScore,
-        riskLevel: item.riskLevel as RiskLevel,
-        confidence: item.confidence,
-        createdAt: item.createdAt.toISOString()
-      })),
-      total
+    // Layer 6: ML Layer Packaging
+    const mlLayerData = {
+      status: 'SUCCESS' as LayerStatus,
+      phishingProbability: mlResponse.phishing_probability,
+      confidence: mlResponse.confidence,
+      predictedLabel: mlResponse.predicted_label,
+      modelVersion: mlResponse.model_version,
+      inferenceTimeMs: mlResponse.inference_time_ms
     };
-  }
 
-  public async getAnalysisById(analysisId: string): Promise<AnalysisResponse> {
-    const record = await prisma.analysis.findUnique({
-      where: { id: analysisId },
-      include: { evidence: true }
+    // Add ML-specific evidence if high probability
+    const allLayerEvidences: EvidenceItem[] = [
+      ...urlRes.evidence,
+      ...domainRes.evidence,
+      ...dnsRes.evidence,
+      ...tlsRes.evidence,
+      ...repRes.evidence
+    ];
+
+    if (mlResponse.phishing_probability >= 0.70) {
+      allLayerEvidences.push({
+        layer: 'ML',
+        featureKey: 'ml_phishing_classifier',
+        featureValue: `${(mlResponse.phishing_probability * 100).toFixed(1)}%`,
+        severity: 'CRITICAL',
+        description: `Random Forest baseline ML classifier identified suspicious lexical patterns (${(mlResponse.phishing_probability * 100).toFixed(1)}% probability).`,
+        contribution: 0.30,
+        source: 'ML_RandomForest',
+        confidence: mlResponse.confidence
+      });
+    } else if (mlResponse.phishing_probability >= 0.40) {
+      allLayerEvidences.push({
+        layer: 'ML',
+        featureKey: 'ml_phishing_classifier',
+        featureValue: `${(mlResponse.phishing_probability * 100).toFixed(1)}%`,
+        severity: 'MEDIUM',
+        description: `Machine learning classifier identified moderate threat probability (${(mlResponse.phishing_probability * 100).toFixed(1)}%).`,
+        contribution: 0.15,
+        source: 'ML_RandomForest',
+        confidence: mlResponse.confidence
+      });
+    }
+
+    // 4. Multi-Layer Risk Engine Synthesis
+    const multiLayerResult = riskEngine.evaluateMultiLayer({
+      urlLayer: urlRes.data,
+      domainLayer: domainRes.data,
+      dnsLayer: dnsRes.data,
+      tlsLayer: tlsRes.data,
+      reputationLayer: repRes.data,
+      mlLayer: mlLayerData,
+      layerEvidences: allLayerEvidences
     });
 
-    if (!record) {
-      const error: any = new Error('Analysis record not found');
-      error.statusCode = 404;
-      throw error;
+    const layersData: MultiLayerData = {
+      url: urlRes.data,
+      domain: domainRes.data,
+      dns: dnsRes.data,
+      tls: tlsRes.data,
+      reputation: repRes.data,
+      ml: mlLayerData
+    };
+
+    const layerStatuses: Record<string, LayerStatus> = {
+      URL: urlRes.data.status,
+      DOMAIN: domainRes.data.status,
+      DNS: dnsRes.data.status,
+      TLS: tlsRes.data.status,
+      REPUTATION: repRes.data.status,
+      ML: mlLayerData.status
+    };
+
+    // 5. Persist Analysis Record & Evidence to Database
+    let savedAnalysisId = `mock-${Date.now()}`;
+    let createdAtIso = new Date().toISOString();
+
+    try {
+      const savedRecord = await prisma.analysis.create({
+        data: {
+          userId: userId || null,
+          url: rawUrl,
+          normalizedUrl: canonicalUrl,
+          verdict: multiLayerResult.verdict,
+          riskScore: multiLayerResult.riskScore,
+          riskLevel: multiLayerResult.riskLevel,
+          confidence: multiLayerResult.confidence,
+          mlProbability: mlResponse.phishing_probability,
+          status: 'COMPLETED',
+          layersJson: JSON.stringify(layersData),
+          layerStatusesJson: JSON.stringify(layerStatuses),
+          evidence: {
+            create: multiLayerResult.evidence.map(ev => ({
+              layer: ev.layer,
+              featureKey: ev.featureKey,
+              featureValue: String(ev.featureValue),
+              severity: ev.severity,
+              description: ev.description,
+              source: ev.source || 'RiskEngine',
+              confidence: ev.confidence ?? 1.0,
+              contribution: ev.contribution ?? 0.0
+            }))
+          }
+        },
+        include: {
+          evidence: true
+        }
+      });
+
+      savedAnalysisId = savedRecord.id;
+      createdAtIso = savedRecord.createdAt.toISOString();
+    } catch (dbErr: any) {
+      console.warn(`[AnalysisService] Database write error: ${dbErr.message}. Serving in-memory result.`);
     }
 
     return {
-      analysisId: record.id,
-      url: record.url,
-      normalizedUrl: record.normalizedUrl,
-      verdict: record.verdict as ThreatVerdict,
-      riskScore: record.riskScore,
-      riskLevel: record.riskLevel as RiskLevel,
-      confidence: record.confidence,
-      mlProbability: record.mlProbability,
-      evidence: record.evidence.map(e => ({
-        featureKey: e.featureKey,
-        featureValue: e.featureValue,
-        severity: e.severity as any,
-        description: e.description,
-        contribution: e.contribution ?? 0.0
-      })),
-      createdAt: record.createdAt.toISOString()
+      analysisId: savedAnalysisId,
+      url: rawUrl,
+      normalizedUrl: canonicalUrl,
+      verdict: multiLayerResult.verdict,
+      riskScore: multiLayerResult.riskScore,
+      riskLevel: multiLayerResult.riskLevel,
+      confidence: multiLayerResult.confidence,
+      mlProbability: mlResponse.phishing_probability,
+      layers: layersData,
+      layerStatuses,
+      evidence: multiLayerResult.evidence,
+      features: mlResponse.features,
+      createdAt: createdAtIso
     };
+  }
+
+  /**
+   * Retrieves user's previous analysis history with pagination.
+   */
+  public async getHistory(userId?: string, limit = 20, offset = 0): Promise<{ items: AnalysisSummary[]; total: number }> {
+    try {
+      const whereClause = userId ? { userId } : {};
+
+      const [total, records] = await Promise.all([
+        prisma.analysis.count({ where: whereClause }),
+        prisma.analysis.findMany({
+          where: whereClause,
+          orderBy: { createdAt: 'desc' },
+          take: limit,
+          skip: offset,
+          select: {
+            id: true,
+            url: true,
+            verdict: true,
+            riskScore: true,
+            riskLevel: true,
+            confidence: true,
+            createdAt: true
+          }
+        })
+      ]);
+
+      const items: AnalysisSummary[] = records.map(r => ({
+        id: r.id,
+        url: r.url,
+        verdict: r.verdict as ThreatVerdict,
+        riskScore: r.riskScore,
+        riskLevel: r.riskLevel as RiskLevel,
+        confidence: r.confidence,
+        createdAt: r.createdAt.toISOString()
+      }));
+
+      return { items, total };
+    } catch {
+      return { items: [], total: 0 };
+    }
+  }
+
+  /**
+   * Retrieves full analysis report by ID including all layers & evidence.
+   */
+  public async getById(id: string): Promise<AnalysisResponse | null> {
+    try {
+      const record = await prisma.analysis.findUnique({
+        where: { id },
+        include: {
+          evidence: true
+        }
+      });
+
+      if (!record) return null;
+
+      let layers: MultiLayerData | undefined = undefined;
+      let layerStatuses: Record<string, LayerStatus> | undefined = undefined;
+
+      if (record.layersJson) {
+        try {
+          layers = JSON.parse(record.layersJson);
+        } catch {}
+      }
+      if (record.layerStatusesJson) {
+        try {
+          layerStatuses = JSON.parse(record.layerStatusesJson);
+        } catch {}
+      }
+
+      return {
+        analysisId: record.id,
+        url: record.url,
+        normalizedUrl: record.normalizedUrl,
+        verdict: record.verdict as ThreatVerdict,
+        riskScore: record.riskScore,
+        riskLevel: record.riskLevel as RiskLevel,
+        confidence: record.confidence,
+        mlProbability: record.mlProbability,
+        layers,
+        layerStatuses,
+        evidence: record.evidence.map(e => ({
+          layer: (e.layer || 'URL') as any,
+          featureKey: e.featureKey,
+          featureValue: e.featureValue,
+          severity: e.severity as any,
+          description: e.description,
+          source: e.source || 'RiskEngine',
+          confidence: e.confidence ?? 1.0,
+          contribution: e.contribution ?? 0.0
+        })),
+        createdAt: record.createdAt.toISOString()
+      };
+    } catch {
+      return null;
+    }
   }
 }
 
