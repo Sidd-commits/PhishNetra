@@ -5,13 +5,14 @@ import { AnalysisResponse } from '@phishnetra/shared';
 import { ScoreGauge } from '../components/ScoreGauge';
 import { EvidenceTable } from '../components/EvidenceTable';
 import { FeaturesTable } from '../components/FeaturesTable';
+import { LayersBreakdown } from '../components/LayersBreakdown';
+import { ZeroTrustBanner } from '../components/ZeroTrustBanner';
 import {
   ArrowLeft,
   Search,
   Activity,
   AlertCircle,
   Clock,
-  Lock,
   Globe
 } from 'lucide-react';
 
@@ -43,7 +44,7 @@ export const AnalysisDetailPage: React.FC = () => {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-slate-400 space-y-3">
         <Activity className="w-8 h-8 text-cyan-400 animate-spin" />
-        <p className="text-xs font-mono">Retrieving analysis report #{id?.slice(0, 8)}...</p>
+        <p className="text-xs font-mono">Retrieving multi-layer threat intelligence report #{id?.slice(0, 8)}...</p>
       </div>
     );
   }
@@ -88,12 +89,18 @@ export const AnalysisDetailPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Zero-Trust UX Banner */}
+      <ZeroTrustBanner
+        hasTls={analysis.layers?.tls?.hasTls}
+        verdict={analysis.verdict}
+      />
+
       {/* Target URL Inspection Card */}
       <div className="glass-panel p-6 sm:p-8 rounded-2xl border-slate-800 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-4">
           <div className="flex items-center space-x-2 text-xs font-mono text-cyan-400">
             <Globe className="w-4 h-4" />
-            <span>ANALYSIS REPORT #{analysis.analysisId}</span>
+            <span>MULTI-LAYER ANALYSIS REPORT #{analysis.analysisId}</span>
           </div>
           <div className="flex items-center space-x-2 text-xs font-mono text-slate-400">
             <Clock className="w-3.5 h-3.5" />
@@ -127,17 +134,23 @@ export const AnalysisDetailPage: React.FC = () => {
         <div className="md:col-span-2 glass-panel p-6 sm:p-8 rounded-2xl border-slate-800 flex flex-col justify-between space-y-6">
           <div className="space-y-4">
             <h3 className="text-sm font-bold text-slate-200 font-mono uppercase tracking-wider">
-              Detection Telemetry & Verdict Breakdown
+              Multi-Layer Threat Engine Synthesis
             </h3>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              PhishNetra evaluated this target through the Zero-Trust Milestone 1 pipeline, combining deterministic lexical feature extraction with a baseline machine learning classifier.
+              PhishNetra evaluated this target through the Zero-Trust multi-layer pipeline, independently analyzing URL lexical structure, RDAP domain age, passive DNS records, TLS certificate authenticity, and reputation threat feeds.
             </p>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
               <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                <span className="text-[10px] text-slate-400 font-mono">Verdict</span>
+                <span className="text-[10px] text-slate-400 font-mono">Final Verdict</span>
                 <div className="text-sm font-bold font-mono text-white mt-0.5">
                   {analysis.verdict}
+                </div>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                <span className="text-[10px] text-slate-400 font-mono">Risk Level</span>
+                <div className="text-sm font-bold font-mono text-amber-400 mt-0.5">
+                  {analysis.riskLevel}
                 </div>
               </div>
               <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
@@ -147,28 +160,50 @@ export const AnalysisDetailPage: React.FC = () => {
                 </div>
               </div>
               <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                <span className="text-[10px] text-slate-400 font-mono">Signals Triggered</span>
-                <div className="text-sm font-bold font-mono text-amber-400 mt-0.5">
-                  {analysis.evidence.length} Rules
+                <span className="text-[10px] text-slate-400 font-mono">Triggered Evidence</span>
+                <div className="text-sm font-bold font-mono text-purple-400 mt-0.5">
+                  {analysis.evidence.length} Signals
                 </div>
               </div>
             </div>
           </div>
 
-          {/* SSRF & Security Architecture Notice */}
-          <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80 text-[11px] text-slate-400 flex items-start space-x-2.5">
-            <Lock className="w-4 h-4 text-cyan-400 mt-0.5 flex-shrink-0" />
-            <span>
-              <strong>SSRF-Safe URL Isolation:</strong> Milestone 1 evaluates static URL lexical semantics. Unrestricted server-side HTTP fetching is intentionally deferred to the Milestone 3 sandboxed analyzer.
-            </span>
-          </div>
+          {/* Layer Health Status Row */}
+          {analysis.layerStatuses && (
+            <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80">
+              <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-2">
+                Active Detection Layer Status
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(analysis.layerStatuses).map(([layer, status]) => (
+                  <span
+                    key={layer}
+                    className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-xs font-mono bg-slate-900 border border-slate-800"
+                  >
+                    <span className="text-slate-400">{layer}:</span>
+                    <span className={`font-bold ${status === 'SUCCESS' ? 'text-emerald-400' : status === 'PARTIAL' ? 'text-amber-400' : 'text-slate-500'}`}>
+                      {status}
+                    </span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Triggered Evidence Table */}
+      {/* 5+ Multi-Layer Breakdown Cards */}
+      {analysis.layers && (
+        <LayersBreakdown
+          layers={analysis.layers}
+          layerStatuses={analysis.layerStatuses}
+        />
+      )}
+
+      {/* Layer-Grouped Triggered Evidence Table */}
       <div className="space-y-3">
         <h3 className="text-sm font-bold text-white font-mono uppercase tracking-wider">
-          Triggered Risk Evidence & Analyst Explanations
+          Triggered Risk Evidence & Layer Attribution
         </h3>
         <EvidenceTable evidence={analysis.evidence} />
       </div>
