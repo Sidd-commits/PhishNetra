@@ -1,5 +1,5 @@
 // PhishNetra - Prisma Schema Definition
-// Milestone: 1
+// Milestone: 2 (Multi-Layer Intelligence)
 
 generator client {
   provider = "prisma-client-js"
@@ -25,21 +25,23 @@ model User {
 }
 
 model Analysis {
-  id            String             @id @default(uuid())
-  userId        String?
-  user          User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
-  url           String
-  normalizedUrl String
-  verdict       String             // SAFE, SUSPICIOUS, PHISHING
-  riskScore     Float              // 0.0 to 100.0
-  riskLevel     String             // LOW, MEDIUM, HIGH, CRITICAL
-  confidence    Float              // 0.0 to 1.0
-  mlProbability Float              // 0.0 to 1.0
-  status        String             @default("COMPLETED") // COMPLETED, FAILED
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
+  id                String             @id @default(uuid())
+  userId            String?
+  user              User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  url               String
+  normalizedUrl     String
+  verdict           String             // SAFE, SUSPICIOUS, PHISHING, UNKNOWN
+  riskScore         Float              // 0.0 to 100.0
+  riskLevel         String             // LOW, MEDIUM, HIGH, CRITICAL
+  confidence        Float              // 0.0 to 1.0
+  mlProbability     Float              // 0.0 to 1.0
+  status            String             @default("COMPLETED") // COMPLETED, FAILED, PARTIAL
+  layersJson        String?            // Serialized multi-layer results (URL, Domain, DNS, TLS, Reputation, ML)
+  layerStatusesJson String?            // Serialized layer status indicators
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 
-  evidence      AnalysisEvidence[]
+  evidence          AnalysisEvidence[]
 
   @@index([userId])
   @@index([url])
@@ -51,13 +53,17 @@ model AnalysisEvidence {
   id           String    @id @default(uuid())
   analysisId   String
   analysis     Analysis  @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  layer        String    @default("URL") // URL, DOMAIN, DNS, TLS, REPUTATION, ML
   featureKey   String
   featureValue String
   severity     String    // INFO, LOW, MEDIUM, HIGH, CRITICAL
   description  String
+  source       String?   @default("RuleEngine")
+  confidence   Float?    @default(1.0)
   contribution Float?    @default(0.0)
   createdAt    DateTime  @default(now())
 
   @@index([analysisId])
+  @@index([layer])
   @@map("analysis_evidence")
 }
