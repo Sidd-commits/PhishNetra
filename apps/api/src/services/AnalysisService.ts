@@ -1,3 +1,9 @@
+/**
+ * PhishNetra - Analysis Service Orchestrator (Multi-Layer Intelligence & Content Analysis)
+ * Module: apps.api.src.services.AnalysisService
+ * Milestone: 3
+ */
+
 import { prisma } from '../db/prisma';
 import {
   AnalysisResponse,
@@ -6,9 +12,11 @@ import {
   LayerStatus,
   MultiLayerData,
   ThreatVerdict,
-  RiskLevel
+  RiskLevel,
+  PageAnalysisResult
 } from '@phishnetra/shared';
 import { mlClientService } from './MLClientService';
+import { pageAnalyzerClient } from './PageAnalyzerClient';
 import { riskEngine } from './RiskEngine';
 import { canonicalizeUrl } from './analysis/canonicalization';
 import { urlLayer } from './analysis/urlLayer';
@@ -16,12 +24,13 @@ import { domainLayer } from './analysis/domainLayer';
 import { dnsLayer } from './analysis/dnsLayer';
 import { tlsLayer } from './analysis/tlsLayer';
 import { reputationLayer } from './analysis/reputationLayer';
+import { contentLayer } from './analysis/contentLayer';
 
 export class AnalysisService {
   /**
-   * Performs full Multi-Layer threat analysis on a target URL.
+   * Performs full Multi-Layer threat analysis on a target URL including isolated page inspection.
    */
-  public async analyze(rawUrl: string, userId?: string): Promise<AnalysisResponse> {
+  public async analyze(rawUrl: string, userId?: string, analyzePage = true): Promise<AnalysisResponse> {
     const startTime = Date.now();
 
     // 1. Canonicalize URL
@@ -31,8 +40,8 @@ export class AnalysisService {
     // 2. Query ML Inference Microservice (or local fallback)
     const mlResponse = await mlClientService.predictURL(canonicalUrl);
 
-    // 3. Execute all 5 Intelligence Layers in parallel
-    const [urlRes, domainRes, dnsRes, tlsRes, repRes] = await Promise.all([
+    // 3. Execute Intelligence Layers in parallel (Layers 1-5 + Isolated Page Inspection)
+    const [urlRes, domainRes, dnsRes, tlsRes, repRes, pageRes] = await Promise.all([
       // Layer 1: URL Intelligence
       Promise.resolve(urlLayer.analyze(canonical, mlResponse.features)),
 
@@ -102,7 +111,48 @@ export class AnalysisService {
           reputationScore: 0
         },
         evidence: []
-      }))
+      })),
+
+      // Milestone 3: Isolated Page Inspection (SSRF-protected)
+      analyzePage
+        ? pageAnalyzerClient.analyzePage(canonicalUrl).catch(err => ({
+            status: 'FAILED' as const,
+            requestedUrl: canonicalUrl,
+            finalUrl: canonicalUrl,
+            redirectCount: 0,
+            redirectChain: [],
+            forms: [],
+            iframes: [],
+            scripts: [],
+            keywords: [],
+            brandFindings: [],
+            urgencyScore: 0,
+            contentRiskScore: 0,
+            phishingProbability: 0,
+            confidence: 0.5,
+            error: err.message,
+            blockReason: null,
+            acquisitionTimeMs: 0
+          }))
+        : Promise.resolve({
+            status: 'NOT_REQUESTED' as const,
+            requestedUrl: canonicalUrl,
+            finalUrl: canonicalUrl,
+            redirectCount: 0,
+            redirectChain: [],
+            forms: [],
+            iframes: [],
+            scripts: [],
+            keywords: [],
+            brandFindings: [],
+            urgencyScore: 0,
+            contentRiskScore: 0,
+            phishingProbability: 0,
+            confidence: 1.0,
+            error: null,
+            blockReason: null,
+            acquisitionTimeMs: 0
+          })
     ]);
 
     // Layer 6: ML Layer Packaging
@@ -115,13 +165,17 @@ export class AnalysisService {
       inferenceTimeMs: mlResponse.inference_time_ms
     };
 
-    // Add ML-specific evidence if high probability
+    // Layer 7 & 8: Content & Brand Translation
+    const contentRes = contentLayer.analyze(pageRes);
+
+    // Aggregate Evidence across all layers
     const allLayerEvidences: EvidenceItem[] = [
       ...urlRes.evidence,
       ...domainRes.evidence,
       ...dnsRes.evidence,
       ...tlsRes.evidence,
-      ...repRes.evidence
+      ...repRes.evidence,
+      ...contentRes.evidence
     ];
 
     if (mlResponse.phishing_probability >= 0.70) {
@@ -156,6 +210,7 @@ export class AnalysisService {
       tlsLayer: tlsRes.data,
       reputationLayer: repRes.data,
       mlLayer: mlLayerData,
+      pageLayer: pageRes,
       layerEvidences: allLayerEvidences
     });
 
@@ -165,7 +220,8 @@ export class AnalysisService {
       dns: dnsRes.data,
       tls: tlsRes.data,
       reputation: repRes.data,
-      ml: mlLayerData
+      ml: mlLayerData,
+      page: pageRes
     };
 
     const layerStatuses: Record<string, LayerStatus> = {
@@ -174,7 +230,9 @@ export class AnalysisService {
       DNS: dnsRes.data.status,
       TLS: tlsRes.data.status,
       REPUTATION: repRes.data.status,
-      ML: mlLayerData.status
+      ML: mlLayerData.status,
+      CONTENT: contentRes.data.status,
+      BRAND: contentRes.data.brandMismatch ? 'FAILED' : 'SUCCESS'
     };
 
     // 5. Persist Analysis Record & Evidence to Database
@@ -193,8 +251,11 @@ export class AnalysisService {
           confidence: multiLayerResult.confidence,
           mlProbability: mlResponse.phishing_probability,
           status: 'COMPLETED',
+          pageStatus: pageRes.status,
           layersJson: JSON.stringify(layersData),
           layerStatusesJson: JSON.stringify(layerStatuses),
+          pageAnalysisJson: JSON.stringify(pageRes),
+          summary: multiLayerResult.summary,
           evidence: {
             create: multiLayerResult.evidence.map(ev => ({
               layer: ev.layer,
@@ -230,8 +291,10 @@ export class AnalysisService {
       mlProbability: mlResponse.phishing_probability,
       layers: layersData,
       layerStatuses,
+      pageAnalysis: pageRes,
       evidence: multiLayerResult.evidence,
       features: mlResponse.features,
+      summary: multiLayerResult.summary,
       createdAt: createdAtIso
     };
   }
@@ -257,6 +320,7 @@ export class AnalysisService {
             riskScore: true,
             riskLevel: true,
             confidence: true,
+            pageStatus: true,
             createdAt: true
           }
         })
@@ -269,6 +333,7 @@ export class AnalysisService {
         riskScore: r.riskScore,
         riskLevel: r.riskLevel as RiskLevel,
         confidence: r.confidence,
+        pageStatus: (r.pageStatus || 'NOT_REQUESTED') as any,
         createdAt: r.createdAt.toISOString()
       }));
 
@@ -279,7 +344,7 @@ export class AnalysisService {
   }
 
   /**
-   * Retrieves full analysis report by ID including all layers & evidence.
+   * Retrieves full analysis report by ID including all layers, page analysis & evidence.
    */
   public async getById(id: string): Promise<AnalysisResponse | null> {
     try {
@@ -294,6 +359,7 @@ export class AnalysisService {
 
       let layers: MultiLayerData | undefined = undefined;
       let layerStatuses: Record<string, LayerStatus> | undefined = undefined;
+      let pageAnalysis: PageAnalysisResult | undefined = undefined;
 
       if (record.layersJson) {
         try {
@@ -303,6 +369,11 @@ export class AnalysisService {
       if (record.layerStatusesJson) {
         try {
           layerStatuses = JSON.parse(record.layerStatusesJson);
+        } catch {}
+      }
+      if (record.pageAnalysisJson) {
+        try {
+          pageAnalysis = JSON.parse(record.pageAnalysisJson);
         } catch {}
       }
 
@@ -317,6 +388,8 @@ export class AnalysisService {
         mlProbability: record.mlProbability,
         layers,
         layerStatuses,
+        pageAnalysis,
+        summary: record.summary || undefined,
         evidence: record.evidence.map(e => ({
           layer: (e.layer || 'URL') as any,
           featureKey: e.featureKey,

@@ -36,8 +36,11 @@ model Analysis {
   confidence        Float              // 0.0 to 1.0
   mlProbability     Float              // 0.0 to 1.0
   status            String             @default("COMPLETED") // COMPLETED, FAILED, PARTIAL
+  pageStatus        String?            @default("NOT_REQUESTED") // NOT_REQUESTED, COMPLETED, BLOCKED, TIMEOUT, FAILED, PARTIAL
   layersJson        String?            // Serialized multi-layer results (URL, Domain, DNS, TLS, Reputation, ML)
   layerStatusesJson String?            // Serialized layer status indicators
+  pageAnalysisJson  String?            // Serialized page/content analysis findings (DOM, Forms, Brand, Redirects, etc.)
+  summary           String?            // Human-readable Zero-Trust analysis summary
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
 

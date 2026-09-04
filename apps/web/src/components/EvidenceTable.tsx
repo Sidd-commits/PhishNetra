@@ -23,6 +23,10 @@ export const EvidenceTable: React.FC<EvidenceTableProps> = ({ evidence }) => {
     { id: 'DNS', label: 'DNS & IP' },
     { id: 'TLS', label: 'TLS / SSL' },
     { id: 'REPUTATION', label: 'Reputation' },
+    { id: 'CONTENT', label: 'Page Content' },
+    { id: 'FORM', label: 'Forms & Auth' },
+    { id: 'BRAND', label: 'Brand Intel' },
+    { id: 'NETWORK', label: 'Network' },
     { id: 'ML', label: 'ML Model' }
   ];
 
@@ -79,6 +83,10 @@ export const EvidenceTable: React.FC<EvidenceTableProps> = ({ evidence }) => {
       DNS: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
       TLS: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
       REPUTATION: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+      CONTENT: 'bg-teal-500/10 text-teal-300 border-teal-500/30',
+      FORM: 'bg-rose-500/10 text-rose-300 border-rose-500/30',
+      BRAND: 'bg-fuchsia-500/10 text-fuchsia-300 border-fuchsia-500/30',
+      NETWORK: 'bg-sky-500/10 text-sky-300 border-sky-500/30',
       ML: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30'
     };
     return (

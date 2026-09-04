@@ -56,8 +56,8 @@ class ApiService {
   }
 
   // --- Threat Analysis ---
-  public async analyzeUrl(url: string): Promise<AnalysisResponse> {
-    const res = await this.client.post<AnalysisResponse>('/analyze', { url });
+  public async analyzeUrl(url: string, analyzePage: boolean = true): Promise<AnalysisResponse> {
+    const res = await this.client.post<AnalysisResponse>('/analyze', { url, analyzePage });
     return res.data;
   }
 

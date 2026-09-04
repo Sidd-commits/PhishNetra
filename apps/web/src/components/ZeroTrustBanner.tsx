@@ -27,7 +27,7 @@ export const ZeroTrustBanner: React.FC<ZeroTrustBannerProps> = ({ hasTls, verdic
             )}
           </div>
           <p className="text-xs text-slate-300 leading-relaxed">
-            <strong className="text-slate-100">No single signal determines trust.</strong> An authentic TLS/HTTPS certificate only guarantees encryption in transit — modern phishing campaigns frequently utilize valid certificates. Final verdict ({verdict}) is synthesized across all 5 independent intelligence layers.
+            <strong className="text-cyan-300">PhishNetra does not trust a webpage based on a single signal.</strong> A valid HTTPS certificate, familiar branding, or clean reputation alone does not guarantee that a destination is safe. Final verdict ({verdict}) is synthesized across all independent intelligence layers including DOM structure, form destinations, brand consistency, and behavioral signals.
           </p>
         </div>
       </div>

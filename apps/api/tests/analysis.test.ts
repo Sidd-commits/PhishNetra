@@ -25,6 +25,9 @@ describe('Analysis & Multi-Layer Integration Test Suite', () => {
           confidence: data.confidence,
           mlProbability: data.mlProbability,
           status: 'COMPLETED',
+          pageStatus: data.pageStatus || 'COMPLETED',
+          pageAnalysisJson: data.pageAnalysisJson,
+          summary: data.summary,
           createdAt: new Date(),
           updatedAt: new Date(),
           evidence: data.evidence?.create || []
@@ -73,10 +76,10 @@ describe('Analysis & Multi-Layer Integration Test Suite', () => {
       expect(res.body).toHaveProperty('error', 'Validation Error');
     });
 
-    it('should process a valid URL and return multi-layer analysis result with evidence', async () => {
+    it('should process a valid URL and return multi-layer analysis result with evidence and pageAnalysis', async () => {
       const res = await request(app)
         .post('/api/analyze')
-        .send({ url: 'https://example.com/login' });
+        .send({ url: 'https://example.com/login', analyzePage: true });
 
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('analysisId');
@@ -85,6 +88,8 @@ describe('Analysis & Multi-Layer Integration Test Suite', () => {
       expect(res.body).toHaveProperty('confidence');
       expect(res.body).toHaveProperty('layers');
       expect(res.body).toHaveProperty('layerStatuses');
+      expect(res.body).toHaveProperty('pageAnalysis');
+      expect(res.body).toHaveProperty('summary');
       expect(res.body).toHaveProperty('evidence');
       expect(Array.isArray(res.body.evidence)).toBe(true);
     });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { MultiLayerData, LayerStatus } from '@phishnetra/shared';
+import { MultiLayerData, LayerStatus, PageAnalysisResult } from '@phishnetra/shared';
 import {
   Link2,
   Globe2,
@@ -7,27 +7,35 @@ import {
   Lock,
   Radio,
   Cpu,
+  Layers,
+  ShieldAlert,
+  ShieldCheck,
   CheckCircle2,
   AlertTriangle,
   XCircle,
   HelpCircle,
   Calendar,
-  Server,
-  ShieldCheck,
-  ShieldAlert
+  KeyRound,
+  FileCode2
 } from 'lucide-react';
 
 interface LayersBreakdownProps {
   layers?: MultiLayerData;
   layerStatuses?: Record<string, LayerStatus>;
+  pageAnalysis?: PageAnalysisResult;
 }
 
-export const LayersBreakdown: React.FC<LayersBreakdownProps> = ({ layers, layerStatuses }) => {
+export const LayersBreakdown: React.FC<LayersBreakdownProps> = ({
+  layers,
+  layerStatuses,
+  pageAnalysis
+}) => {
   if (!layers) return null;
 
-  const renderStatusPill = (status?: LayerStatus) => {
+  const renderStatusPill = (status?: LayerStatus | string) => {
     switch (status) {
       case 'SUCCESS':
+      case 'COMPLETED':
         return (
           <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
             <CheckCircle2 className="w-3 h-3" />
@@ -42,10 +50,19 @@ export const LayersBreakdown: React.FC<LayersBreakdownProps> = ({ layers, layerS
           </span>
         );
       case 'NOT_CONFIGURED':
+      case 'NOT_REQUESTED':
+      case 'SKIPPED':
         return (
           <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-500/15 text-slate-400 border border-slate-500/30">
             <HelpCircle className="w-3 h-3" />
-            <span>NOT CONFIGURED</span>
+            <span>SKIPPED</span>
+          </span>
+        );
+      case 'BLOCKED':
+        return (
+          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40">
+            <XCircle className="w-3 h-3" />
+            <span>BLOCKED</span>
           </span>
         );
       case 'FAILED':
@@ -87,18 +104,23 @@ export const LayersBreakdown: React.FC<LayersBreakdownProps> = ({ layers, layerS
     );
   };
 
+  const activePage = pageAnalysis || layers.page;
+  const brandFindings = activePage?.brandFindings || [];
+  const hasBrandMismatch = brandFindings.some(b => b.isMismatch);
+  const primaryBrand = brandFindings[0];
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-mono uppercase tracking-wider text-slate-400 font-semibold">
-          Multi-Layer Threat Intelligence Breakdown (5+ Layers)
+          Multi-Layer Threat Intelligence Breakdown (8 Active Layers)
         </h3>
         <span className="text-xs font-mono text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20">
           Zero-Trust Orchestrator
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Layer 1: URL Intelligence */}
         <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-cyan-500/40 transition-all flex flex-col justify-between">
           <div>
@@ -155,7 +177,7 @@ export const LayersBreakdown: React.FC<LayersBreakdownProps> = ({ layers, layerS
             <div className="space-y-2 text-xs">
               <div className="flex justify-between py-1 border-b border-slate-800/50">
                 <span className="text-slate-400">Registrable Domain:</span>
-                <span className="font-mono text-purple-300 font-semibold">{layers.domain?.registrableDomain}</span>
+                <span className="font-mono text-purple-300 font-semibold truncate max-w-[130px]">{layers.domain?.registrableDomain}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-800/50">
                 <span className="text-slate-400">Domain Age:</span>
@@ -163,7 +185,7 @@ export const LayersBreakdown: React.FC<LayersBreakdownProps> = ({ layers, layerS
               </div>
               <div className="flex justify-between py-1 border-b border-slate-800/50">
                 <span className="text-slate-400">Registrar:</span>
-                <span className="font-mono text-slate-200 truncate max-w-[140px]" title={layers.domain?.registrar || 'N/A'}>
+                <span className="font-mono text-slate-200 truncate max-w-[130px]" title={layers.domain?.registrar || 'N/A'}>
                   {layers.domain?.registrar || 'Unavailable'}
                 </span>
               </div>
@@ -209,7 +231,7 @@ export const LayersBreakdown: React.FC<LayersBreakdownProps> = ({ layers, layerS
               </div>
               <div className="flex justify-between py-1">
                 <span className="text-slate-400">Primary ASN / Org:</span>
-                <span className="font-mono text-slate-200 truncate max-w-[140px]" title={layers.dns?.ipDetails?.[0]?.org || 'N/A'}>
+                <span className="font-mono text-slate-200 truncate max-w-[130px]" title={layers.dns?.ipDetails?.[0]?.org || 'N/A'}>
                   {layers.dns?.ipDetails?.[0]?.org || 'Public System'}
                 </span>
               </div>
@@ -242,12 +264,12 @@ export const LayersBreakdown: React.FC<LayersBreakdownProps> = ({ layers, layerS
                     ? 'EXPIRED'
                     : layers.tls?.certificateValid
                     ? 'VALID ROOT CA'
-                    : 'UNVERIFIED / NONE'}
+                    : 'UNVERIFIED'}
                 </span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-800/50">
                 <span className="text-slate-400">Issuer:</span>
-                <span className="font-mono text-slate-200 truncate max-w-[140px]" title={layers.tls?.issuer || 'N/A'}>
+                <span className="font-mono text-slate-200 truncate max-w-[130px]" title={layers.tls?.issuer || 'N/A'}>
                   {layers.tls?.issuer || 'None'}
                 </span>
               </div>
@@ -299,7 +321,7 @@ export const LayersBreakdown: React.FC<LayersBreakdownProps> = ({ layers, layerS
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2 text-indigo-400">
                 <Cpu className="w-4 h-4" />
-                <span className="font-mono text-xs font-bold uppercase tracking-wider">Layer 6: AI / ML Model</span>
+                <span className="font-mono text-xs font-bold uppercase tracking-wider">Layer 6: Lexical ML</span>
               </div>
               {renderStatusPill(layers.ml?.status || layerStatuses?.ML)}
             </div>
@@ -324,6 +346,84 @@ export const LayersBreakdown: React.FC<LayersBreakdownProps> = ({ layers, layerS
               <div className="flex justify-between py-1">
                 <span className="text-slate-400">Inference Latency:</span>
                 <span className="font-mono text-slate-200">{layers.ml?.inferenceTimeMs} ms</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Layer 7: Web Content & DOM (Milestone 3) */}
+        <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-cyan-500/40 transition-all flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-2 text-cyan-400">
+                <Layers className="w-4 h-4" />
+                <span className="font-mono text-xs font-bold uppercase tracking-wider">Layer 7: Web Content</span>
+              </div>
+              {renderStatusPill(activePage?.status || layerStatuses?.CONTENT)}
+            </div>
+
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between py-1 border-b border-slate-800/50">
+                <span className="text-slate-400">Forms / Passwords:</span>
+                <span className="font-mono text-slate-200">
+                  {activePage?.domMetrics?.formsCount ?? activePage?.forms?.length ?? 0} forms / {activePage?.domMetrics?.passwordInputsCount ?? 0} pwd
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-slate-800/50">
+                <span className="text-slate-400">Redirect Chain:</span>
+                <span className="font-mono text-slate-200">
+                  {activePage?.redirectCount ?? 0} hop(s)
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-slate-800/50">
+                <span className="text-slate-400">Scripts / Obfuscated:</span>
+                <span className="font-mono text-slate-200">
+                  {activePage?.domMetrics?.scriptsCount ?? 0} / {activePage?.scripts?.filter(s => s.hasObfuscation).length ?? 0}
+                </span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span className="text-slate-400">Urgency Language:</span>
+                <span className="font-mono text-slate-200">
+                  {activePage ? `${Math.round(activePage.urgencyScore * 100)}%` : 'N/A'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Layer 8: Brand Consistency (Milestone 3) */}
+        <div className={`p-4 rounded-xl border transition-all flex flex-col justify-between ${
+          hasBrandMismatch
+            ? 'bg-rose-950/30 border-rose-500/50 hover:border-rose-400'
+            : 'bg-slate-900/60 border-slate-800/80 hover:border-emerald-500/40'
+        }`}>
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div className={`flex items-center space-x-2 ${hasBrandMismatch ? 'text-rose-400' : 'text-emerald-400'}`}>
+                {hasBrandMismatch ? <ShieldAlert className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
+                <span className="font-mono text-xs font-bold uppercase tracking-wider">Layer 8: Brand Intel</span>
+              </div>
+              {renderStatusPill(hasBrandMismatch ? 'FAILED' : activePage ? 'SUCCESS' : 'SKIPPED')}
+            </div>
+
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between py-1 border-b border-slate-800/50">
+                <span className="text-slate-400">Claimed Brand:</span>
+                <span className="font-mono font-semibold text-slate-200">
+                  {primaryBrand ? primaryBrand.claimedBrand : 'None Claimed'}
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-slate-800/50">
+                <span className="text-slate-400">Brand Match:</span>
+                <span className={`font-mono font-bold ${hasBrandMismatch ? 'text-rose-400' : primaryBrand ? 'text-emerald-400' : 'text-slate-400'}`}>
+                  {hasBrandMismatch ? 'MISMATCH (IMPERSONATION)' : primaryBrand ? 'VERIFIED MATCH' : 'NEUTRAL'}
+                </span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span className="text-slate-400">Hosting Domain:</span>
+                <span className="font-mono text-slate-300 truncate max-w-[130px]">
+                  {primaryBrand?.actualDomain || layers.domain?.registrableDomain || 'N/A'}
+                </span>
               </div>
             </div>
           </div>

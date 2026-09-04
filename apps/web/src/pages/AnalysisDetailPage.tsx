@@ -6,6 +6,7 @@ import { ScoreGauge } from '../components/ScoreGauge';
 import { EvidenceTable } from '../components/EvidenceTable';
 import { FeaturesTable } from '../components/FeaturesTable';
 import { LayersBreakdown } from '../components/LayersBreakdown';
+import { PageAnalysisView } from '../components/PageAnalysisView';
 import { ZeroTrustBanner } from '../components/ZeroTrustBanner';
 import {
   ArrowLeft,
@@ -13,7 +14,8 @@ import {
   Activity,
   AlertCircle,
   Clock,
-  Globe
+  Globe,
+  Info
 } from 'lucide-react';
 
 export const AnalysisDetailPage: React.FC = () => {
@@ -94,6 +96,19 @@ export const AnalysisDetailPage: React.FC = () => {
         hasTls={analysis.layers?.tls?.hasTls}
         verdict={analysis.verdict}
       />
+
+      {/* Synthesized Analysis Summary Banner */}
+      {analysis.summary && (
+        <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-700/80 shadow-md">
+          <div className="flex items-center space-x-2 text-xs font-mono text-cyan-400 font-bold uppercase tracking-wider mb-1.5">
+            <Info className="w-3.5 h-3.5" />
+            <span>Executive Threat Intelligence Summary</span>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+            {analysis.summary}
+          </p>
+        </div>
+      )}
 
       {/* Target URL Inspection Card */}
       <div className="glass-panel p-6 sm:p-8 rounded-2xl border-slate-800 space-y-4">
@@ -192,12 +207,17 @@ export const AnalysisDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 5+ Multi-Layer Breakdown Cards */}
+      {/* 8 Multi-Layer Breakdown Cards */}
       {analysis.layers && (
         <LayersBreakdown
           layers={analysis.layers}
           layerStatuses={analysis.layerStatuses}
         />
+      )}
+
+      {/* Secure Webpage / Content Analysis View */}
+      {analysis.pageAnalysis && (
+        <PageAnalysisView pageAnalysis={analysis.pageAnalysis} />
       )}
 
       {/* Layer-Grouped Triggered Evidence Table */}

@@ -1,7 +1,7 @@
 """
-PhishNetra - Pydantic Schemas for ML Microservice
+PhishNetra - Pydantic Schemas for ML & Page Analyzer Microservice
 Module: services.ml.app.core.schemas
-Milestone: 1
+Milestone: 3
 """
 
 from typing import Dict, Any, List, Optional
@@ -29,6 +29,29 @@ class URLFeatureVectorModel(BaseModel):
     tld_length: int = Field(..., description="Length of top-level domain")
 
 
+class ContentFeatureVectorModel(BaseModel):
+    forms_count: int = Field(0, description="Total forms detected")
+    password_inputs: int = Field(0, description="Count of password fields")
+    text_inputs: int = Field(0, description="Count of input fields")
+    hidden_inputs: int = Field(0, description="Count of hidden input fields")
+    has_login_form: int = Field(0, description="1 if login form detected else 0")
+    external_form_actions: int = Field(0, description="Count of cross-origin or IP form submissions")
+    iframe_count: int = Field(0, description="Count of iframes")
+    hidden_iframe_count: int = Field(0, description="Count of hidden/zero-dimension iframes")
+    external_iframe_count: int = Field(0, description="Count of third-party iframes")
+    script_count: int = Field(0, description="Count of total script tags")
+    external_script_count: int = Field(0, description="Count of external script dependencies")
+    obfuscated_script_count: int = Field(0, description="Count of scripts with obfuscation signatures")
+    external_domain_count: int = Field(0, description="Number of unique third-party domains referenced")
+    suspicious_keyword_count: int = Field(0, description="Count of phishing keywords matched")
+    urgency_score: float = Field(0.0, description="Social engineering urgency score from 0.0 to 1.0")
+    brand_reference_count: int = Field(0, description="Number of known brands referenced")
+    brand_domain_mismatch: int = Field(0, description="1 if brand claimed on unrelated domain else 0")
+    redirect_count: int = Field(0, description="Number of redirect hops")
+    suspicious_link_count: int = Field(0, description="Count of javascript:/data:/mailto: links")
+    page_text_length: int = Field(0, description="Character count of visible page body text")
+
+
 class PredictionRequest(BaseModel):
     url: str = Field(..., min_length=1, description="Raw or normalized URL to analyze")
 
@@ -54,9 +77,146 @@ class FeatureExtractionResponse(BaseModel):
     features: URLFeatureVectorModel
 
 
+class RedirectHopModel(BaseModel):
+    url: str
+    status: Optional[int] = None
+    ip: Optional[str] = None
+    headers: Optional[Dict[str, str]] = None
+
+
+class FormFindingModel(BaseModel):
+    id: Optional[str] = None
+    name: Optional[str] = ""
+    action: str
+    actionResolved: str
+    method: str = "GET"
+    target: Optional[str] = ""
+    isCrossOrigin: bool = False
+    isIpAction: bool = False
+    hasPasswordField: bool = False
+    hasEmailField: bool = False
+    hasCreditCardField: bool = False
+    hasOtpField: bool = False
+    passwordFieldCount: int = 0
+    inputCount: int = 0
+    description: Optional[str] = None
+
+
+class IFrameFindingModel(BaseModel):
+    src: str
+    srcResolved: Optional[str] = None
+    isCrossOrigin: bool = False
+    isHidden: bool = False
+    width: Optional[str] = ""
+    height: Optional[str] = ""
+
+
+class ScriptFindingModel(BaseModel):
+    src: Optional[str] = None
+    isExternal: bool = False
+    hasObfuscation: bool = False
+    hasEval: bool = False
+    hasDocumentWrite: bool = False
+    hasSuspiciousRedirect: bool = False
+    reasons: List[str] = []
+
+
+class BrandFindingModel(BaseModel):
+    claimedBrand: str
+    authenticDomain: str
+    actualDomain: str
+    isMismatch: bool = False
+    confidence: float = 1.0
+    matchSources: List[str] = []
+    description: Optional[str] = None
+
+
+class KeywordFindingModel(BaseModel):
+    category: str
+    count: int
+    matchedTerms: List[str] = []
+
+
+class DOMMetricsModel(BaseModel):
+    nodeCount: int = 0
+    depth: int = 0
+    formsCount: int = 0
+    inputsCount: int = 0
+    passwordInputsCount: int = 0
+    hiddenInputsCount: int = 0
+    iframesCount: int = 0
+    scriptsCount: int = 0
+    externalScriptsCount: int = 0
+    linksCount: int = 0
+    externalLinksCount: int = 0
+    suspiciousLinksCount: int = 0
+
+
+class NetworkMetricsModel(BaseModel):
+    totalRequests: int = 0
+    uniqueDomains: List[str] = []
+    thirdPartyDomains: List[str] = []
+    scriptsLoaded: int = 0
+    iframesLoaded: int = 0
+    externalFormActions: int = 0
+    blockedRequestsCount: int = 0
+
+
+class ScreenshotMetadataModel(BaseModel):
+    available: bool = False
+    width: int = 1280
+    height: int = 800
+    mimeType: Optional[str] = None
+    base64Preview: Optional[str] = None
+
+
+class PageAnalysisRequest(BaseModel):
+    url: str = Field(..., min_length=1, description="Target URL to inspect")
+    timeout_ms: int = Field(10000, description="Navigation timeout in milliseconds")
+    capture_screenshot: bool = Field(False, description="Whether to capture an ephemeral screenshot thumbnail")
+
+
+class PageAnalysisResponse(BaseModel):
+    status: str = Field(..., description="COMPLETED, BLOCKED, TIMEOUT, FAILED, or PARTIAL")
+    requestedUrl: str
+    finalUrl: Optional[str] = None
+    pageTitle: Optional[str] = None
+    redirectCount: int = 0
+    redirectChain: List[RedirectHopModel] = []
+    domMetrics: Optional[DOMMetricsModel] = None
+    forms: List[FormFindingModel] = []
+    iframes: List[IFrameFindingModel] = []
+    scripts: List[ScriptFindingModel] = []
+    keywords: List[KeywordFindingModel] = []
+    brandFindings: List[BrandFindingModel] = []
+    networkMetrics: Optional[NetworkMetricsModel] = None
+    contentFeatures: Optional[ContentFeatureVectorModel] = None
+    screenshot: Optional[ScreenshotMetadataModel] = None
+    urgencyScore: float = 0.0
+    contentRiskScore: float = 0.0
+    phishingProbability: float = 0.0
+    confidence: float = 1.0
+    error: Optional[str] = None
+    blockReason: Optional[str] = None
+    acquisitionTimeMs: float = 0.0
+
+
+class SSRFValidationRequest(BaseModel):
+    url: str = Field(..., min_length=1)
+
+
+class SSRFValidationResponse(BaseModel):
+    url: str
+    is_safe: bool
+    block_reason: Optional[str] = None
+    hostname: Optional[str] = None
+    resolved_ips: List[str] = []
+
+
 class HealthResponse(BaseModel):
     status: str
     service: str
     version: str
     model_loaded: bool
     model_version: Optional[str] = None
+    playwright_ready: bool = True

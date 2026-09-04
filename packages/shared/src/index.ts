@@ -13,11 +13,35 @@ export type RiskLevel = z.infer<typeof RiskLevelSchema>;
 export const EvidenceSeveritySchema = z.enum(['INFO', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL']);
 export type EvidenceSeverity = z.infer<typeof EvidenceSeveritySchema>;
 
-export const DetectionLayerSchema = z.enum(['URL', 'DOMAIN', 'DNS', 'TLS', 'REPUTATION', 'ML']);
+export const DetectionLayerSchema = z.enum([
+  'URL',
+  'DOMAIN',
+  'DNS',
+  'TLS',
+  'REPUTATION',
+  'ML',
+  'CONTENT',
+  'FORM',
+  'BRAND',
+  'NETWORK'
+]);
 export type DetectionLayer = z.infer<typeof DetectionLayerSchema>;
 
 export const LayerStatusSchema = z.enum(['SUCCESS', 'PARTIAL', 'NOT_CONFIGURED', 'FAILED', 'SKIPPED']);
 export type LayerStatus = z.infer<typeof LayerStatusSchema>;
+
+export const PageAnalysisStatusSchema = z.enum([
+  'NOT_REQUESTED',
+  'QUEUED',
+  'RUNNING',
+  'COMPLETED',
+  'FAILED',
+  'BLOCKED',
+  'TIMEOUT',
+  'PARTIAL',
+  'SKIPPED'
+]);
+export type PageAnalysisStatus = z.infer<typeof PageAnalysisStatusSchema>;
 
 export const UserRoleSchema = z.enum(['USER', 'ANALYST', 'ADMIN']);
 export type UserRole = z.infer<typeof UserRoleSchema>;
@@ -65,7 +89,35 @@ export const URLFeatureVectorSchema = z.object({
 export type URLFeatureVector = z.infer<typeof URLFeatureVectorSchema>;
 
 // ============================================================================
-// Multi-Layer Intelligence Result Schemas (Milestone 2)
+// Content Feature Vector Schema (Milestone 3)
+// ============================================================================
+
+export const ContentFeatureVectorSchema = z.object({
+  forms_count: z.number(),
+  password_inputs: z.number(),
+  text_inputs: z.number(),
+  hidden_inputs: z.number(),
+  has_login_form: z.number().int().min(0).max(1),
+  external_form_actions: z.number(),
+  iframe_count: z.number(),
+  hidden_iframe_count: z.number(),
+  external_iframe_count: z.number(),
+  script_count: z.number(),
+  external_script_count: z.number(),
+  obfuscated_script_count: z.number(),
+  external_domain_count: z.number(),
+  suspicious_keyword_count: z.number(),
+  urgency_score: z.number(),
+  brand_reference_count: z.number(),
+  brand_domain_mismatch: z.number().int().min(0).max(1),
+  redirect_count: z.number(),
+  suspicious_link_count: z.number(),
+  page_text_length: z.number()
+});
+export type ContentFeatureVector = z.infer<typeof ContentFeatureVectorSchema>;
+
+// ============================================================================
+// Multi-Layer Intelligence Result Schemas
 // ============================================================================
 
 // Layer 1: URL Intelligence
@@ -185,6 +237,139 @@ export const MLIntelligenceSchema = z.object({
 });
 export type MLIntelligence = z.infer<typeof MLIntelligenceSchema>;
 
+// ============================================================================
+// Page / Content Analysis Schemas (Milestone 3)
+// ============================================================================
+
+export const RedirectHopSchema = z.object({
+  url: z.string(),
+  status: z.number().optional(),
+  ip: z.string().optional(),
+  headers: z.record(z.string(), z.string()).optional()
+});
+export type RedirectHop = z.infer<typeof RedirectHopSchema>;
+
+export const FormFindingSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().optional(),
+  action: z.string(),
+  actionResolved: z.string(),
+  method: z.string().default('GET'),
+  target: z.string().optional(),
+  isCrossOrigin: z.boolean(),
+  isIpAction: z.boolean(),
+  hasPasswordField: z.boolean(),
+  hasEmailField: z.boolean(),
+  hasCreditCardField: z.boolean(),
+  hasOtpField: z.boolean(),
+  passwordFieldCount: z.number().default(0),
+  inputCount: z.number().default(0),
+  description: z.string().optional()
+});
+export type FormFinding = z.infer<typeof FormFindingSchema>;
+
+export const IFrameFindingSchema = z.object({
+  src: z.string(),
+  srcResolved: z.string().optional(),
+  isCrossOrigin: z.boolean(),
+  isHidden: z.boolean(),
+  width: z.string().optional(),
+  height: z.string().optional()
+});
+export type IFrameFinding = z.infer<typeof IFrameFindingSchema>;
+
+export const ScriptFindingSchema = z.object({
+  src: z.string().optional(),
+  isExternal: z.boolean(),
+  hasObfuscation: z.boolean(),
+  hasEval: z.boolean(),
+  hasDocumentWrite: z.boolean(),
+  hasSuspiciousRedirect: z.boolean(),
+  reasons: z.array(z.string()).default([])
+});
+export type ScriptFinding = z.infer<typeof ScriptFindingSchema>;
+
+export const BrandFindingSchema = z.object({
+  claimedBrand: z.string(),
+  authenticDomain: z.string(),
+  actualDomain: z.string(),
+  isMismatch: z.boolean(),
+  confidence: z.number().min(0).max(1),
+  matchSources: z.array(z.string()).default([]),
+  description: z.string().optional()
+});
+export type BrandFinding = z.infer<typeof BrandFindingSchema>;
+
+export const KeywordFindingSchema = z.object({
+  category: z.string(),
+  count: z.number(),
+  matchedTerms: z.array(z.string()).default([])
+});
+export type KeywordFinding = z.infer<typeof KeywordFindingSchema>;
+
+export const DOMMetricsSchema = z.object({
+  nodeCount: z.number().default(0),
+  depth: z.number().default(0),
+  formsCount: z.number().default(0),
+  inputsCount: z.number().default(0),
+  passwordInputsCount: z.number().default(0),
+  hiddenInputsCount: z.number().default(0),
+  iframesCount: z.number().default(0),
+  scriptsCount: z.number().default(0),
+  externalScriptsCount: z.number().default(0),
+  linksCount: z.number().default(0),
+  externalLinksCount: z.number().default(0),
+  suspiciousLinksCount: z.number().default(0)
+});
+export type DOMMetrics = z.infer<typeof DOMMetricsSchema>;
+
+export const NetworkMetricsSchema = z.object({
+  totalRequests: z.number().default(0),
+  uniqueDomains: z.array(z.string()).default([]),
+  thirdPartyDomains: z.array(z.string()).default([]),
+  scriptsLoaded: z.number().default(0),
+  iframesLoaded: z.number().default(0),
+  externalFormActions: z.number().default(0),
+  blockedRequestsCount: z.number().default(0)
+});
+export type NetworkMetrics = z.infer<typeof NetworkMetricsSchema>;
+
+export const ScreenshotMetadataSchema = z.object({
+  available: z.boolean().default(false),
+  width: z.number().default(1280),
+  height: z.number().default(800),
+  mimeType: z.string().optional(),
+  base64Preview: z.string().optional(),
+  storagePath: z.string().optional()
+});
+export type ScreenshotMetadata = z.infer<typeof ScreenshotMetadataSchema>;
+
+export const PageAnalysisResultSchema = z.object({
+  status: PageAnalysisStatusSchema,
+  requestedUrl: z.string(),
+  finalUrl: z.string().nullable().optional(),
+  pageTitle: z.string().nullable().optional(),
+  redirectCount: z.number().default(0),
+  redirectChain: z.array(RedirectHopSchema).default([]),
+  domMetrics: DOMMetricsSchema.nullable().optional(),
+  forms: z.array(FormFindingSchema).default([]),
+  iframes: z.array(IFrameFindingSchema).default([]),
+  scripts: z.array(ScriptFindingSchema).default([]),
+  keywords: z.array(KeywordFindingSchema).default([]),
+  brandFindings: z.array(BrandFindingSchema).default([]),
+  networkMetrics: NetworkMetricsSchema.nullable().optional(),
+  contentFeatures: ContentFeatureVectorSchema.nullable().optional(),
+  screenshot: ScreenshotMetadataSchema.nullable().optional(),
+  urgencyScore: z.number().default(0),
+  contentRiskScore: z.number().min(0).max(100).default(0),
+  phishingProbability: z.number().min(0).max(1).default(0),
+  confidence: z.number().min(0).max(1).default(1.0),
+  error: z.string().nullable().optional(),
+  blockReason: z.string().nullable().optional(),
+  acquisitionTimeMs: z.number().default(0)
+});
+export type PageAnalysisResult = z.infer<typeof PageAnalysisResultSchema>;
+
 // Combined Multi-Layer Result
 export const MultiLayerDataSchema = z.object({
   url: URLIntelligenceSchema,
@@ -192,7 +377,8 @@ export const MultiLayerDataSchema = z.object({
   dns: DNSIntelligenceSchema,
   tls: TLSIntelligenceSchema,
   reputation: ReputationIntelligenceSchema,
-  ml: MLIntelligenceSchema
+  ml: MLIntelligenceSchema,
+  page: PageAnalysisResultSchema.optional()
 });
 export type MultiLayerData = z.infer<typeof MultiLayerDataSchema>;
 
@@ -217,12 +403,20 @@ export const MLPredictionResponseSchema = z.object({
 });
 export type MLPredictionResponse = z.infer<typeof MLPredictionResponseSchema>;
 
+export const PageAnalysisRequestSchema = z.object({
+  url: z.string().min(1),
+  timeout_ms: z.number().optional().default(10000),
+  capture_screenshot: z.boolean().optional().default(false)
+});
+export type PageAnalysisRequest = z.infer<typeof PageAnalysisRequestSchema>;
+
 // ============================================================================
-// Analysis API Response Contracts (Backward Compatible + Enhanced)
+// Analysis API Response Contracts
 // ============================================================================
 
 export const AnalysisRequestSchema = z.object({
-  url: z.string().url('Invalid URL format. Please provide a complete URL starting with http:// or https://')
+  url: z.string().url('Invalid URL format. Please provide a complete URL starting with http:// or https://'),
+  analyzePage: z.boolean().optional().default(true)
 });
 export type AnalysisRequest = z.infer<typeof AnalysisRequestSchema>;
 
@@ -237,8 +431,10 @@ export const AnalysisResponseSchema = z.object({
   mlProbability: z.number().min(0).max(1),
   layers: MultiLayerDataSchema.optional(),
   layerStatuses: z.record(z.string(), LayerStatusSchema).optional(),
+  pageAnalysis: PageAnalysisResultSchema.optional(),
   evidence: z.array(EvidenceItemSchema),
   features: URLFeatureVectorSchema.optional(),
+  summary: z.string().optional(),
   createdAt: z.string()
 });
 export type AnalysisResponse = z.infer<typeof AnalysisResponseSchema>;
@@ -250,6 +446,7 @@ export const AnalysisSummarySchema = z.object({
   riskScore: z.number(),
   riskLevel: RiskLevelSchema,
   confidence: z.number(),
+  pageStatus: PageAnalysisStatusSchema.optional(),
   createdAt: z.string()
 });
 export type AnalysisSummary = z.infer<typeof AnalysisSummarySchema>;
@@ -291,12 +488,14 @@ export type AuthResponse = z.infer<typeof AuthResponseSchema>;
 // ============================================================================
 
 export const LAYER_WEIGHTS = {
-  URL: 0.20,
-  DOMAIN: 0.15,
-  DNS: 0.10,
-  TLS: 0.10,
-  REPUTATION: 0.25,
-  ML: 0.20
+  URL: 0.15,
+  DOMAIN: 0.10,
+  DNS: 0.08,
+  TLS: 0.07,
+  REPUTATION: 0.20,
+  ML: 0.15,
+  CONTENT: 0.15,
+  BRAND: 0.10
 } as const;
 
 export const RISK_THRESHOLDS = {

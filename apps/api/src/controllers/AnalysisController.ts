@@ -8,7 +8,7 @@ export class AnalysisController {
       const payload = req.body as AnalysisRequest;
       const userId = req.user?.userId;
 
-      const result = await analysisService.analyze(payload.url, userId);
+      const result = await analysisService.analyze(payload.url, userId, payload.analyzePage ?? true);
       res.status(200).json(result);
     } catch (error) {
       next(error);

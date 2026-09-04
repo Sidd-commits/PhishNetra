@@ -4,6 +4,9 @@ import { api } from '../services/api';
 import { AnalysisResponse } from '@phishnetra/shared';
 import { ScoreGauge } from '../components/ScoreGauge';
 import { EvidenceTable } from '../components/EvidenceTable';
+import { LayersBreakdown } from '../components/LayersBreakdown';
+import { PageAnalysisView } from '../components/PageAnalysisView';
+import { ZeroTrustBanner } from '../components/ZeroTrustBanner';
 import {
   Search,
   ShieldAlert,
@@ -13,11 +16,15 @@ import {
   Layers,
   Cpu,
   CheckCircle,
-  ExternalLink
+  ExternalLink,
+  Globe,
+  FileSearch,
+  Info
 } from 'lucide-react';
 
 export const AnalyzePage: React.FC = () => {
   const [url, setUrl] = useState('');
+  const [analyzePage, setAnalyzePage] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState(false);
   const [analysisStep, setAnalysisStep] = useState<number>(0);
   const [result, setResult] = useState<AnalysisResponse | null>(null);
@@ -35,18 +42,21 @@ export const AnalyzePage: React.FC = () => {
     setAnalysisStep(1);
 
     // Visual step progression
-    const t1 = setTimeout(() => setAnalysisStep(2), 300);
-    const t2 = setTimeout(() => setAnalysisStep(3), 650);
+    const t1 = setTimeout(() => setAnalysisStep(2), 250);
+    const t2 = setTimeout(() => setAnalysisStep(3), 550);
+    const t3 = setTimeout(() => setAnalysisStep(4), 850);
 
     try {
-      const data = await api.analyzeUrl(url.trim());
+      const data = await api.analyzeUrl(url.trim(), analyzePage);
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(t3);
       setAnalysisStep(4);
       setResult(data);
     } catch (err: any) {
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(t3);
       setError(
         err.response?.data?.message || err.message || 'Threat analysis failed. Please verify the URL.'
       );
@@ -67,13 +77,13 @@ export const AnalyzePage: React.FC = () => {
       <div className="text-center space-y-2 max-w-2xl mx-auto">
         <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs font-mono mb-2">
           <Sparkles className="w-3.5 h-3.5" />
-          <span>Real-Time URL Threat Scanner</span>
+          <span>Multi-Layer & Content Threat Scanner</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-          Inspect & Analyze Target URL
+          Inspect & Analyze Target URL & Content
         </h1>
         <p className="text-xs sm:text-sm text-slate-400">
-          Enter any candidate URL to evaluate lexical signals, deterministic features, and ML probability.
+          Enter any candidate URL to evaluate lexical features, DNS/TLS intelligence, reputation feeds, and isolated browser page inspection.
         </p>
       </div>
 
@@ -106,6 +116,23 @@ export const AnalyzePage: React.FC = () => {
                 </>
               )}
             </button>
+          </div>
+
+          {/* Deep Content Inspection Toggle */}
+          <div className="flex items-center justify-between pt-1 text-xs">
+            <label className="inline-flex items-center space-x-2.5 cursor-pointer select-none text-slate-300 hover:text-white">
+              <input
+                type="checkbox"
+                checked={analyzePage}
+                onChange={(e) => setAnalyzePage(e.target.checked)}
+                className="w-4 h-4 rounded bg-slate-950 border-slate-700 text-cyan-500 focus:ring-cyan-500/20 focus:ring-offset-0"
+              />
+              <span className="font-medium">Perform Secure Isolated Webpage Inspection (DOM, Forms, Brand Heuristics)</span>
+            </label>
+            <span className="text-[11px] font-mono text-cyan-400/80 hidden sm:inline-flex items-center space-x-1">
+              <ShieldAlert className="w-3.5 h-3.5" />
+              <span>Protected by Multi-Layer SSRF Defenses</span>
+            </span>
           </div>
         </form>
 
@@ -154,23 +181,29 @@ export const AnalyzePage: React.FC = () => {
             <Cpu className="w-4 h-4 text-cyan-400 animate-spin" />
             <span>Execution Pipeline Progress</span>
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div className={`p-3 rounded-xl border transition-all ${analysisStep >= 1 ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300' : 'bg-slate-950 border-slate-800 text-slate-500'}`}>
               <div className="flex items-center space-x-2 text-xs font-mono">
                 {analysisStep > 1 ? <CheckCircle className="w-3.5 h-3.5 text-cyan-400" /> : <Layers className="w-3.5 h-3.5" />}
-                <span>1. URL Canonicalization</span>
+                <span>1. URL & Structure</span>
               </div>
             </div>
             <div className={`p-3 rounded-xl border transition-all ${analysisStep >= 2 ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300' : 'bg-slate-950 border-slate-800 text-slate-500'}`}>
               <div className="flex items-center space-x-2 text-xs font-mono">
-                {analysisStep > 2 ? <CheckCircle className="w-3.5 h-3.5 text-cyan-400" /> : <Cpu className="w-3.5 h-3.5" />}
-                <span>2. Feature Vector Extraction</span>
+                {analysisStep > 2 ? <CheckCircle className="w-3.5 h-3.5 text-cyan-400" /> : <Globe className="w-3.5 h-3.5" />}
+                <span>2. Multi-Layer Intel</span>
               </div>
             </div>
             <div className={`p-3 rounded-xl border transition-all ${analysisStep >= 3 ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300' : 'bg-slate-950 border-slate-800 text-slate-500'}`}>
               <div className="flex items-center space-x-2 text-xs font-mono">
+                {analysisStep > 3 ? <CheckCircle className="w-3.5 h-3.5 text-cyan-400" /> : <FileSearch className="w-3.5 h-3.5" />}
+                <span>3. Content & DOM</span>
+              </div>
+            </div>
+            <div className={`p-3 rounded-xl border transition-all ${analysisStep >= 4 ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300' : 'bg-slate-950 border-slate-800 text-slate-500'}`}>
+              <div className="flex items-center space-x-2 text-xs font-mono">
                 {analysisStep >= 4 ? <CheckCircle className="w-3.5 h-3.5 text-cyan-400" /> : <ShieldAlert className="w-3.5 h-3.5" />}
-                <span>3. ML & Risk Synthesis</span>
+                <span>4. Risk Synthesis</span>
               </div>
             </div>
           </div>
@@ -180,6 +213,25 @@ export const AnalyzePage: React.FC = () => {
       {/* Analysis Output Presentation */}
       {result && (
         <div className="space-y-6">
+          {/* Zero-Trust Principle UX Banner */}
+          <ZeroTrustBanner
+            hasTls={result.layers?.tls?.hasTls}
+            verdict={result.verdict}
+          />
+
+          {/* Synthesized Analysis Summary Banner */}
+          {result.summary && (
+            <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-700/80 shadow-md">
+              <div className="flex items-center space-x-2 text-xs font-mono text-cyan-400 font-bold uppercase tracking-wider mb-1.5">
+                <Info className="w-3.5 h-3.5" />
+                <span>Executive Threat Intelligence Summary</span>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                {result.summary}
+              </p>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Risk Gauge Card */}
             <div className="md:col-span-1">
@@ -207,7 +259,7 @@ export const AnalyzePage: React.FC = () => {
                   {result.normalizedUrl}
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
                   <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
                     <span className="text-[10px] text-slate-400 font-mono">ML Probability:</span>
                     <div className="text-sm font-bold font-mono text-cyan-300">
@@ -221,9 +273,15 @@ export const AnalyzePage: React.FC = () => {
                     </div>
                   </div>
                   <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
-                    <span className="text-[10px] text-slate-400 font-mono">Analysis Status:</span>
+                    <span className="text-[10px] text-slate-400 font-mono">Page Inspection:</span>
+                    <div className={`text-xs font-bold font-mono ${result.pageAnalysis?.status === 'COMPLETED' ? 'text-emerald-400' : result.pageAnalysis?.status === 'BLOCKED' ? 'text-rose-400' : 'text-slate-400'}`}>
+                      {result.pageAnalysis?.status || 'NOT_REQUESTED'}
+                    </div>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
+                    <span className="text-[10px] text-slate-400 font-mono">Confidence:</span>
                     <div className="text-sm font-bold font-mono text-emerald-400">
-                      COMPLETED
+                      {Math.round((result.confidence || 0.8) * 100)}%
                     </div>
                   </div>
                 </div>
@@ -242,6 +300,19 @@ export const AnalyzePage: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Multi-Layer Visual Breakdown */}
+          {result.layers && (
+            <LayersBreakdown
+              layers={result.layers}
+              layerStatuses={result.layerStatuses}
+            />
+          )}
+
+          {/* Secure Webpage / Content Analysis View */}
+          {result.pageAnalysis && (
+            <PageAnalysisView pageAnalysis={result.pageAnalysis} />
+          )}
 
           {/* Evidence Details Preview */}
           <div className="space-y-3">

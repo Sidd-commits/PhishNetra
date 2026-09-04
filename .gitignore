@@ -3,6 +3,8 @@ node_modules/
 dist/
 build/
 .npm/
+.jest-cache/
+.cache/
 
 # Python / ML
 __pycache__/
