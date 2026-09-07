@@ -1,16 +1,5 @@
 # PhishNetra Reference Analysis & Reconstruction Blueprint
 
-## 0. Purpose
-
-This document reverse-engineers the public repository `Sarahkhan20/PhishNet` at a system-design level and converts its ideas into a cleaner, production-oriented specification for a new major project.
-
-Reference repository:
-https://github.com/Sarahkhan20/PhishNet
-
-Important: this is a **rebuild specification**, not a request to copy source code verbatim. The new project should use the reference project's product ideas while implementing a substantially different, modern architecture and original UI/code.
-
----
-
 # 1. Executive Summary
 
 The reference PhishNet is a web platform + Chrome extension for phishing/unsafe-URL detection.
