@@ -11,6 +11,9 @@ import {
   Network,
   Flame,
   Brain,
+  Server,
+  FolderLock,
+  Mail,
   LogOut,
   UserCheck,
   Radio
@@ -50,7 +53,7 @@ export const Navbar: React.FC = () => {
                     Phish<span className="text-cyan-400">Netra</span>
                   </span>
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
-                    M7 • MLOps & Explainability
+                    M8 • Enterprise SOC
                   </span>
                 </div>
                 <p className="text-[10px] text-slate-400 font-mono hidden sm:block">
@@ -62,10 +65,10 @@ export const Navbar: React.FC = () => {
 
           {/* Navigation Links */}
           {isAuthenticated && (
-            <div className="hidden lg:flex items-center space-x-1">
+            <div className="hidden xl:flex items-center space-x-1">
               <Link
                 to="/dashboard"
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   isActive('/dashboard')
                     ? 'bg-slate-800 text-cyan-400 shadow-inner'
                     : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
@@ -77,7 +80,7 @@ export const Navbar: React.FC = () => {
 
               <Link
                 to="/analyze"
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   isActive('/analyze')
                     ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
                     : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
@@ -89,55 +92,43 @@ export const Navbar: React.FC = () => {
 
               <Link
                 to="/batch"
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   isActive('/batch')
                     ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
                     : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                 }`}
               >
                 <Layers className="w-3.5 h-3.5" />
-                <span>Batch Scanner</span>
+                <span>Batch</span>
               </Link>
 
               <Link
                 to="/domains"
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   isActive('/domains')
                     ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
                     : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                 }`}
               >
                 <Globe className="w-3.5 h-3.5" />
-                <span>Domain Dossier</span>
-              </Link>
-
-              <Link
-                to="/reports"
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  isActive('/reports')
-                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
-                }`}
-              >
-                <MessageSquare className="w-3.5 h-3.5" />
-                <span>Threat Reports</span>
+                <span>Dossier</span>
               </Link>
 
               <Link
                 to="/graph"
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   isActive('/graph')
                     ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
                     : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                 }`}
               >
                 <Network className="w-3.5 h-3.5" />
-                <span>Threat Graph</span>
+                <span>Graph</span>
               </Link>
 
               <Link
                 to="/campaigns"
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   isActive('/campaigns')
                     ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
                     : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
@@ -148,15 +139,51 @@ export const Navbar: React.FC = () => {
               </Link>
 
               <Link
+                to="/cases"
+                className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  isActive('/cases')
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+                }`}
+              >
+                <FolderLock className="w-3.5 h-3.5" />
+                <span>Cases</span>
+              </Link>
+
+              <Link
+                to="/email-scanner"
+                className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  isActive('/email-scanner')
+                    ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+                }`}
+              >
+                <Mail className="w-3.5 h-3.5" />
+                <span>Email Scanner</span>
+              </Link>
+
+              <Link
+                to="/siem"
+                className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  isActive('/siem')
+                    ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+                }`}
+              >
+                <Server className="w-3.5 h-3.5" />
+                <span>SIEM & Webhooks</span>
+              </Link>
+
+              <Link
                 to="/mlops"
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   isActive('/mlops')
                     ? 'bg-teal-500/20 text-teal-300 border border-teal-500/30'
                     : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                 }`}
               >
                 <Brain className="w-3.5 h-3.5" />
-                <span>MLOps & Models</span>
+                <span>MLOps</span>
               </Link>
             </div>
           )}

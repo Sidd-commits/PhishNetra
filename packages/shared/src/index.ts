@@ -916,4 +916,238 @@ export const AdversarialEvaluationReportSchema = z.object({
 });
 export type AdversarialEvaluationReport = z.infer<typeof AdversarialEvaluationReportSchema>;
 
+// ============================================================================
+// Milestone 8: Enterprise SIEM/SOAR, Webhooks, Case Management & Email Ingestion
+// ============================================================================
+
+export const SIEMFormatSchema = z.enum([
+  'CEF',
+  'LEEF',
+  'SYSLOG_RFC5424',
+  'SENTINEL_JSON',
+  'SPLUNK_HEC'
+]);
+export type SIEMFormat = z.infer<typeof SIEMFormatSchema>;
+
+export const SIEMExportRequestSchema = z.object({
+  format: SIEMFormatSchema,
+  analysisIds: z.array(z.string()).optional(),
+  campaignIds: z.array(z.string()).optional(),
+  includeRawPayload: z.boolean().optional().default(false)
+});
+export type SIEMExportRequest = z.infer<typeof SIEMExportRequestSchema>;
+
+export const SIEMExportResultSchema = z.object({
+  format: SIEMFormatSchema,
+  generatedAt: z.string(),
+  eventCount: z.number().int().min(0),
+  formattedOutput: z.string(),
+  contentType: z.string()
+});
+export type SIEMExportResult = z.infer<typeof SIEMExportResultSchema>;
+
+export const WebhookChannelTypeSchema = z.enum([
+  'SLACK',
+  'TEAMS',
+  'DISCORD',
+  'GENERIC_HTTP',
+  'PAGERDUTY'
+]);
+export type WebhookChannelType = z.infer<typeof WebhookChannelTypeSchema>;
+
+export const WebhookConfigSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  url: z.string().url(),
+  channelType: WebhookChannelTypeSchema,
+  secretKey: z.string().optional().nullable(),
+  minSeverity: RiskLevelSchema.default('HIGH'),
+  events: z.array(z.string()).default(['CRITICAL_THREAT_DETECTED', 'CAMPAIGN_CLUSTERED', 'CASE_CREATED']),
+  enabled: z.boolean().default(true),
+  createdAt: z.string(),
+  lastTriggeredAt: z.string().optional().nullable()
+});
+export type WebhookConfig = z.infer<typeof WebhookConfigSchema>;
+
+export const CreateWebhookRequestSchema = z.object({
+  name: z.string().min(2).max(100),
+  url: z.string().url(),
+  channelType: WebhookChannelTypeSchema,
+  secretKey: z.string().optional(),
+  minSeverity: RiskLevelSchema.optional().default('HIGH'),
+  events: z.array(z.string()).optional(),
+  enabled: z.boolean().optional().default(true)
+});
+export type CreateWebhookRequest = z.infer<typeof CreateWebhookRequestSchema>;
+
+export const WebhookDeliveryLogSchema = z.object({
+  id: z.string(),
+  webhookId: z.string(),
+  webhookName: z.string(),
+  channelType: WebhookChannelTypeSchema,
+  event: z.string(),
+  statusCode: z.number().int().optional().nullable(),
+  success: z.boolean(),
+  error: z.string().optional().nullable(),
+  payloadSummary: z.string(),
+  timestamp: z.string()
+});
+export type WebhookDeliveryLog = z.infer<typeof WebhookDeliveryLogSchema>;
+
+export const CaseStatusSchema = z.enum([
+  'OPEN',
+  'INVESTIGATING',
+  'CONTAINED',
+  'RESOLVED',
+  'FALSE_POSITIVE'
+]);
+export type CaseStatus = z.infer<typeof CaseStatusSchema>;
+
+export const CaseSeveritySchema = z.enum([
+  'CRITICAL',
+  'HIGH',
+  'MEDIUM',
+  'LOW'
+]);
+export type CaseSeverity = z.infer<typeof CaseSeveritySchema>;
+
+export const CaseTimelineEventSchema = z.object({
+  id: z.string(),
+  timestamp: z.string(),
+  actor: z.string(),
+  action: z.string(),
+  details: z.string()
+});
+export type CaseTimelineEvent = z.infer<typeof CaseTimelineEventSchema>;
+
+export const RemediationTypeSchema = z.enum([
+  'DNS_SINKHOLE',
+  'FIREWALL_BLOCK',
+  'TAKEDOWN_NOTICE',
+  'DOMAIN_REGISTRAR_REPORT',
+  'EDR_ISOLATE'
+]);
+export type RemediationType = z.infer<typeof RemediationTypeSchema>;
+
+export const RemediationResultSchema = z.object({
+  actionType: RemediationTypeSchema,
+  target: z.string(),
+  generatedArtifact: z.string(),
+  instructions: z.string(),
+  executedAt: z.string(),
+  status: z.enum(['GENERATED', 'APPLIED', 'FAILED'])
+});
+export type RemediationResult = z.infer<typeof RemediationResultSchema>;
+
+export const SOCCaseSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  status: CaseStatusSchema,
+  severity: CaseSeveritySchema,
+  assignedAnalyst: z.string().optional().nullable(),
+  targetUrl: z.string().optional().nullable(),
+  targetDomain: z.string().optional().nullable(),
+  linkedAnalysisId: z.string().optional().nullable(),
+  linkedCampaignId: z.string().optional().nullable(),
+  iocs: z.object({
+    domains: z.array(z.string()).default([]),
+    ips: z.array(z.string()).default([]),
+    urls: z.array(z.string()).default([]),
+    hashes: z.array(z.string()).default([])
+  }).default({ domains: [], ips: [], urls: [], hashes: [] }),
+  timeline: z.array(CaseTimelineEventSchema).default([]),
+  notes: z.array(z.object({
+    id: z.string(),
+    author: z.string(),
+    text: z.string(),
+    timestamp: z.string()
+  })).default([]),
+  remediationActions: z.array(RemediationResultSchema).default([]),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  closedAt: z.string().optional().nullable()
+});
+export type SOCCase = z.infer<typeof SOCCaseSchema>;
+
+export const CreateCaseRequestSchema = z.object({
+  title: z.string().min(3).max(200),
+  description: z.string().min(5),
+  severity: CaseSeveritySchema.default('HIGH'),
+  targetUrl: z.string().optional(),
+  targetDomain: z.string().optional(),
+  linkedAnalysisId: z.string().optional(),
+  linkedCampaignId: z.string().optional(),
+  assignedAnalyst: z.string().optional()
+});
+export type CreateCaseRequest = z.infer<typeof CreateCaseRequestSchema>;
+
+export const UpdateCaseRequestSchema = z.object({
+  status: CaseStatusSchema.optional(),
+  severity: CaseSeveritySchema.optional(),
+  assignedAnalyst: z.string().optional(),
+  note: z.string().optional()
+});
+export type UpdateCaseRequest = z.infer<typeof UpdateCaseRequestSchema>;
+
+export const ExtractedIOCSchema = z.object({
+  type: z.enum(['URL', 'DOMAIN', 'IP', 'EMAIL', 'HASH_MD5', 'HASH_SHA256']),
+  value: z.string(),
+  context: z.string().optional(),
+  riskScore: z.number().min(0).max(100).optional(),
+  isMalicious: z.boolean().default(false)
+});
+export type ExtractedIOC = z.infer<typeof ExtractedIOCSchema>;
+
+export const EmailHeaderIntelligenceSchema = z.object({
+  from: z.string(),
+  replyTo: z.string().optional().nullable(),
+  returnPath: z.string().optional().nullable(),
+  subject: z.string(),
+  date: z.string().optional().nullable(),
+  spfStatus: z.enum(['PASS', 'FAIL', 'SOFTFAIL', 'NEUTRAL', 'NONE']).default('NONE'),
+  dkimStatus: z.enum(['PASS', 'FAIL', 'NONE']).default('NONE'),
+  dmarcStatus: z.enum(['PASS', 'FAIL', 'NONE']).default('NONE'),
+  isSpoofed: z.boolean().default(false),
+  sendingIp: z.string().optional().nullable()
+});
+export type EmailHeaderIntelligence = z.infer<typeof EmailHeaderIntelligenceSchema>;
+
+export const EmailAnalysisRequestSchema = z.object({
+  rawEmlText: z.string().min(10, 'Email raw text or RFC 822 format is required'),
+  evaluateExtractedUrls: z.boolean().optional().default(true)
+});
+export type EmailAnalysisRequest = z.infer<typeof EmailAnalysisRequestSchema>;
+
+export const EmailAnalysisResultSchema = z.object({
+  analysisId: z.string(),
+  headers: EmailHeaderIntelligenceSchema,
+  totalUrlsExtracted: z.number().int().min(0),
+  totalIocsExtracted: z.number().int().min(0),
+  extractedIocs: z.array(ExtractedIOCSchema),
+  analyzedUrls: z.array(AnalysisSummarySchema).default([]),
+  phishingScore: z.number().min(0).max(100),
+  verdict: ThreatVerdictSchema,
+  riskLevel: RiskLevelSchema,
+  evidenceReasons: z.array(z.string()),
+  analyzedAt: z.string()
+});
+export type EmailAnalysisResult = z.infer<typeof EmailAnalysisResultSchema>;
+
+export const RawIOCExtractionRequestSchema = z.object({
+  rawText: z.string().min(5)
+});
+export type RawIOCExtractionRequest = z.infer<typeof RawIOCExtractionRequestSchema>;
+
+export const RawIOCExtractionResultSchema = z.object({
+  totalExtracted: z.number().int(),
+  urls: z.array(z.string()),
+  domains: z.array(z.string()),
+  ips: z.array(z.string()),
+  emails: z.array(z.string()),
+  hashes: z.array(z.string())
+});
+export type RawIOCExtractionResult = z.infer<typeof RawIOCExtractionResultSchema>;
+
+
 

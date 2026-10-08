@@ -14,6 +14,10 @@ import reportRoutes from './routes/reportRoutes';
 import graphRoutes from './routes/graph';
 import campaignRoutes from './routes/campaigns';
 import mlopsRoutes from './routes/mlops';
+import siemRoutes from './routes/siemRoutes';
+import webhookRoutes from './routes/webhookRoutes';
+import caseRoutes from './routes/caseRoutes';
+import ingestRoutes from './routes/ingestRoutes';
 import systemRoutes from './routes/systemRoutes';
 import healthRoutes from './routes/healthRoutes';
 import { errorHandler } from './middleware/errorHandler';
@@ -66,6 +70,10 @@ export const createApp = (): express.Application => {
   app.use('/api/graph', graphRoutes);
   app.use('/api/campaigns', campaignRoutes);
   app.use('/api/mlops', mlopsRoutes);
+  app.use('/api/siem', siemRoutes);
+  app.use('/api/notifications', webhookRoutes);
+  app.use('/api/cases', caseRoutes);
+  app.use('/api/ingest', ingestRoutes);
   app.use('/api/system', systemRoutes);
   app.use('/api/health', healthRoutes);
 

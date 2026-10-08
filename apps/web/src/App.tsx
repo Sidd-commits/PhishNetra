@@ -14,6 +14,9 @@ import { ReportsPage } from './pages/ReportsPage';
 import { ThreatGraphPage } from './pages/ThreatGraphPage';
 import { CampaignsPage } from './pages/CampaignsPage';
 import { MLOpsPage } from './pages/MLOpsPage';
+import { SIEMIntegrationPage } from './pages/SIEMIntegrationPage';
+import { CaseManagementPage } from './pages/CaseManagementPage';
+import { EmailIngestionPage } from './pages/EmailIngestionPage';
 
 export const App: React.FC = () => {
   return (
@@ -101,6 +104,38 @@ export const App: React.FC = () => {
                 }
               />
               <Route
+                path="/cases"
+                element={
+                  <ProtectedRoute>
+                    <CaseManagementPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/email-scanner"
+                element={
+                  <ProtectedRoute>
+                    <EmailIngestionPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/siem"
+                element={
+                  <ProtectedRoute>
+                    <SIEMIntegrationPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/integrations"
+                element={
+                  <ProtectedRoute>
+                    <SIEMIntegrationPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/mlops"
                 element={
                   <ProtectedRoute>
@@ -119,10 +154,10 @@ export const App: React.FC = () => {
           <footer className="border-t border-slate-900 bg-slate-950/90 py-6 text-center text-xs text-slate-500 font-mono">
             <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
               <div>
-                PhishNetra Framework • Milestone 4 (Async Distributed Architecture)
+                PhishNetra Framework • Milestone 8 (Enterprise SIEM/SOAR & SOC Intelligence)
               </div>
               <div className="text-slate-600">
-                Zero-Trust Real-Time Threat Mitigation & Intelligent Caching
+                Zero-Trust Real-Time Threat Mitigation & Autonomous Incident Response
               </div>
             </div>
           </footer>

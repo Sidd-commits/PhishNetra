@@ -19,7 +19,20 @@ import {
   ModelRegistryOverview,
   ModelMetadata,
   DriftReport,
-  AdversarialEvaluationReport
+  AdversarialEvaluationReport,
+  SIEMExportRequest,
+  SIEMExportResult,
+  WebhookConfig,
+  CreateWebhookRequest,
+  WebhookDeliveryLog,
+  SOCCase,
+  CreateCaseRequest,
+  UpdateCaseRequest,
+  RemediationType,
+  RemediationResult,
+  EmailAnalysisRequest,
+  EmailAnalysisResult,
+  RawIOCExtractionResult
 } from '@phishnetra/shared';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -203,6 +216,83 @@ class ApiService {
     custom_urls?: string[];
   }): Promise<AdversarialEvaluationReport> {
     const res = await this.client.post<{ success: boolean; data: AdversarialEvaluationReport }>('/mlops/adversarial', params);
+    return res.data.data;
+  }
+
+  // --- Milestone 8: SIEM / SOAR Multi-Format Exporter ---
+  public async exportSIEM(req: SIEMExportRequest): Promise<SIEMExportResult> {
+    const res = await this.client.post<{ success: boolean; data: SIEMExportResult }>('/siem/export', req);
+    return res.data.data;
+  }
+
+  // --- Milestone 8: Webhook & Alert Notifications ---
+  public async listWebhooks(): Promise<WebhookConfig[]> {
+    const res = await this.client.get<{ success: boolean; data: WebhookConfig[] }>('/notifications/webhooks');
+    return res.data.data;
+  }
+
+  public async createWebhook(req: CreateWebhookRequest): Promise<WebhookConfig> {
+    const res = await this.client.post<{ success: boolean; data: WebhookConfig }>('/notifications/webhooks', req);
+    return res.data.data;
+  }
+
+  public async deleteWebhook(id: string): Promise<boolean> {
+    const res = await this.client.delete<{ success: boolean }>(`/notifications/webhooks/${id}`);
+    return res.data.success;
+  }
+
+  public async testWebhook(id: string): Promise<WebhookDeliveryLog> {
+    const res = await this.client.post<{ success: boolean; data: WebhookDeliveryLog }>(`/notifications/webhooks/${id}/test`);
+    return res.data.data;
+  }
+
+  public async getWebhookLogs(limit?: number): Promise<WebhookDeliveryLog[]> {
+    const res = await this.client.get<{ success: boolean; data: WebhookDeliveryLog[] }>(`/notifications/logs${limit ? `?limit=${limit}` : ''}`);
+    return res.data.data;
+  }
+
+  // --- Milestone 8: SOC Case Management & Remediation ---
+  public async listCases(filters?: { status?: string; severity?: string }): Promise<SOCCase[]> {
+    const params = new URLSearchParams();
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.severity) params.append('severity', filters.severity);
+    const res = await this.client.get<{ success: boolean; data: SOCCase[] }>(`/cases?${params.toString()}`);
+    return res.data.data;
+  }
+
+  public async getCase(id: string): Promise<SOCCase> {
+    const res = await this.client.get<{ success: boolean; data: SOCCase }>(`/cases/${id}`);
+    return res.data.data;
+  }
+
+  public async createCase(req: CreateCaseRequest): Promise<SOCCase> {
+    const res = await this.client.post<{ success: boolean; data: SOCCase }>('/cases', req);
+    return res.data.data;
+  }
+
+  public async updateCase(id: string, req: UpdateCaseRequest): Promise<SOCCase> {
+    const res = await this.client.patch<{ success: boolean; data: SOCCase }>(`/cases/${id}`, req);
+    return res.data.data;
+  }
+
+  public async addCaseNote(id: string, data: { author: string; text: string }): Promise<SOCCase> {
+    const res = await this.client.post<{ success: boolean; data: SOCCase }>(`/cases/${id}/notes`, data);
+    return res.data.data;
+  }
+
+  public async remediateCase(id: string, actionType: RemediationType): Promise<RemediationResult> {
+    const res = await this.client.post<{ success: boolean; data: RemediationResult }>(`/cases/${id}/remediate`, { actionType });
+    return res.data.data;
+  }
+
+  // --- Milestone 8: Email & Raw IOC Ingestion ---
+  public async analyzeEmail(req: EmailAnalysisRequest): Promise<EmailAnalysisResult> {
+    const res = await this.client.post<{ success: boolean; data: EmailAnalysisResult }>('/ingest/email', req);
+    return res.data.data;
+  }
+
+  public async extractRawIOCs(rawText: string): Promise<RawIOCExtractionResult> {
+    const res = await this.client.post<{ success: boolean; data: RawIOCExtractionResult }>('/ingest/raw-ioc', { rawText });
     return res.data.data;
   }
 
