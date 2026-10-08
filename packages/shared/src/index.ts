@@ -815,3 +815,105 @@ export const CampaignClusterResultSchema = z.object({
 });
 export type CampaignClusterResult = z.infer<typeof CampaignClusterResultSchema>;
 
+// ============================================================================
+// Milestone 7: MLOps, Continuous Retraining, SHAP & Adversarial Hardening
+// ============================================================================
+
+export const SHAPFeatureAttributionSchema = z.object({
+  featureName: z.string(),
+  featureValue: z.union([z.string(), z.number(), z.boolean()]),
+  shapValue: z.number(),
+  direction: z.enum(['PHISHING', 'BENIGN']),
+  contributionPercent: z.number().min(0).max(100),
+  humanDescription: z.string()
+});
+export type SHAPFeatureAttribution = z.infer<typeof SHAPFeatureAttributionSchema>;
+
+export const SHAPExplanationSchema = z.object({
+  url: z.string(),
+  baseValue: z.number(),
+  predictedProbability: z.number().min(0).max(1),
+  predictedLabel: z.number().int(),
+  modelVersion: z.string(),
+  attributions: z.array(SHAPFeatureAttributionSchema),
+  topPhishingFactors: z.array(z.string()),
+  topBenignFactors: z.array(z.string()),
+  narrativeSummary: z.string()
+});
+export type SHAPExplanation = z.infer<typeof SHAPExplanationSchema>;
+
+export const ModelMetadataSchema = z.object({
+  version: z.string(),
+  algorithm: z.string(),
+  trainedAt: z.string(),
+  active: z.boolean(),
+  datasetSamples: z.number().int(),
+  accuracy: z.number().min(0).max(1),
+  precision: z.number().min(0).max(1),
+  recall: z.number().min(0).max(1),
+  f1Score: z.number().min(0).max(1),
+  rocAuc: z.number().min(0).max(1),
+  artifactPath: z.string().optional(),
+  featureCount: z.number().int().optional()
+});
+export type ModelMetadata = z.infer<typeof ModelMetadataSchema>;
+
+export const ModelRegistryOverviewSchema = z.object({
+  activeModel: ModelMetadataSchema.optional().nullable(),
+  registeredModels: z.array(ModelMetadataSchema),
+  totalModels: z.number().int()
+});
+export type ModelRegistryOverview = z.infer<typeof ModelRegistryOverviewSchema>;
+
+export const DriftFeatureMetricSchema = z.object({
+  featureName: z.string(),
+  psiScore: z.number().min(0),
+  ksStatistic: z.number().min(0).max(1),
+  pValue: z.number().min(0).max(1),
+  isDrifted: z.boolean(),
+  status: z.enum(['STABLE', 'MODERATE', 'DRIFTED'])
+});
+export type DriftFeatureMetric = z.infer<typeof DriftFeatureMetricSchema>;
+
+export const DriftReportSchema = z.object({
+  generatedAt: z.string(),
+  overallDriftStatus: z.enum(['STABLE', 'MODERATE', 'CRITICAL']),
+  baselineSamples: z.number().int(),
+  liveSamples: z.number().int(),
+  features: z.array(DriftFeatureMetricSchema),
+  recommendation: z.string()
+});
+export type DriftReport = z.infer<typeof DriftReportSchema>;
+
+export const AdversarialAttackTypeSchema = z.enum([
+  'HOMOGLYPH',
+  'KEYWORD_STUFFING',
+  'SUBDOMAIN_PACKING',
+  'TLD_MASQUERADE',
+  'LENGTH_INFLATION',
+  'ENCODING_TRICK'
+]);
+export type AdversarialAttackType = z.infer<typeof AdversarialAttackTypeSchema>;
+
+export const AdversarialAttackResultSchema = z.object({
+  attackType: AdversarialAttackTypeSchema,
+  originalUrl: z.string(),
+  perturbedUrl: z.string(),
+  originalScore: z.number().min(0).max(100),
+  perturbedScore: z.number().min(0).max(100),
+  evaded: z.boolean(),
+  scoreDiff: z.number()
+});
+export type AdversarialAttackResult = z.infer<typeof AdversarialAttackResultSchema>;
+
+export const AdversarialEvaluationReportSchema = z.object({
+  testedAt: z.string(),
+  totalTests: z.number().int(),
+  evasionRate: z.number().min(0).max(1),
+  overallRobustnessScore: z.number().min(0).max(100),
+  results: z.array(AdversarialAttackResultSchema),
+  hardeningStatus: z.enum(['ROBUST', 'VULNERABLE', 'CRITICAL_DEFICIT'])
+});
+export type AdversarialEvaluationReport = z.infer<typeof AdversarialEvaluationReportSchema>;
+
+

@@ -14,7 +14,12 @@ import {
   ReportModerationRequest,
   CommunityReport,
   QueueMetrics,
-  CacheStats
+  CacheStats,
+  SHAPExplanation,
+  ModelRegistryOverview,
+  ModelMetadata,
+  DriftReport,
+  AdversarialEvaluationReport
 } from '@phishnetra/shared';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -156,6 +161,51 @@ class ApiService {
     return res.data;
   }
 
+  // --- Milestone 7: MLOps, SHAP & Retraining Lifecycle ---
+  public async explainPrediction(url: string): Promise<SHAPExplanation> {
+    const res = await this.client.post<{ success: boolean; data: SHAPExplanation }>('/mlops/explain', { url });
+    return res.data.data;
+  }
+
+  public async getModelRegistry(): Promise<ModelRegistryOverview> {
+    const res = await this.client.get<{ success: boolean; data: ModelRegistryOverview }>('/mlops/models');
+    return res.data.data;
+  }
+
+  public async activateModel(version: string): Promise<any> {
+    const res = await this.client.post('/mlops/models/activate', { version });
+    return res.data;
+  }
+
+  public async getDriftMetrics(liveUrls?: string[]): Promise<DriftReport> {
+    if (liveUrls && liveUrls.length > 0) {
+      const res = await this.client.post<{ success: boolean; data: DriftReport }>('/mlops/drift/evaluate', { live_urls: liveUrls });
+      return res.data.data;
+    }
+    const res = await this.client.get<{ success: boolean; data: DriftReport }>('/mlops/drift');
+    return res.data.data;
+  }
+
+  public async triggerRetraining(params: {
+    dataset_path?: string;
+    augmented_samples?: Array<{ url: string; label: number }>;
+    algorithm?: string;
+    auto_activate_threshold?: number;
+    version_tag?: string;
+  }): Promise<any> {
+    const res = await this.client.post('/mlops/retrain', params);
+    return res.data;
+  }
+
+  public async runAdversarialTest(params: {
+    url?: string;
+    attack_types?: string[];
+    custom_urls?: string[];
+  }): Promise<AdversarialEvaluationReport> {
+    const res = await this.client.post<{ success: boolean; data: AdversarialEvaluationReport }>('/mlops/adversarial', params);
+    return res.data.data;
+  }
+
   // --- Health Check ---
   public async getHealth(): Promise<any> {
     const res = await this.client.get('/health');
@@ -164,4 +214,5 @@ class ApiService {
 }
 
 export const api = new ApiService();
+
 

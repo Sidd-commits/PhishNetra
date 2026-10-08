@@ -15,24 +15,27 @@
 | **Milestone 4 / Implementation 4** | Month 5 → 6 | Async Worker Architecture (BullMQ, Redis), Caching & Batch Ingestion, Domain Dossier | **COMPLETED** |
 | **Milestone 5** | Month 6 → 7 | Chrome Manifest V3 Browser Extension & Real-Time Threat Mitigation | **COMPLETED** |
 | **Milestone 6** | Month 7 → 8 | Threat Graph Engine, IOC Clustering & Analyst Intelligence Explorer | **COMPLETED** |
-| **Milestone 7** | Month 8 → 9 | MLOps Lifecycle, Continuous Retraining, Model Registry & Adversarial Hardening | Planned |
-| **Milestone 8** | Month 9 → 10 | Enterprise Deployment, Latency Optimization (<250ms), Final Benchmarking | Planned |
+| **Milestone 7** | Month 8 → 9 | MLOps Lifecycle, Continuous Retraining, Model Registry & Adversarial Hardening | **COMPLETED** |
+| **Milestone 8** | Month 9 → 10 | Enterprise SIEM/SOAR Deployment, Latency Optimization (<250ms), Final Benchmarking | Planned |
 
 ---
 
-## Implementation 6 Deliverables Summary
-1. **Threat Graph Engine (`ThreatGraphEngine.ts`):** Multi-entity graph modeling (`DOMAIN`, `IP`, `ASN`, `CERTIFICATE`, `NAMESERVER`, `REGISTRAR`, `BRAND`, `CAMPAIGN`) and 10 relationship edge types.
-2. **Sub-Graph Traversal & Co-Location Engine:** Real-time k-hop neighborhood expansion, co-location discovery, and automatic ingestion from multi-layer scan results.
-3. **Autonomous Threat Campaign Clustering (`CampaignClusteringEngine.ts`):** Multi-factor infrastructure correlation matrix (shared ASNs, nameservers, targeted brands, IP subnets, TLS certs) automatically forming named threat rings.
-4. **OASIS STIX 2.1 Threat Sharing (`STIXExportService.ts`):** Complete STIX 2.1 JSON bundle exporter for campaigns, identities, indicators, and observable relationships.
-5. **Interactive React SOC Graph Explorer (`/graph`):** Force-directed SVG physics visualizer with zoom/pan, node dragging, halo glows, and inspector side drawer.
-6. **Threat Campaign & Intrusion Set Console (`/campaigns`):** Dedicated campaign monitoring hub with IOC matrices, STIX export buttons, and search filters.
-7. **111 Automated Tests Passing:** 55 Jest API tests across 13 suites, 12 Jest Extension tests, 44 Pytest ML tests.
+## Implementation 7 Deliverables Summary
+1. **SHAP Feature Attribution & Local Explainability Engine (`explainability.py` / `/predict/explain`):** Exact Tree-SHAP additive feature attributions with guaranteed mathematical efficiency, directional risk bias (+/-), and plain English narrative synthesis.
+2. **Model Registry & Dynamic Hot-Swapping (`registry.py` / `/models`, `/models/activate`):** In-memory zero-downtime hot-swapping, performance benchmark tracking (Accuracy, Precision, Recall, F1, ROC-AUC), and active production promotion.
+3. **Data & Concept Drift Monitoring Engine (`drift_detector.py` / `/drift/metrics`):** Population Stability Index (PSI) and Kolmogorov-Smirnov (KS) two-sample divergence tests across all 18 URL features with automated retrain recommendation triggers.
+4. **Continuous Automated Retraining Pipeline (`retrain_pipeline.py` / `/retrain`):** Integrates baseline corpora with newly verified honeypot/community submissions, fits balanced class weights, executes cross-validation, and auto-promotes models meeting the configured F1 threshold.
+5. **Adversarial Hardening Lab (`adversarial.py` / `/adversarial/test`):** Tests classifier evasion resistance across 6 perturbation vectors (Unicode Cyrillic homoglyphs, brand keyword stuffing, subdomain packing, TLD masquerading, length inflation, and %-encoding tricks) with scorecard generation.
+6. **Express API Integration (`apps/api/src/routes/mlops.ts` & `MLOpsService.ts`):** Complete proxying and coordination with the Python ML microservice.
+7. **React SOC MLOps Console (`MLOpsPage.tsx` / `/mlops`):** Tabbed SOC dashboard with interactive SHAP explainer bar charts, model registry cards with 1-click activation, real-time PSI drift meters, and live adversarial simulation workbench.
+8. **129 Automated Tests Passing:** 59 Jest API tests across 14 suites, 12 Jest Extension tests, 58 Pytest ML tests.
 
 ---
 
-## Future Milestone 7 Preview (Next Milestone)
-* **MLOps Lifecycle & Continuous Retraining:** Automated dataset collection, model drift monitoring, SHAP explainability, and artifact registry.
-* **Adversarial Hardening:** Robustness testing against evasive homoglyphs and polymorphic phishing templates.
+## Future Milestone 8 Preview (Next Milestone)
+* **Enterprise SIEM/SOAR Integrations:** Splunk, Elastic SIEM, Microsoft Sentinel, IBM QRadar connectors.
+* **Real-Time Notification Channels:** Slack, MS Teams, PagerDuty, Discord webhooks.
+* **Low-Latency Production Optimization:** Sub-250ms distributed execution pipeline and final benchmarking.
+
 
 

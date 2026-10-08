@@ -220,3 +220,124 @@ class HealthResponse(BaseModel):
     model_loaded: bool
     model_version: Optional[str] = None
     playwright_ready: bool = True
+
+
+# ============================================================================
+# Milestone 7: MLOps, SHAP Explainability, Drift & Adversarial Schemas
+# ============================================================================
+
+class SHAPFeatureAttributionModel(BaseModel):
+    featureName: str
+    featureValue: Any
+    shapValue: float
+    direction: str = Field(..., description="PHISHING or BENIGN")
+    contributionPercent: float = Field(..., ge=0.0, le=100.0)
+    humanDescription: str
+
+
+class SHAPExplanationResponse(BaseModel):
+    url: str
+    baseValue: float
+    predictedProbability: float
+    predictedLabel: int
+    modelVersion: str
+    attributions: List[SHAPFeatureAttributionModel]
+    topPhishingFactors: List[str]
+    topBenignFactors: List[str]
+    narrativeSummary: str
+
+
+class ModelMetadataModel(BaseModel):
+    version: str
+    algorithm: str
+    trainedAt: str
+    active: bool
+    datasetSamples: int
+    accuracy: float
+    precision: float
+    recall: float
+    f1Score: float
+    rocAuc: float
+    artifactPath: Optional[str] = None
+    featureCount: Optional[int] = 18
+
+
+class ModelRegistryOverviewResponse(BaseModel):
+    activeModel: Optional[ModelMetadataModel] = None
+    registeredModels: List[ModelMetadataModel]
+    totalModels: int
+
+
+class ModelActivationRequest(BaseModel):
+    version: str = Field(..., min_length=1)
+
+
+class ModelActivationResponse(BaseModel):
+    success: bool
+    message: str
+    activeModel: ModelMetadataModel
+
+
+class DriftFeatureMetricModel(BaseModel):
+    featureName: str
+    psiScore: float
+    ksStatistic: float
+    pValue: float
+    isDrifted: bool
+    status: str = Field(..., description="STABLE, MODERATE, or DRIFTED")
+
+
+class DriftReportResponse(BaseModel):
+    generatedAt: str
+    overallDriftStatus: str = Field(..., description="STABLE, MODERATE, or CRITICAL")
+    baselineSamples: int
+    liveSamples: int
+    features: List[DriftFeatureMetricModel]
+    recommendation: str
+
+
+class DriftEvaluationRequest(BaseModel):
+    live_urls: Optional[List[str]] = None
+    custom_samples_count: Optional[int] = 50
+
+
+class RetrainRequest(BaseModel):
+    dataset_path: Optional[str] = None
+    augmented_samples: Optional[List[Dict[str, Any]]] = None
+    algorithm: Optional[str] = "RandomForest"
+    auto_activate_threshold: Optional[float] = 0.90
+    version_tag: Optional[str] = None
+
+
+class RetrainResponse(BaseModel):
+    success: bool
+    message: str
+    newModel: ModelMetadataModel
+    previousModelVersion: Optional[str] = None
+    activated: bool
+
+
+class AdversarialTestRequest(BaseModel):
+    url: Optional[str] = None
+    attack_types: Optional[List[str]] = None
+    custom_urls: Optional[List[str]] = None
+
+
+class AdversarialAttackResultModel(BaseModel):
+    attackType: str
+    originalUrl: str
+    perturbedUrl: str
+    originalScore: float
+    perturbedScore: float
+    evaded: bool
+    scoreDiff: float
+
+
+class AdversarialEvaluationResponse(BaseModel):
+    testedAt: str
+    totalTests: int
+    evasionRate: float
+    overallRobustnessScore: float
+    results: List[AdversarialAttackResultModel]
+    hardeningStatus: str
+

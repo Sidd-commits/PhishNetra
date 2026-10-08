@@ -10,6 +10,7 @@ import {
   MessageSquare,
   Network,
   Flame,
+  Brain,
   LogOut,
   UserCheck,
   Radio
@@ -49,7 +50,7 @@ export const Navbar: React.FC = () => {
                     Phish<span className="text-cyan-400">Netra</span>
                   </span>
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
-                    M6 • Threat Graph
+                    M7 • MLOps & Explainability
                   </span>
                 </div>
                 <p className="text-[10px] text-slate-400 font-mono hidden sm:block">
@@ -144,6 +145,18 @@ export const Navbar: React.FC = () => {
               >
                 <Flame className="w-3.5 h-3.5" />
                 <span>Campaigns</span>
+              </Link>
+
+              <Link
+                to="/mlops"
+                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  isActive('/mlops')
+                    ? 'bg-teal-500/20 text-teal-300 border border-teal-500/30'
+                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+                }`}
+              >
+                <Brain className="w-3.5 h-3.5" />
+                <span>MLOps & Models</span>
               </Link>
             </div>
           )}

@@ -13,6 +13,7 @@ import { DomainDossierPage } from './pages/DomainDossierPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { ThreatGraphPage } from './pages/ThreatGraphPage';
 import { CampaignsPage } from './pages/CampaignsPage';
+import { MLOpsPage } from './pages/MLOpsPage';
 
 export const App: React.FC = () => {
   return (
@@ -96,6 +97,14 @@ export const App: React.FC = () => {
                 element={
                   <ProtectedRoute>
                     <CampaignsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/mlops"
+                element={
+                  <ProtectedRoute>
+                    <MLOpsPage />
                   </ProtectedRoute>
                 }
               />

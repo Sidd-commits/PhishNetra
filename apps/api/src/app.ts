@@ -13,6 +13,7 @@ import domainRoutes from './routes/domainRoutes';
 import reportRoutes from './routes/reportRoutes';
 import graphRoutes from './routes/graph';
 import campaignRoutes from './routes/campaigns';
+import mlopsRoutes from './routes/mlops';
 import systemRoutes from './routes/systemRoutes';
 import healthRoutes from './routes/healthRoutes';
 import { errorHandler } from './middleware/errorHandler';
@@ -64,6 +65,7 @@ export const createApp = (): express.Application => {
   app.use('/api/reports', reportRoutes);
   app.use('/api/graph', graphRoutes);
   app.use('/api/campaigns', campaignRoutes);
+  app.use('/api/mlops', mlopsRoutes);
   app.use('/api/system', systemRoutes);
   app.use('/api/health', healthRoutes);
 
