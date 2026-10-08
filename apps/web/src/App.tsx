@@ -21,6 +21,7 @@ import { EmailIngestionPage } from './pages/EmailIngestionPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AuditLogsPage } from './pages/AuditLogsPage';
 import { FeedSyncPage } from './pages/FeedSyncPage';
+import { SimulationPage } from './pages/SimulationPage';
 
 export const App: React.FC = () => {
   return (
@@ -167,6 +168,16 @@ export const App: React.FC = () => {
                   element={
                     <ProtectedRoute>
                       <MLOpsPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Threat Simulation Lab & Red Team Sandbox */}
+                <Route
+                  path="/simulation"
+                  element={
+                    <ProtectedRoute>
+                      <SimulationPage />
                     </ProtectedRoute>
                   }
                 />

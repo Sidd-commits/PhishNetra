@@ -1288,6 +1288,100 @@ export const ThreatFeedSyncResultSchema = z.object({
 });
 export type ThreatFeedSyncResult = z.infer<typeof ThreatFeedSyncResultSchema>;
 
+// ============================================================================
+// Milestone 10: Threat Simulation Lab & Red Team Attack Replay
+// ============================================================================
+
+export const AttackVectorTypeSchema = z.enum([
+  'SPEAR_PHISH_BRAND_IMPERSONATION',
+  'UNICODE_HOMOGLYPH_PUNYCODE',
+  'SUBDOMAIN_BRAND_PACKING',
+  'COMBOSQUATTING_LOOKALIKE',
+  'CREDENTIAL_HARVEST_CROSS_ORIGIN',
+  'FAST_FLUX_DNS_EVASION',
+  'SSRF_METADATA_PROBE',
+  'SOCIAL_ENGINEERING_URGENCY',
+  'PERCENT_ENCODING_HEX_OBFUSCATION',
+  'SHORTENER_REDIRECT_CHAIN',
+  'EXPIRED_SELFSIGNED_TLS',
+  'DEFANGED_RAW_IOC_EVASION'
+]);
+export type AttackVectorType = z.infer<typeof AttackVectorTypeSchema>;
+
+export const AttackScenarioPresetSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  category: z.string(),
+  description: z.string(),
+  targetUrl: z.string(),
+  targetBrand: z.string().optional().nullable(),
+  techniques: z.array(z.string()),
+  expectedRiskLevel: RiskLevelSchema,
+  expectedVerdict: ThreatVerdictSchema,
+  layerTriggers: z.array(z.string())
+});
+export type AttackScenarioPreset = z.infer<typeof AttackScenarioPresetSchema>;
+
+export const AttackSimulationRequestSchema = z.object({
+  presetId: z.string().optional(),
+  targetUrl: z.string().min(3),
+  targetBrand: z.string().optional(),
+  vectorType: AttackVectorTypeSchema,
+  simulateBrowser: z.boolean().optional(),
+  customPayload: z.record(z.any()).optional()
+});
+export type AttackSimulationRequest = z.infer<typeof AttackSimulationRequestSchema>;
+
+export const LayerSimulationStepSchema = z.object({
+  layer: z.string(),
+  status: z.string(),
+  score: z.number().min(0).max(100),
+  weight: z.number().min(0).max(1),
+  weightedScore: z.number(),
+  keyFinding: z.string(),
+  evidenceCount: z.number().int(),
+  isOverrideTriggered: z.boolean().default(false)
+});
+export type LayerSimulationStep = z.infer<typeof LayerSimulationStepSchema>;
+
+export const AttackSimulationResultSchema = z.object({
+  simulationId: z.string(),
+  scenarioName: z.string(),
+  targetUrl: z.string(),
+  vectorType: AttackVectorTypeSchema,
+  targetBrand: z.string().optional().nullable(),
+  totalRiskScore: z.number().min(0).max(100),
+  verdict: ThreatVerdictSchema,
+  riskLevel: RiskLevelSchema,
+  isMitigated: z.boolean(),
+  zeroTrustHolding: z.boolean(),
+  layerSteps: z.array(LayerSimulationStepSchema),
+  generatedEvidence: z.array(EvidenceItemSchema),
+  remediationRecommendations: z.array(z.string()),
+  executionDurationMs: z.number().int(),
+  simulatedAt: z.string()
+});
+export type AttackSimulationResult = z.infer<typeof AttackSimulationResultSchema>;
+
+export const DefenseBenchmarkReportSchema = z.object({
+  benchmarkId: z.string(),
+  totalScenariosTested: z.number().int(),
+  successfulMitigations: z.number().int(),
+  evasionCount: z.number().int(),
+  mitigationRatePercent: z.number().min(0).max(100),
+  meanLatencyMs: z.number(),
+  zeroTrustInvariantIntegrity: z.number().min(0).max(100),
+  vectorBreakdown: z.array(z.object({
+    vectorType: AttackVectorTypeSchema,
+    total: z.number().int(),
+    mitigated: z.number().int(),
+    avgRiskScore: z.number()
+  })),
+  testedAt: z.string()
+});
+export type DefenseBenchmarkReport = z.infer<typeof DefenseBenchmarkReportSchema>;
+
+
 
 
 

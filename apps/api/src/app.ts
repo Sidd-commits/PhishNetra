@@ -21,6 +21,7 @@ import ingestRoutes from './routes/ingestRoutes';
 import settingsRoutes from './routes/settingsRoutes';
 import auditRoutes from './routes/auditRoutes';
 import feedRoutes from './routes/feedRoutes';
+import simulationRoutes from './routes/simulationRoutes';
 import systemRoutes from './routes/systemRoutes';
 import healthRoutes from './routes/healthRoutes';
 import { errorHandler } from './middleware/errorHandler';
@@ -80,6 +81,7 @@ export const createApp = (): express.Application => {
   app.use('/api/settings', settingsRoutes);
   app.use('/api/audit-logs', auditRoutes);
   app.use('/api/feeds', feedRoutes);
+  app.use('/api/simulation', simulationRoutes);
   app.use('/api/system', systemRoutes);
   app.use('/api/health', healthRoutes);
 

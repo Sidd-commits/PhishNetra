@@ -24,7 +24,8 @@ import {
   X,
   Zap,
   Activity,
-  Shield
+  Shield,
+  Crosshair
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -283,6 +284,20 @@ export const Navbar: React.FC = () => {
                 )}
               </div>
 
+              {/* Threat Simulation Lab */}
+              <Link
+                to="/simulation"
+                title="Red Team Attack Simulator & Defense Benchmark"
+                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  location.pathname === '/simulation'
+                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+                }`}
+              >
+                <Crosshair className="w-3.5 h-3.5 text-rose-400" />
+                <span>Simulation</span>
+              </Link>
+
               {/* MLOps */}
               <Link
                 to="/mlops"
@@ -401,6 +416,7 @@ export const Navbar: React.FC = () => {
           </div>
 
           <div className="space-y-1 pt-2 border-t border-slate-800">
+            <Link to="/simulation" className="block px-3 py-1.5 rounded-lg text-xs text-rose-300 hover:bg-slate-800">Threat Simulation Sandbox</Link>
             <Link to="/mlops" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">MLOps Dashboard</Link>
             <Link to="/settings" className="block px-3 py-1.5 rounded-lg text-xs text-cyan-300 hover:bg-slate-800">System Settings & Calibration</Link>
           </div>

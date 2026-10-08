@@ -40,7 +40,11 @@ import {
   CreateApiKeyResponse,
   AuditLogEntry,
   ThreatFeedStatus,
-  ThreatFeedSyncResult
+  ThreatFeedSyncResult,
+  AttackScenarioPreset,
+  AttackSimulationRequest,
+  AttackSimulationResult,
+  DefenseBenchmarkReport
 } from '@phishnetra/shared';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -365,6 +369,22 @@ class ApiService {
 
   public async toggleThreatFeed(source: string, enabled: boolean): Promise<ThreatFeedStatus> {
     const res = await this.client.patch<{ success: boolean; data: ThreatFeedStatus }>(`/feeds/${source}/toggle`, { enabled });
+    return res.data.data;
+  }
+
+  // --- Milestone 10: Threat Simulation & Red Team Replay ---
+  public async listSimulationPresets(): Promise<AttackScenarioPreset[]> {
+    const res = await this.client.get<{ success: boolean; data: AttackScenarioPreset[] }>('/simulation/presets');
+    return res.data.data;
+  }
+
+  public async runAttackSimulation(req: AttackSimulationRequest): Promise<AttackSimulationResult> {
+    const res = await this.client.post<{ success: boolean; data: AttackSimulationResult }>('/simulation/run', req);
+    return res.data.data;
+  }
+
+  public async runDefenseBenchmark(): Promise<DefenseBenchmarkReport> {
+    const res = await this.client.post<{ success: boolean; data: DefenseBenchmarkReport }>('/simulation/benchmark');
     return res.data.data;
   }
 
