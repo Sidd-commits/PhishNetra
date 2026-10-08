@@ -1381,6 +1381,125 @@ export const DefenseBenchmarkReportSchema = z.object({
 });
 export type DefenseBenchmarkReport = z.infer<typeof DefenseBenchmarkReportSchema>;
 
+// ============================================================================
+// Milestone 12: Takedown Dispatcher, Team Workspaces & Executive Intelligence
+// ============================================================================
+
+export const TakedownNoticeTypeSchema = z.enum([
+  'RFC2142_ABUSE_NOTICE',
+  'ICANN_URS_COMPLAINT',
+  'DMCA_512C_TAKEDOWN',
+  'TRADEMARK_INFRINGEMENT',
+  'REGISTRAR_SUSPENSION_REQUEST'
+]);
+export type TakedownNoticeType = z.infer<typeof TakedownNoticeTypeSchema>;
+
+export const TakedownStatusSchema = z.enum([
+  'DRAFTED',
+  'PENDING_APPROVAL',
+  'DISPATCHED',
+  'ACKNOWLEDGED',
+  'DOMAIN_SUSPENDED',
+  'REJECTED'
+]);
+export type TakedownStatus = z.infer<typeof TakedownStatusSchema>;
+
+export const TakedownNoticeSchema = z.object({
+  id: z.string(),
+  targetUrl: z.string(),
+  targetDomain: z.string(),
+  targetBrand: z.string().optional().nullable(),
+  noticeType: TakedownNoticeTypeSchema,
+  status: TakedownStatusSchema,
+  recipientEmail: z.string().email(),
+  recipientEntity: z.string(),
+  subject: z.string(),
+  bodyText: z.string(),
+  evidenceSummary: z.array(z.string()),
+  trackingNumber: z.string(),
+  submittedBy: z.string(),
+  dispatchedAt: z.string().optional().nullable(),
+  resolvedAt: z.string().optional().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string()
+});
+export type TakedownNotice = z.infer<typeof TakedownNoticeSchema>;
+
+export const CreateTakedownRequestSchema = z.object({
+  targetUrl: z.string().min(3),
+  targetBrand: z.string().optional(),
+  noticeType: TakedownNoticeTypeSchema.default('RFC2142_ABUSE_NOTICE'),
+  customNotes: z.string().optional(),
+  autoDispatch: z.boolean().optional().default(false)
+});
+export type CreateTakedownRequest = z.infer<typeof CreateTakedownRequestSchema>;
+
+export const OrganizationRoleSchema = z.enum([
+  'OWNER',
+  'SECURITY_ADMIN',
+  'SOC_ANALYST',
+  'AUDITOR',
+  'VIEWER'
+]);
+export type OrganizationRole = z.infer<typeof OrganizationRoleSchema>;
+
+export const TeamMemberSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string().email(),
+  role: OrganizationRoleSchema,
+  joinedAt: z.string(),
+  lastActiveAt: z.string()
+});
+export type TeamMember = z.infer<typeof TeamMemberSchema>;
+
+export const OrganizationWorkspaceSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  plan: z.enum(['COMMUNITY', 'ENTERPRISE_SOC', 'GOVERNMENT_DEFENSE']),
+  memberCount: z.number().int(),
+  monthlyScanQuota: z.number().int(),
+  usedScansThisMonth: z.number().int(),
+  members: z.array(TeamMemberSchema),
+  securityPolicy: z.object({
+    mfaEnforced: z.boolean(),
+    ipAllowlist: z.array(z.string()),
+    autoSinkholingEnabled: z.boolean(),
+    retentionDays: z.number().int()
+  }),
+  createdAt: z.string()
+});
+export type OrganizationWorkspace = z.infer<typeof OrganizationWorkspaceSchema>;
+
+export const ExecutiveThreatReportSchema = z.object({
+  reportId: z.string(),
+  organizationName: z.string(),
+  generatedAt: z.string(),
+  timeRange: z.string(),
+  metrics: z.object({
+    totalScans: z.number().int(),
+    phishingIntercepted: z.number().int(),
+    zeroDayIdentified: z.number().int(),
+    meanTimeToNeutralizeMinutes: z.number(),
+    mitigationSuccessRatePercent: z.number()
+  }),
+  topTargetedBrands: z.array(z.object({
+    brand: z.string(),
+    incidentCount: z.number().int(),
+    riskPercentage: z.number()
+  })),
+  criticalCampaigns: z.array(z.object({
+    campaignName: z.string(),
+    threatActorOrigin: z.string(),
+    iocCount: z.number().int(),
+    severity: RiskLevelSchema
+  })),
+  strategicRecommendations: z.array(z.string())
+});
+export type ExecutiveThreatReport = z.infer<typeof ExecutiveThreatReportSchema>;
+
+
 
 
 

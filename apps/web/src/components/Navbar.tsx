@@ -25,7 +25,10 @@ import {
   Zap,
   Activity,
   Shield,
-  Crosshair
+  Crosshair,
+  Gavel,
+  Building2,
+  FileSpreadsheet
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -177,7 +180,7 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={() => toggleDropdown('intel')}
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    isGroupActive(['/graph', '/campaigns', '/feeds', '/reports']) || openDropdown === 'intel'
+                    isGroupActive(['/graph', '/campaigns', '/feeds', '/reports', '/executive-briefing']) || openDropdown === 'intel'
                       ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30'
                       : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                   }`}
@@ -188,7 +191,17 @@ export const Navbar: React.FC = () => {
                 </button>
 
                 {openDropdown === 'intel' && (
-                  <div className="absolute left-0 mt-2 w-56 rounded-2xl bg-slate-900/95 border border-slate-800 p-2 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-top-2">
+                  <div className="absolute left-0 mt-2 w-60 rounded-2xl bg-slate-900/95 border border-slate-800 p-2 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-top-2">
+                    <Link
+                      to="/executive-briefing"
+                      className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
+                    >
+                      <FileSpreadsheet className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-white">Executive Dossier</div>
+                        <div className="text-[10px] text-slate-400">Board-level briefing & KPI export</div>
+                      </div>
+                    </Link>
                     <Link
                       to="/graph"
                       className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
@@ -196,7 +209,7 @@ export const Navbar: React.FC = () => {
                       <Network className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
                       <div>
                         <div className="text-xs font-bold text-white">Threat Graph Explorer</div>
-                        <div className="text-[10px] text-slate-400">Force-directed IOC physics visualizer</div>
+                        <div className="text-[10px] text-slate-400">Force-directed IOC visualizer</div>
                       </div>
                     </Link>
                     <Link
@@ -206,7 +219,7 @@ export const Navbar: React.FC = () => {
                       <Flame className="w-4 h-4 text-rose-400 mt-0.5 shrink-0" />
                       <div>
                         <div className="text-xs font-bold text-white">Threat Campaigns</div>
-                        <div className="text-[10px] text-slate-400">Autonomous infrastructure clustering</div>
+                        <div className="text-[10px] text-slate-400">Adversary infrastructure clustering</div>
                       </div>
                     </Link>
                     <Link
@@ -238,7 +251,7 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={() => toggleDropdown('soc')}
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    isGroupActive(['/cases', '/siem', '/audit-logs', '/integrations']) || openDropdown === 'soc'
+                    isGroupActive(['/cases', '/takedowns', '/siem', '/audit-logs', '/integrations']) || openDropdown === 'soc'
                       ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
                       : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                   }`}
@@ -249,7 +262,7 @@ export const Navbar: React.FC = () => {
                 </button>
 
                 {openDropdown === 'soc' && (
-                  <div className="absolute left-0 mt-2 w-56 rounded-2xl bg-slate-900/95 border border-slate-800 p-2 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-top-2">
+                  <div className="absolute left-0 mt-2 w-60 rounded-2xl bg-slate-900/95 border border-slate-800 p-2 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-top-2">
                     <Link
                       to="/cases"
                       className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
@@ -258,6 +271,16 @@ export const Navbar: React.FC = () => {
                       <div>
                         <div className="text-xs font-bold text-white">Incident Cases</div>
                         <div className="text-[10px] text-slate-400">Triage & 1-click defense rules</div>
+                      </div>
+                    </Link>
+                    <Link
+                      to="/takedowns"
+                      className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
+                    >
+                      <Gavel className="w-4 h-4 text-rose-400 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-white">Legal Takedown Center</div>
+                        <div className="text-[10px] text-slate-400">RFC 2142 notices & registrar sync</div>
                       </div>
                     </Link>
                     <Link
@@ -309,6 +332,20 @@ export const Navbar: React.FC = () => {
               >
                 <Brain className="w-3.5 h-3.5 text-teal-400" />
                 <span>MLOps</span>
+              </Link>
+
+              {/* Organization Workspace */}
+              <Link
+                to="/organization"
+                title="Team Workspace & RBAC Governance"
+                className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  location.pathname === '/organization'
+                    ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+                }`}
+              >
+                <Building2 className="w-3.5 h-3.5 text-purple-400" />
+                <span>Workspace</span>
               </Link>
 
               {/* Settings / Calibration */}
@@ -402,6 +439,7 @@ export const Navbar: React.FC = () => {
 
           <div className="space-y-1">
             <span className="text-[10px] font-mono uppercase text-slate-500 px-3">Threat Intelligence</span>
+            <Link to="/executive-briefing" className="block px-3 py-1.5 rounded-lg text-xs text-cyan-300 hover:bg-slate-800">Executive Dossier</Link>
             <Link to="/graph" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Threat Graph</Link>
             <Link to="/campaigns" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Campaigns</Link>
             <Link to="/feeds" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Threat Feeds</Link>
@@ -411,11 +449,13 @@ export const Navbar: React.FC = () => {
           <div className="space-y-1">
             <span className="text-[10px] font-mono uppercase text-slate-500 px-3">SOC Operations</span>
             <Link to="/cases" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Incident Cases</Link>
+            <Link to="/takedowns" className="block px-3 py-1.5 rounded-lg text-xs text-rose-300 hover:bg-slate-800">Legal Takedowns</Link>
             <Link to="/siem" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">SIEM & Webhooks</Link>
             <Link to="/audit-logs" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Audit Trail</Link>
           </div>
 
           <div className="space-y-1 pt-2 border-t border-slate-800">
+            <Link to="/organization" className="block px-3 py-1.5 rounded-lg text-xs text-purple-300 hover:bg-slate-800">Team Workspace & RBAC</Link>
             <Link to="/simulation" className="block px-3 py-1.5 rounded-lg text-xs text-rose-300 hover:bg-slate-800">Threat Simulation Sandbox</Link>
             <Link to="/mlops" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">MLOps Dashboard</Link>
             <Link to="/settings" className="block px-3 py-1.5 rounded-lg text-xs text-cyan-300 hover:bg-slate-800">System Settings & Calibration</Link>

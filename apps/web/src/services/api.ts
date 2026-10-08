@@ -44,7 +44,13 @@ import {
   AttackScenarioPreset,
   AttackSimulationRequest,
   AttackSimulationResult,
-  DefenseBenchmarkReport
+  DefenseBenchmarkReport,
+  TakedownNotice,
+  CreateTakedownRequest,
+  OrganizationWorkspace,
+  TeamMember,
+  OrganizationRole,
+  ExecutiveThreatReport
 } from '@phishnetra/shared';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -385,6 +391,54 @@ class ApiService {
 
   public async runDefenseBenchmark(): Promise<DefenseBenchmarkReport> {
     const res = await this.client.post<{ success: boolean; data: DefenseBenchmarkReport }>('/simulation/benchmark');
+    return res.data.data;
+  }
+
+  // --- Milestone 12: Takedown Dispatcher & Legal Abuse Center ---
+  public async listTakedowns(status?: string): Promise<TakedownNotice[]> {
+    const res = await this.client.get<{ success: boolean; data: TakedownNotice[] }>(`/takedowns${status ? `?status=${status}` : ''}`);
+    return res.data.data;
+  }
+
+  public async getTakedown(id: string): Promise<TakedownNotice> {
+    const res = await this.client.get<{ success: boolean; data: TakedownNotice }>(`/takedowns/${id}`);
+    return res.data.data;
+  }
+
+  public async createTakedown(req: CreateTakedownRequest): Promise<TakedownNotice> {
+    const res = await this.client.post<{ success: boolean; data: TakedownNotice }>('/takedowns', req);
+    return res.data.data;
+  }
+
+  public async updateTakedownStatus(id: string, status: string): Promise<TakedownNotice> {
+    const res = await this.client.patch<{ success: boolean; data: TakedownNotice }>(`/takedowns/${id}/status`, { status });
+    return res.data.data;
+  }
+
+  // --- Milestone 12: Organization & Team Workspaces ---
+  public async getWorkspace(): Promise<OrganizationWorkspace> {
+    const res = await this.client.get<{ success: boolean; data: OrganizationWorkspace }>('/organizations/workspace');
+    return res.data.data;
+  }
+
+  public async updateWorkspacePolicy(policy: Partial<OrganizationWorkspace['securityPolicy']>): Promise<OrganizationWorkspace> {
+    const res = await this.client.patch<{ success: boolean; data: OrganizationWorkspace }>('/organizations/policy', policy);
+    return res.data.data;
+  }
+
+  public async inviteTeamMember(name: string, email: string, role: OrganizationRole): Promise<TeamMember> {
+    const res = await this.client.post<{ success: boolean; data: TeamMember }>('/organizations/members', { name, email, role });
+    return res.data.data;
+  }
+
+  public async removeTeamMember(memberId: string): Promise<boolean> {
+    const res = await this.client.delete<{ success: boolean }>(`/organizations/members/${memberId}`);
+    return res.data.success;
+  }
+
+  // --- Milestone 12: Executive Threat Intelligence Briefings ---
+  public async getExecutiveReport(timeRange = 'Last 30 Days'): Promise<ExecutiveThreatReport> {
+    const res = await this.client.get<{ success: boolean; data: ExecutiveThreatReport }>(`/reports/executive?timeRange=${encodeURIComponent(timeRange)}`);
     return res.data.data;
   }
 

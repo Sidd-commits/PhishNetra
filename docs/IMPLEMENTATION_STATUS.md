@@ -125,10 +125,20 @@
 - **Comprehensive Production Documentation:** `docs/THREAT_MODEL.md` (STRIDE), `docs/MODEL_CARD.md`, `docs/DATASET.md`, `docs/DEPLOYMENT.md`.
 - **Comprehensive Automated Test Coverage:** 159 automated tests passing across the monorepo (89 Jest API tests across 18 suites, 12 Jest Extension tests, 58 Pytest ML tests).
 
+### Milestone 12: Legal Takedown Center, Team Workspaces (RBAC) & Executive Dossiers (Completed)
+- **Automated RFC 2142 Legal Abuse Notice Generator (`TakedownService.ts` / `/api/takedowns`):** Automated registrar abuse desk discovery, tracking ID generation (`TKD-XXXX-XXXXXX`), and status tracking (`DRAFTED`, `DISPATCHED`, `DOMAIN_SUSPENDED`, `REJECTED`).
+- **Multi-Tenant Organization & Team Workspaces (`OrganizationService.ts` / `/api/organizations`):** Granular RBAC (`OWNER`, `SECURITY_ADMIN`, `SOC_ANALYST`, `AUDITOR`, `VIEWER`), scan quota tracking, MFA enforcement, and IP subnet allowlists.
+- **Autonomous Executive Threat Intelligence Dossiers (`ThreatReportExportService.ts` / `/api/reports/executive`):** C-suite KPI metrics, brand attack volume share telemetry, adversary campaign attribution, and 1-click exportable Markdown reports.
+- **Interactive React SOC UI Pages:**
+  - Legal Takedown Center (`/takedowns`)
+  - Team Workspaces (`/organization`)
+  - Executive Briefing (`/executive-briefing`)
+- **Comprehensive Automated Test Coverage:** 169 automated tests passing across the monorepo (99 Jest API tests across 19 suites, 12 Jest Extension tests, 58 Pytest ML tests).
+
 ---
 
 ## Master Roadmap Status: 100% Complete & Production Ready
-All 11 milestones of the PhishNetra Platform have been completely implemented, verified with 159 automated tests, and documented.
+All 12 milestones of the PhishNetra Platform have been completely implemented, verified with 169 automated tests, and documented.
 
 
 

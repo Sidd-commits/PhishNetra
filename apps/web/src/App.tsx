@@ -22,6 +22,9 @@ import { SettingsPage } from './pages/SettingsPage';
 import { AuditLogsPage } from './pages/AuditLogsPage';
 import { FeedSyncPage } from './pages/FeedSyncPage';
 import { SimulationPage } from './pages/SimulationPage';
+import { TakedownCenterPage } from './pages/TakedownCenterPage';
+import { OrganizationPage } from './pages/OrganizationPage';
+import { ExecutiveBriefingPage } from './pages/ExecutiveBriefingPage';
 
 export const App: React.FC = () => {
   return (
@@ -127,6 +130,14 @@ export const App: React.FC = () => {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/executive-briefing"
+                  element={
+                    <ProtectedRoute>
+                      <ExecutiveBriefingPage />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* SOC Ops & SIEM Routes */}
                 <Route
@@ -134,6 +145,14 @@ export const App: React.FC = () => {
                   element={
                     <ProtectedRoute>
                       <CaseManagementPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/takedowns"
+                  element={
+                    <ProtectedRoute>
+                      <TakedownCenterPage />
                     </ProtectedRoute>
                   }
                 />
@@ -158,6 +177,16 @@ export const App: React.FC = () => {
                   element={
                     <ProtectedRoute>
                       <AuditLogsPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Organization & Team Workspace */}
+                <Route
+                  path="/organization"
+                  element={
+                    <ProtectedRoute>
+                      <OrganizationPage />
                     </ProtectedRoute>
                   }
                 />

@@ -25,6 +25,9 @@ import simulationRoutes from './routes/simulationRoutes';
 import systemRoutes from './routes/systemRoutes';
 import healthRoutes from './routes/healthRoutes';
 import metricsRoutes from './routes/metricsRoutes';
+import takedownRoutes from './routes/takedownRoutes';
+import organizationRoutes from './routes/organizationRoutes';
+import executiveReportRoutes from './routes/executiveReportRoutes';
 import { metricsService } from './services/metrics/PrometheusMetricsService';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -80,6 +83,7 @@ export const createApp = (): express.Application => {
   app.use('/api/analyze', analysisRoutes);
   app.use('/api/batch', batchRoutes);
   app.use('/api/domains', domainRoutes);
+  app.use('/api/reports/executive', executiveReportRoutes);
   app.use('/api/reports', reportRoutes);
   app.use('/api/graph', graphRoutes);
   app.use('/api/campaigns', campaignRoutes);
@@ -96,6 +100,8 @@ export const createApp = (): express.Application => {
   app.use('/api/health', healthRoutes);
   app.use('/api/metrics', metricsRoutes);
   app.use('/metrics', metricsRoutes);
+  app.use('/api/takedowns', takedownRoutes);
+  app.use('/api/organizations', organizationRoutes);
 
   // Fallback 404 for unknown endpoints
   app.use((req, res) => {
