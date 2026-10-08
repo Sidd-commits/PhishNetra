@@ -58,7 +58,16 @@ import {
   ForensicArtifact,
   ThreatHuntQuery,
   ThreatHuntResult,
-  ThreatConnectorStatus
+  ThreatConnectorStatus,
+  CopilotChatRequest,
+  CopilotChatResponse,
+  CopilotPromptTemplate,
+  CanaryToken,
+  CanaryTriggerEvent,
+  CreateCanaryTokenRequest,
+  AttackSurfaceAsset,
+  CTLogEntry,
+  CreateAttackSurfaceAssetRequest
 } from '@phishnetra/shared';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -515,6 +524,63 @@ class ApiService {
 
   public async toggleThreatConnector(id: string, enabled: boolean): Promise<ThreatConnectorStatus> {
     const res = await this.client.patch<{ success: boolean; data: ThreatConnectorStatus }>(`/connectors/${id}/toggle`, { enabled });
+    return res.data.data;
+  }
+
+  // --- Milestone 14: AI SOC Co-Pilot ---
+  public async getCopilotTemplates(): Promise<CopilotPromptTemplate[]> {
+    const res = await this.client.get<{ success: boolean; data: CopilotPromptTemplate[] }>('/copilot/templates');
+    return res.data.data;
+  }
+
+  public async sendCopilotChat(req: CopilotChatRequest): Promise<CopilotChatResponse> {
+    const res = await this.client.post<{ success: boolean; data: CopilotChatResponse }>('/copilot/chat', req);
+    return res.data.data;
+  }
+
+  // --- Milestone 14: Active Canary Deception Engine ---
+  public async listCanaryTokens(): Promise<CanaryToken[]> {
+    const res = await this.client.get<{ success: boolean; data: CanaryToken[] }>('/deception/tokens');
+    return res.data.data;
+  }
+
+  public async createCanaryToken(req: CreateCanaryTokenRequest): Promise<CanaryToken> {
+    const res = await this.client.post<{ success: boolean; data: CanaryToken }>('/deception/tokens', req);
+    return res.data.data;
+  }
+
+  public async toggleCanaryTokenStatus(id: string, status: 'ACTIVE' | 'DISABLED' | 'REVOKED'): Promise<CanaryToken> {
+    const res = await this.client.patch<{ success: boolean; data: CanaryToken }>(`/deception/tokens/${id}/status`, { status });
+    return res.data.data;
+  }
+
+  public async listCanaryTriggers(): Promise<CanaryTriggerEvent[]> {
+    const res = await this.client.get<{ success: boolean; data: CanaryTriggerEvent[] }>('/deception/triggers');
+    return res.data.data;
+  }
+
+  // --- Milestone 14: External Attack Surface Management (EASM) ---
+  public async listAttackSurfaceAssets(): Promise<AttackSurfaceAsset[]> {
+    const res = await this.client.get<{ success: boolean; data: AttackSurfaceAsset[] }>('/attack-surface/assets');
+    return res.data.data;
+  }
+
+  public async createAttackSurfaceAsset(req: CreateAttackSurfaceAssetRequest): Promise<AttackSurfaceAsset> {
+    const res = await this.client.post<{ success: boolean; data: AttackSurfaceAsset }>('/attack-surface/assets', req);
+    return res.data.data;
+  }
+
+  public async deleteAttackSurfaceAsset(id: string): Promise<void> {
+    await this.client.delete(`/attack-surface/assets/${id}`);
+  }
+
+  public async listCTLogs(): Promise<CTLogEntry[]> {
+    const res = await this.client.get<{ success: boolean; data: CTLogEntry[] }>('/attack-surface/ct-logs');
+    return res.data.data;
+  }
+
+  public async triggerPerimeterScan(): Promise<{ totalAssets: number; scannedAt: string; newlyDiscoveredCount: number }> {
+    const res = await this.client.post<{ success: boolean; data: { totalAssets: number; scannedAt: string; newlyDiscoveredCount: number } }>('/attack-surface/scan');
     return res.data.data;
   }
 

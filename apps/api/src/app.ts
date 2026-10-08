@@ -31,6 +31,9 @@ import executiveReportRoutes from './routes/executiveReportRoutes';
 import playbookRoutes from './routes/playbookRoutes';
 import huntingRoutes from './routes/huntingRoutes';
 import connectorRoutes from './routes/connectorRoutes';
+import copilotRoutes from './routes/copilotRoutes';
+import deceptionRoutes from './routes/deceptionRoutes';
+import easmRoutes from './routes/easmRoutes';
 import { metricsService } from './services/metrics/PrometheusMetricsService';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -108,6 +111,9 @@ export const createApp = (): express.Application => {
   app.use('/api/playbooks', playbookRoutes);
   app.use('/api/hunting', huntingRoutes);
   app.use('/api/connectors', connectorRoutes);
+  app.use('/api/copilot', copilotRoutes);
+  app.use('/api/deception', deceptionRoutes);
+  app.use('/api/attack-surface', easmRoutes);
 
   // Fallback 404 for unknown endpoints
   app.use((req, res) => {

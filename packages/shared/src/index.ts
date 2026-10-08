@@ -1698,3 +1698,188 @@ export const ThreatConnectorStatusSchema = z.object({
   status: z.enum(['HEALTHY', 'SYNCING', 'ERROR'])
 });
 export type ThreatConnectorStatus = z.infer<typeof ThreatConnectorStatusSchema>;
+
+// ============================================================================
+// Milestone 14: AI SOC Co-Pilot, Canary Deception & EASM Schemas
+// ============================================================================
+
+// 1. AI SOC Co-Pilot Schemas
+export const CopilotSessionTypeSchema = z.enum([
+  'GENERAL',
+  'TRIAGE',
+  'HUNTING_COMPILER',
+  'INCIDENT_ANALYSIS',
+  'REMEDIATION'
+]);
+export type CopilotSessionType = z.infer<typeof CopilotSessionTypeSchema>;
+
+export const CopilotSuggestedActionSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  actionType: z.enum(['TRIGGER_PLAYBOOK', 'RUN_HUNT', 'CREATE_TAKEDOWN', 'DEPLOY_CANARY', 'ISOLATE_HOST']),
+  payload: z.record(z.any())
+});
+export type CopilotSuggestedAction = z.infer<typeof CopilotSuggestedActionSchema>;
+
+export const CopilotReasoningStepSchema = z.object({
+  stepNumber: z.number().int(),
+  stage: z.string(),
+  observation: z.string(),
+  verdict: z.string()
+});
+export type CopilotReasoningStep = z.infer<typeof CopilotReasoningStepSchema>;
+
+export const CopilotChatRequestSchema = z.object({
+  prompt: z.string().min(1),
+  sessionType: CopilotSessionTypeSchema.optional().default('GENERAL'),
+  context: z.object({
+    analysisId: z.string().optional(),
+    domain: z.string().optional(),
+    targetUrl: z.string().optional(),
+    verdict: ThreatVerdictSchema.optional(),
+    riskScore: z.number().optional(),
+    brand: z.string().optional(),
+    evidenceKeys: z.array(z.string()).optional()
+  }).optional(),
+  history: z.array(z.object({
+    sender: z.enum(['USER', 'COPILOT']),
+    message: z.string(),
+    timestamp: z.string()
+  })).optional().default([])
+});
+export type CopilotChatRequest = z.infer<typeof CopilotChatRequestSchema>;
+
+export const CopilotChatResponseSchema = z.object({
+  id: z.string(),
+  reply: z.string(),
+  sessionType: CopilotSessionTypeSchema,
+  reasoningSteps: z.array(CopilotReasoningStepSchema),
+  suggestedActions: z.array(CopilotSuggestedActionSchema),
+  generatedArtifacts: z.object({
+    huntQuery: z.string().optional(),
+    snortRule: z.string().optional(),
+    siemKqlQuery: z.string().optional(),
+    takedownDraft: z.string().optional(),
+    dnsRpzEntry: z.string().optional()
+  }),
+  mitreTechniques: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    tactic: z.string()
+  })),
+  citations: z.array(z.string()),
+  tokensUsed: z.number().int(),
+  createdAt: z.string()
+});
+export type CopilotChatResponse = z.infer<typeof CopilotChatResponseSchema>;
+
+export const CopilotPromptTemplateSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  category: z.string(),
+  prompt: z.string(),
+  description: z.string()
+});
+export type CopilotPromptTemplate = z.infer<typeof CopilotPromptTemplateSchema>;
+
+// 2. Active Canary Deception Engine Schemas
+export const CanaryTokenTypeSchema = z.enum([
+  'HTTP_WEB_BUG',
+  'DNS_TRIPWIRE',
+  'DECOY_CREDENTIAL',
+  'CLONED_LOGIN_BEACON',
+  'FAKE_API_KEY'
+]);
+export type CanaryTokenType = z.infer<typeof CanaryTokenTypeSchema>;
+
+export const CanaryTokenSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  tokenType: CanaryTokenTypeSchema,
+  tokenString: z.string(),
+  targetDeployLocation: z.string(),
+  triggeredCount: z.number().int().default(0),
+  lastTriggeredAt: z.string().optional().nullable(),
+  status: z.enum(['ACTIVE', 'DISABLED', 'REVOKED']).default('ACTIVE'),
+  alertSeverity: EvidenceSeveritySchema.default('HIGH'),
+  deploySnippet: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string()
+});
+export type CanaryToken = z.infer<typeof CanaryTokenSchema>;
+
+export const CanaryTriggerEventSchema = z.object({
+  id: z.string(),
+  tokenId: z.string(),
+  tokenName: z.string(),
+  tokenType: CanaryTokenTypeSchema,
+  triggeredAt: z.string(),
+  sourceIp: z.string(),
+  country: z.string(),
+  city: z.string(),
+  userAgent: z.string(),
+  ja3Fingerprint: z.string().optional(),
+  capturedHeaders: z.record(z.string()),
+  capturedPayload: z.string().optional().nullable(),
+  riskScore: z.number(),
+  attackerIntent: z.string()
+});
+export type CanaryTriggerEvent = z.infer<typeof CanaryTriggerEventSchema>;
+
+export const CreateCanaryTokenRequestSchema = z.object({
+  name: z.string().min(2),
+  tokenType: CanaryTokenTypeSchema,
+  targetDeployLocation: z.string().min(2),
+  alertSeverity: EvidenceSeveritySchema.optional().default('HIGH'),
+  customNotes: z.string().optional()
+});
+export type CreateCanaryTokenRequest = z.infer<typeof CreateCanaryTokenRequestSchema>;
+
+// 3. External Attack Surface Management (EASM) Schemas
+export const AttackSurfaceAssetTypeSchema = z.enum([
+  'DOMAIN',
+  'SUBDOMAIN',
+  'IP_ADDRESS',
+  'SSL_CERTIFICATE',
+  'BRAND_KEYWORD',
+  'EXPOSED_SERVICE'
+]);
+export type AttackSurfaceAssetType = z.infer<typeof AttackSurfaceAssetTypeSchema>;
+
+export const AttackSurfaceAssetSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  assetType: AttackSurfaceAssetTypeSchema,
+  targetValue: z.string(),
+  riskLevel: RiskLevelSchema,
+  status: z.enum(['MONITORED', 'SUSPICIOUS', 'ATTACKED', 'RESOLVED']).default('MONITORED'),
+  discoverySource: z.enum(['CT_LOGS', 'DNS_BRUTEFORCE', 'WHOIS_REVERSE', 'DARK_WEB', 'MANUAL']),
+  associatedBrands: z.array(z.string()),
+  openPorts: z.array(z.number().int()),
+  tlsExpiryDate: z.string().optional().nullable(),
+  detectedThreatsCount: z.number().int().default(0),
+  lastScannedAt: z.string(),
+  createdAt: z.string()
+});
+export type AttackSurfaceAsset = z.infer<typeof AttackSurfaceAssetSchema>;
+
+export const CTLogEntrySchema = z.object({
+  id: z.string(),
+  domain: z.string(),
+  issuer: z.string(),
+  sanNames: z.array(z.string()),
+  loggedAt: z.string(),
+  isTyposquat: z.boolean(),
+  targetedBrand: z.string().optional().nullable(),
+  riskScore: z.number(),
+  autoQuarantined: z.boolean()
+});
+export type CTLogEntry = z.infer<typeof CTLogEntrySchema>;
+
+export const CreateAttackSurfaceAssetRequestSchema = z.object({
+  name: z.string().min(2),
+  assetType: AttackSurfaceAssetTypeSchema,
+  targetValue: z.string().min(2),
+  associatedBrands: z.array(z.string()).optional().default([])
+});
+export type CreateAttackSurfaceAssetRequest = z.infer<typeof CreateAttackSurfaceAssetRequestSchema>;

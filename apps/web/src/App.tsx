@@ -27,6 +27,9 @@ import { OrganizationPage } from './pages/OrganizationPage';
 import { ExecutiveBriefingPage } from './pages/ExecutiveBriefingPage';
 import { PlaybooksPage } from './pages/PlaybooksPage';
 import { ThreatHuntingPage } from './pages/ThreatHuntingPage';
+import { ThreatCopilotPage } from './pages/ThreatCopilotPage';
+import { CanaryDeceptionPage } from './pages/CanaryDeceptionPage';
+import { AttackSurfacePage } from './pages/AttackSurfacePage';
 
 export const App: React.FC = () => {
   return (
@@ -225,6 +228,36 @@ export const App: React.FC = () => {
                   element={
                     <ProtectedRoute>
                       <SimulationPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* AI SOC Co-Pilot Assistant */}
+                <Route
+                  path="/copilot"
+                  element={
+                    <ProtectedRoute>
+                      <ThreatCopilotPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Canary Deception Engine */}
+                <Route
+                  path="/deception"
+                  element={
+                    <ProtectedRoute>
+                      <CanaryDeceptionPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* External Attack Surface Management */}
+                <Route
+                  path="/attack-surface"
+                  element={
+                    <ProtectedRoute>
+                      <AttackSurfacePage />
                     </ProtectedRoute>
                   }
                 />

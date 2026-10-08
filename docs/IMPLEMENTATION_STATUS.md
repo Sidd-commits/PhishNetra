@@ -149,10 +149,27 @@
   - Threat Hunting Lab & Sandbox (`/hunting`)
 - **Comprehensive Automated Test Coverage:** 180 automated tests passing across the monorepo (110 Jest API tests across 20 suites, 12 Jest Extension tests, 58 Pytest ML tests) and complete `docs/SOAR_PLAYBOOKS_AND_HUNTING.md`.
 
+### Milestone 14: AI SOC Co-Pilot, Active Canary Deception & External Attack Surface Management (Completed)
+- **Autonomous AI SOC Co-Pilot Assistant (`ThreatCopilotService.ts` / `/api/copilot`):**
+  - Interactive multi-layer reasoning assistant, prompt template catalog, and real-time triage summaries.
+  - Automated defense compiler: SIEM KQL queries, Snort/Suricata NIDS signatures, Threat Hunt regex, and BIND9 DNS RPZ sinkholes.
+  - MITRE ATT&CK technique mapping (T1566.002, T1583.001, T1608.005, T1071.001).
+- **Active Canary Deception Engine (`CanaryDeceptionService.ts` / `/api/deception`):**
+  - 5 honeypot token families (HTTP Web Bug 1x1 GIF, DNS Tripwire, Decoy Corporate Credentials, Cloned Login Anti-Scraping JS Beacon, Fake API Keys).
+  - Public beacon endpoints capturing external attacker IP, User-Agent, JA3 SSL signatures, and payload drops with automatic SOC audit logging.
+- **External Attack Surface Management & CT Logs Radar (`AttackSurfaceService.ts` / `/api/attack-surface`):**
+  - Continuous perimeter discovery (Apex domains, subdomains, ingress IPs, and exposed ports).
+  - Certificate Transparency (CT) log stream intercepting brand typosquats with auto-quarantine integration.
+- **Interactive React SOC UI Pages:**
+  - AI SOC Co-Pilot (`/copilot`)
+  - Canary Deception Hub (`/deception`)
+  - External Attack Surface Management (`/attack-surface`)
+- **Comprehensive Automated Test Coverage:** 191 automated tests passing across the monorepo (121 Jest API tests across 21 suites, 12 Jest Extension tests, 58 Pytest ML tests) and complete `docs/AI_COPILOT_AND_DECEPTION.md`.
+
 ---
 
 ## Master Roadmap Status: 100% Complete & Production Ready
-All 13 milestones of the PhishNetra Platform have been completely implemented, verified with 180 automated tests, and documented.
+All 14 milestones of the PhishNetra Platform have been completely implemented, verified with 191 automated tests, and documented.
 
 
 

@@ -30,7 +30,10 @@ import {
   Building2,
   FileSpreadsheet,
   Workflow,
-  SearchCode
+  SearchCode,
+  BrainCircuit,
+  Radar,
+  Eye
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -182,7 +185,7 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={() => toggleDropdown('intel')}
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    isGroupActive(['/graph', '/campaigns', '/feeds', '/reports', '/executive-briefing', '/hunting']) || openDropdown === 'intel'
+                    isGroupActive(['/graph', '/campaigns', '/feeds', '/reports', '/executive-briefing', '/hunting', '/attack-surface']) || openDropdown === 'intel'
                       ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30'
                       : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                   }`}
@@ -212,6 +215,16 @@ export const Navbar: React.FC = () => {
                       <div>
                         <div className="text-xs font-bold text-white">Threat Hunting Lab</div>
                         <div className="text-[10px] text-slate-400">Regex, JA3, CIDR & HAR sandbox</div>
+                      </div>
+                    </Link>
+                    <Link
+                      to="/attack-surface"
+                      className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
+                    >
+                      <Radar className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-white">Attack Surface (EASM)</div>
+                        <div className="text-[10px] text-slate-400">CT Logs radar & brand perimeter</div>
                       </div>
                     </Link>
                     <Link
@@ -263,7 +276,7 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={() => toggleDropdown('soc')}
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    isGroupActive(['/cases', '/playbooks', '/takedowns', '/siem', '/audit-logs', '/integrations']) || openDropdown === 'soc'
+                    isGroupActive(['/cases', '/playbooks', '/takedowns', '/siem', '/audit-logs', '/integrations', '/copilot', '/deception']) || openDropdown === 'soc'
                       ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
                       : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                   }`}
@@ -275,6 +288,26 @@ export const Navbar: React.FC = () => {
 
                 {openDropdown === 'soc' && (
                   <div className="absolute left-0 mt-2 w-60 rounded-2xl bg-slate-900/95 border border-slate-800 p-2 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-top-2">
+                    <Link
+                      to="/copilot"
+                      className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
+                    >
+                      <BrainCircuit className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-white">AI SOC Co-Pilot</div>
+                        <div className="text-[10px] text-slate-400">Autonomous reasoning & rule compiler</div>
+                      </div>
+                    </Link>
+                    <Link
+                      to="/deception"
+                      className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
+                    >
+                      <Eye className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-white">Canary Deception</div>
+                        <div className="text-[10px] text-slate-400">Honeypot tokens & anti-cloning web bugs</div>
+                      </div>
+                    </Link>
                     <Link
                       to="/cases"
                       className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
@@ -463,6 +496,7 @@ export const Navbar: React.FC = () => {
             <span className="text-[10px] font-mono uppercase text-slate-500 px-3">Threat Intelligence</span>
             <Link to="/executive-briefing" className="block px-3 py-1.5 rounded-lg text-xs text-cyan-300 hover:bg-slate-800">Executive Dossier</Link>
             <Link to="/hunting" className="block px-3 py-1.5 rounded-lg text-xs text-emerald-300 hover:bg-slate-800">Threat Hunting Lab</Link>
+            <Link to="/attack-surface" className="block px-3 py-1.5 rounded-lg text-xs text-indigo-300 hover:bg-slate-800">Attack Surface (EASM)</Link>
             <Link to="/graph" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Threat Graph</Link>
             <Link to="/campaigns" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Campaigns</Link>
             <Link to="/feeds" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Threat Feeds</Link>
@@ -471,6 +505,8 @@ export const Navbar: React.FC = () => {
 
           <div className="space-y-1">
             <span className="text-[10px] font-mono uppercase text-slate-500 px-3">SOC Operations</span>
+            <Link to="/copilot" className="block px-3 py-1.5 rounded-lg text-xs text-cyan-300 hover:bg-slate-800">AI SOC Co-Pilot</Link>
+            <Link to="/deception" className="block px-3 py-1.5 rounded-lg text-xs text-amber-300 hover:bg-slate-800">Canary Deception</Link>
             <Link to="/cases" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Incident Cases</Link>
             <Link to="/playbooks" className="block px-3 py-1.5 rounded-lg text-xs text-indigo-300 hover:bg-slate-800">SOAR Playbooks</Link>
             <Link to="/takedowns" className="block px-3 py-1.5 rounded-lg text-xs text-rose-300 hover:bg-slate-800">Legal Takedowns</Link>
