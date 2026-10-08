@@ -117,10 +117,18 @@
   - Interactive 8-layer traversal canvas, evidence panels, and automated defensive mitigation actions.
 - **Comprehensive Automated Test Coverage:** 154 automated tests passing across the monorepo (84 Jest API tests across 17 suites, 12 Jest Extension tests, 58 Pytest ML tests) and complete `docs/THREAT_SIMULATION.md`.
 
+### Milestone 11: Production Hardening, CI/CD, Containerization, Prometheus Metrics & ADRs (Completed)
+- **Full Docker Compose Stack (`docker-compose.yml`):** Multi-stage production container orchestration for PostgreSQL, Redis, Python ML (`services/ml/Dockerfile`), Node.js API (`apps/api/Dockerfile`), and React Web (`apps/web/Dockerfile` with Nginx).
+- **GitHub Actions CI/CD Pipeline (`.github/workflows/ci.yml`):** Automated monorepo test matrix across Node.js (18.x, 20.x) and Python (3.10, 3.11).
+- **Enterprise Observability & Metrics (`PrometheusMetricsService.ts` / `/api/metrics`, `/metrics`):** Prometheus plain-text metrics exporter and Kubernetes liveness (`/api/health/live`) and readiness (`/api/health/ready`) probes.
+- **Architecture Decision Records (ADRs):** Comprehensive architectural documentation for Zero-Trust (ADR 0001), SSRF/Browser Sandbox (ADR 0002), Tree-SHAP (ADR 0003), Manifest V3 Extension (ADR 0004), and Threat Graph Clustering (ADR 0005).
+- **Comprehensive Production Documentation:** `docs/THREAT_MODEL.md` (STRIDE), `docs/MODEL_CARD.md`, `docs/DATASET.md`, `docs/DEPLOYMENT.md`.
+- **Comprehensive Automated Test Coverage:** 159 automated tests passing across the monorepo (89 Jest API tests across 18 suites, 12 Jest Extension tests, 58 Pytest ML tests).
+
 ---
 
 ## Master Roadmap Status: 100% Complete & Production Ready
-All 10 milestones of the PhishNetra Platform have been completely implemented, verified with 154 automated tests, and documented.
+All 11 milestones of the PhishNetra Platform have been completely implemented, verified with 159 automated tests, and documented.
 
 
 

@@ -24,6 +24,8 @@ import feedRoutes from './routes/feedRoutes';
 import simulationRoutes from './routes/simulationRoutes';
 import systemRoutes from './routes/systemRoutes';
 import healthRoutes from './routes/healthRoutes';
+import metricsRoutes from './routes/metricsRoutes';
+import { metricsService } from './services/metrics/PrometheusMetricsService';
 import { errorHandler } from './middleware/errorHandler';
 
 export const createApp = (): express.Application => {
@@ -31,6 +33,14 @@ export const createApp = (): express.Application => {
 
   // Security Headers
   app.use(helmet());
+
+  // Metrics tracking middleware
+  app.use((req, res, next) => {
+    res.on('finish', () => {
+      metricsService.recordRequest(req.method, req.path, res.statusCode);
+    });
+    next();
+  });
 
   // CORS Configuration
   app.use(
@@ -84,6 +94,8 @@ export const createApp = (): express.Application => {
   app.use('/api/simulation', simulationRoutes);
   app.use('/api/system', systemRoutes);
   app.use('/api/health', healthRoutes);
+  app.use('/api/metrics', metricsRoutes);
+  app.use('/metrics', metricsRoutes);
 
   // Fallback 404 for unknown endpoints
   app.use((req, res) => {
