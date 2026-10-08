@@ -60,11 +60,21 @@
 - **Options & Whitelist Management (`options.tsx` / `OptionsApp.tsx`):** API URL configuration, sensitivity threshold slider, local cache purging, and enterprise domain whitelisting.
 - **Complete Test Coverage & Docs:** 106 automated tests passing across the repository (50 Jest API tests, 12 Jest Extension tests, 44 Pytest ML tests) and complete `docs/EXTENSION.md`.
 
+### Milestone 6: Threat Graph Engine, Infrastructure Correlation & Campaign Clustering (Completed)
+- **Multi-Entity Graph Store & Traversal (`ThreatGraphEngine.ts`):** Graph modeling across `DOMAIN`, `IP`, `ASN`, `CERTIFICATE`, `NAMESERVER`, `REGISTRAR`, `BRAND`, and `CAMPAIGN` entities with 10 relationship edge types.
+- **Automatic Graph Ingestion Pipeline:** Auto-ingestion from single-URL scans, batch jobs, and background workers into connected infrastructure nodes and co-location detection.
+- **Autonomous Threat Campaign Clustering (`CampaignClusteringEngine.ts`):** Multi-factor weighted infrastructure similarity matrix (shared ASNs, nameservers, targeted brands, IP subnets, TLS certs) automatically forming named threat rings.
+- **OASIS STIX 2.1 Threat Sharing (`STIXExportService.ts`):** Complete STIX 2.1 JSON bundle export for enterprise SIEM/SOAR and OpenCTI threat intelligence feeds.
+- **Interactive SOC Graph Explorer (`ThreatGraphPage.tsx` / `/graph`):** Force-directed SVG physics visualizer with zoom/pan, node dragging, halo glows, and inspector side drawer.
+- **Threat Campaign Hub (`CampaignsPage.tsx` / `/campaigns`):** Dedicated campaign monitoring hub with IOC matrices, STIX export buttons, and search filters.
+- **Comprehensive Automated Verification:** 111 automated tests passing (55 Jest API tests across 13 suites, 12 Jest Extension tests, 44 Pytest ML tests) and complete `docs/THREAT_GRAPH.md`.
+
 ---
 
-## Next Milestone: Implementation 6 (Planned)
-- Threat Graph Engine & Infrastructure Correlation (Neo4j / NetworkX graph visualization).
-- Autonomous C2 & Campaign Clustering.
-- Enterprise SIEM/SOAR Webhooks & Threat Intelligence Sharing.
+## Next Milestone: Implementation 7 (Planned)
+- MLOps Lifecycle & Continuous Retraining (MLflow, DVC, Model Registry).
+- Model Drift Monitoring & Retraining Triggers.
+- SHAP / LIME Advanced Feature Attribution & Explainability.
+- Adversarial Robustness & Evasion Defense Hardening.
 
 

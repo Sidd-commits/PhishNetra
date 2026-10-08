@@ -712,3 +712,106 @@ export const CacheStatsSchema = z.object({
   driver: z.string()
 });
 export type CacheStats = z.infer<typeof CacheStatsSchema>;
+
+// ============================================================================
+// Milestone 6: Threat Graph Engine & Infrastructure Correlation
+// ============================================================================
+
+export const GraphNodeTypeSchema = z.enum([
+  'DOMAIN',
+  'IP',
+  'ASN',
+  'CERTIFICATE',
+  'NAMESERVER',
+  'REGISTRAR',
+  'BRAND',
+  'CAMPAIGN',
+  'URL'
+]);
+export type GraphNodeType = z.infer<typeof GraphNodeTypeSchema>;
+
+export const GraphEdgeTypeSchema = z.enum([
+  'RESOLVES_TO',
+  'HOSTED_ON',
+  'USES_CERTIFICATE',
+  'MANAGED_BY_NS',
+  'REGISTERED_THROUGH',
+  'REDIRECTS_TO',
+  'EMBEDS_SCRIPT',
+  'IMPERSONATES',
+  'PART_OF_CAMPAIGN',
+  'CO_LOCATED_WITH'
+]);
+export type GraphEdgeType = z.infer<typeof GraphEdgeTypeSchema>;
+
+export const GraphNodeSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  type: GraphNodeTypeSchema,
+  riskScore: z.number().min(0).max(100).optional(),
+  riskLevel: RiskLevelSchema.optional(),
+  properties: z.record(z.string(), z.any()).default({}),
+  firstSeen: z.string(),
+  lastSeen: z.string()
+});
+export type GraphNode = z.infer<typeof GraphNodeSchema>;
+
+export const GraphEdgeSchema = z.object({
+  id: z.string(),
+  source: z.string(),
+  target: z.string(),
+  type: GraphEdgeTypeSchema,
+  weight: z.number().default(1.0),
+  properties: z.record(z.string(), z.any()).optional().default({}),
+  firstSeen: z.string(),
+  lastSeen: z.string()
+});
+export type GraphEdge = z.infer<typeof GraphEdgeSchema>;
+
+export const GraphDataSchema = z.object({
+  nodes: z.array(GraphNodeSchema),
+  edges: z.array(GraphEdgeSchema),
+  stats: z.object({
+    totalNodes: z.number().int(),
+    totalEdges: z.number().int(),
+    domainCount: z.number().int().optional(),
+    ipCount: z.number().int().optional(),
+    campaignCount: z.number().int().optional()
+  }).optional()
+});
+export type GraphData = z.infer<typeof GraphDataSchema>;
+
+export const CampaignStatusSchema = z.enum(['ACTIVE', 'DORMANT', 'NEUTRALIZED']);
+export type CampaignStatus = z.infer<typeof CampaignStatusSchema>;
+
+export const ThreatCampaignSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  threatActor: z.string().optional().nullable(),
+  targetedBrands: z.array(z.string()),
+  riskLevel: RiskLevelSchema,
+  severityScore: z.number().min(0).max(100),
+  status: CampaignStatusSchema,
+  domainCount: z.number().int().min(0),
+  ipCount: z.number().int().min(0),
+  iocs: z.object({
+    domains: z.array(z.string()),
+    ips: z.array(z.string()),
+    asns: z.array(z.string()),
+    nameservers: z.array(z.string()).optional()
+  }),
+  description: z.string(),
+  firstSeen: z.string(),
+  lastSeen: z.string(),
+  stixBundle: z.record(z.string(), z.any()).optional()
+});
+export type ThreatCampaign = z.infer<typeof ThreatCampaignSchema>;
+
+export const CampaignClusterResultSchema = z.object({
+  totalCampaigns: z.number().int().min(0),
+  newCampaignsCreated: z.number().int().min(0),
+  domainsClustered: z.number().int().min(0),
+  campaigns: z.array(ThreatCampaignSchema)
+});
+export type CampaignClusterResult = z.infer<typeof CampaignClusterResultSchema>;
+

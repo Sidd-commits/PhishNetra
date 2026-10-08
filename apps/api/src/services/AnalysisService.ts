@@ -25,6 +25,7 @@ import { dnsLayer } from './analysis/dnsLayer';
 import { tlsLayer } from './analysis/tlsLayer';
 import { reputationLayer } from './analysis/reputationLayer';
 import { contentLayer } from './analysis/contentLayer';
+import { ThreatGraphEngine } from './graph/ThreatGraphEngine';
 
 export class AnalysisService {
   /**
@@ -280,7 +281,7 @@ export class AnalysisService {
       console.warn(`[AnalysisService] Database write error: ${dbErr.message}. Serving in-memory result.`);
     }
 
-    return {
+    const finalResponse: AnalysisResponse = {
       analysisId: savedAnalysisId,
       url: rawUrl,
       normalizedUrl: canonicalUrl,
@@ -297,6 +298,13 @@ export class AnalysisService {
       summary: multiLayerResult.summary,
       createdAt: createdAtIso
     };
+
+    // Auto-ingest into Threat Intelligence Graph in background
+    ThreatGraphEngine.ingestAnalysis(finalResponse).catch((err: any) => {
+      console.warn(`[AnalysisService] Threat Graph auto-ingest warning: ${err.message}`);
+    });
+
+    return finalResponse;
   }
 
   /**

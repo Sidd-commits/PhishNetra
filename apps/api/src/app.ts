@@ -11,6 +11,8 @@ import analysisRoutes from './routes/analysisRoutes';
 import batchRoutes from './routes/batchRoutes';
 import domainRoutes from './routes/domainRoutes';
 import reportRoutes from './routes/reportRoutes';
+import graphRoutes from './routes/graph';
+import campaignRoutes from './routes/campaigns';
 import systemRoutes from './routes/systemRoutes';
 import healthRoutes from './routes/healthRoutes';
 import { errorHandler } from './middleware/errorHandler';
@@ -60,6 +62,8 @@ export const createApp = (): express.Application => {
   app.use('/api/batch', batchRoutes);
   app.use('/api/domains', domainRoutes);
   app.use('/api/reports', reportRoutes);
+  app.use('/api/graph', graphRoutes);
+  app.use('/api/campaigns', campaignRoutes);
   app.use('/api/system', systemRoutes);
   app.use('/api/health', healthRoutes);
 

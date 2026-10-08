@@ -1,5 +1,5 @@
 // PhishNetra - Prisma Schema Definition
-// Milestone: 4 (Async Batch Architecture, Persistent Cache, Domain Dossier & Community Reports)
+// Milestone: 6 (Threat Graph Engine, IOC Infrastructure Correlation, Campaign Clustering & Analyst Explorer)
 
 generator client {
   provider = "prisma-client-js"
@@ -140,3 +140,65 @@ model CommunityReport {
   @@map("community_reports")
 }
 
+model GraphNode {
+  id             String      @id
+  label          String
+  type           String      // DOMAIN, IP, ASN, CERTIFICATE, NAMESERVER, REGISTRAR, BRAND, CAMPAIGN, URL
+  riskScore      Float?
+  riskLevel      String?     // LOW, MEDIUM, HIGH, CRITICAL
+  propertiesJson String?
+  firstSeen      DateTime    @default(now())
+  lastSeen       DateTime    @default(now())
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  outgoingEdges  GraphEdge[] @relation("SourceNode")
+  incomingEdges  GraphEdge[] @relation("TargetNode")
+
+  @@index([type])
+  @@index([label])
+  @@map("graph_nodes")
+}
+
+model GraphEdge {
+  id             String    @id @default(uuid())
+  sourceId       String
+  sourceNode     GraphNode @relation("SourceNode", fields: [sourceId], references: [id], onDelete: Cascade)
+  targetId       String
+  targetNode     GraphNode @relation("TargetNode", fields: [targetId], references: [id], onDelete: Cascade)
+  type           String    // RESOLVES_TO, HOSTED_ON, USES_CERTIFICATE, MANAGED_BY_NS, REGISTERED_THROUGH, REDIRECTS_TO, EMBEDS_SCRIPT, IMPERSONATES, PART_OF_CAMPAIGN, CO_LOCATED_WITH
+  weight         Float     @default(1.0)
+  propertiesJson String?
+  firstSeen      DateTime  @default(now())
+  lastSeen       DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([sourceId, targetId, type])
+  @@index([sourceId])
+  @@index([targetId])
+  @@index([type])
+  @@map("graph_edges")
+}
+
+model ThreatCampaign {
+  id             String    @id @default(uuid())
+  name           String
+  threatActor    String?
+  targetedBrands String    // JSON array string of brands e.g. ["PayPal", "Microsoft"]
+  riskLevel      String    @default("HIGH") // LOW, MEDIUM, HIGH, CRITICAL
+  severityScore  Float     @default(75.0)
+  status         String    @default("ACTIVE") // ACTIVE, DORMANT, NEUTRALIZED
+  domainCount    Int       @default(0)
+  ipCount        Int       @default(0)
+  iocsJson       String    // JSON { domains: [], ips: [], asns: [], nameservers: [] }
+  description    String
+  firstSeen      DateTime  @default(now())
+  lastSeen       DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([status])
+  @@index([riskLevel])
+  @@map("threat_campaigns")
+}

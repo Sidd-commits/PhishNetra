@@ -8,6 +8,8 @@ import {
   Layers,
   Globe,
   MessageSquare,
+  Network,
+  Flame,
   LogOut,
   UserCheck,
   Radio
@@ -47,7 +49,7 @@ export const Navbar: React.FC = () => {
                     Phish<span className="text-cyan-400">Netra</span>
                   </span>
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
-                    M4 • Async Engine
+                    M6 • Threat Graph
                   </span>
                 </div>
                 <p className="text-[10px] text-slate-400 font-mono hidden sm:block">
@@ -118,6 +120,30 @@ export const Navbar: React.FC = () => {
               >
                 <MessageSquare className="w-3.5 h-3.5" />
                 <span>Threat Reports</span>
+              </Link>
+
+              <Link
+                to="/graph"
+                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  isActive('/graph')
+                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+                }`}
+              >
+                <Network className="w-3.5 h-3.5" />
+                <span>Threat Graph</span>
+              </Link>
+
+              <Link
+                to="/campaigns"
+                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  isActive('/campaigns')
+                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+                }`}
+              >
+                <Flame className="w-3.5 h-3.5" />
+                <span>Campaigns</span>
               </Link>
             </div>
           )}

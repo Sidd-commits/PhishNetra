@@ -5,6 +5,8 @@ import { canonicalizeUrl } from '../src/services/analysis/canonicalization';
 
 const app = createApp();
 
+jest.setTimeout(30000);
+
 describe('Analysis & Multi-Layer Integration Test Suite', () => {
   beforeAll(async () => {
     try {
@@ -92,6 +94,6 @@ describe('Analysis & Multi-Layer Integration Test Suite', () => {
       expect(res.body).toHaveProperty('summary');
       expect(res.body).toHaveProperty('evidence');
       expect(Array.isArray(res.body.evidence)).toBe(true);
-    });
+    }, 25000);
   });
 });

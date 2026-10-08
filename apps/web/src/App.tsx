@@ -11,6 +11,8 @@ import { AnalysisDetailPage } from './pages/AnalysisDetailPage';
 import { BatchPage } from './pages/BatchPage';
 import { DomainDossierPage } from './pages/DomainDossierPage';
 import { ReportsPage } from './pages/ReportsPage';
+import { ThreatGraphPage } from './pages/ThreatGraphPage';
+import { CampaignsPage } from './pages/CampaignsPage';
 
 export const App: React.FC = () => {
   return (
@@ -78,6 +80,22 @@ export const App: React.FC = () => {
                 element={
                   <ProtectedRoute>
                     <ReportsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/graph"
+                element={
+                  <ProtectedRoute>
+                    <ThreatGraphPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/campaigns"
+                element={
+                  <ProtectedRoute>
+                    <CampaignsPage />
                   </ProtectedRoute>
                 }
               />
