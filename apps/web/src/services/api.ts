@@ -32,7 +32,15 @@ import {
   RemediationResult,
   EmailAnalysisRequest,
   EmailAnalysisResult,
-  RawIOCExtractionResult
+  RawIOCExtractionResult,
+  SystemConfig,
+  UpdateSystemConfigRequest,
+  ApiKeyItem,
+  CreateApiKeyRequest,
+  CreateApiKeyResponse,
+  AuditLogEntry,
+  ThreatFeedStatus,
+  ThreatFeedSyncResult
 } from '@phishnetra/shared';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -296,6 +304,70 @@ class ApiService {
     return res.data.data;
   }
 
+  // --- Milestone 9: Governance, Calibration, Audit & Feeds ---
+  public async getSystemConfig(): Promise<SystemConfig> {
+    const res = await this.client.get<{ success: boolean; data: SystemConfig }>('/settings/config');
+    return res.data.data;
+  }
+
+  public async updateSystemConfig(req: UpdateSystemConfigRequest): Promise<SystemConfig> {
+    const res = await this.client.patch<{ success: boolean; data: SystemConfig }>('/settings/config', req);
+    return res.data.data;
+  }
+
+  public async resetSystemConfig(): Promise<SystemConfig> {
+    const res = await this.client.post<{ success: boolean; data: SystemConfig }>('/settings/reset');
+    return res.data.data;
+  }
+
+  public async listApiKeys(): Promise<ApiKeyItem[]> {
+    const res = await this.client.get<{ success: boolean; data: ApiKeyItem[] }>('/settings/api-keys');
+    return res.data.data;
+  }
+
+  public async createApiKey(req: CreateApiKeyRequest): Promise<CreateApiKeyResponse> {
+    const res = await this.client.post<{ success: boolean; data: CreateApiKeyResponse }>('/settings/api-keys', req);
+    return res.data.data;
+  }
+
+  public async revokeApiKey(id: string): Promise<boolean> {
+    const res = await this.client.delete<{ success: boolean }>(`/settings/api-keys/${id}`);
+    return res.data.success;
+  }
+
+  public async getAuditLogs(filters?: { category?: string; severity?: string; actor?: string; search?: string; limit?: number; offset?: number }): Promise<{ total: number; logs: AuditLogEntry[] }> {
+    const params = new URLSearchParams();
+    if (filters?.category) params.append('category', filters.category);
+    if (filters?.severity) params.append('severity', filters.severity);
+    if (filters?.actor) params.append('actor', filters.actor);
+    if (filters?.search) params.append('search', filters.search);
+    if (filters?.limit) params.append('limit', String(filters.limit));
+    if (filters?.offset) params.append('offset', String(filters.offset));
+
+    const res = await this.client.get<{ success: boolean; data: { total: number; logs: AuditLogEntry[] } }>(`/audit-logs?${params.toString()}`);
+    return res.data.data;
+  }
+
+  public async listThreatFeeds(): Promise<ThreatFeedStatus[]> {
+    const res = await this.client.get<{ success: boolean; data: ThreatFeedStatus[] }>('/feeds');
+    return res.data.data;
+  }
+
+  public async syncThreatFeed(source: string): Promise<ThreatFeedSyncResult> {
+    const res = await this.client.post<{ success: boolean; data: ThreatFeedSyncResult }>(`/feeds/${source}/sync`);
+    return res.data.data;
+  }
+
+  public async syncAllThreatFeeds(): Promise<ThreatFeedSyncResult[]> {
+    const res = await this.client.post<{ success: boolean; data: ThreatFeedSyncResult[] }>('/feeds/sync-all');
+    return res.data.data;
+  }
+
+  public async toggleThreatFeed(source: string, enabled: boolean): Promise<ThreatFeedStatus> {
+    const res = await this.client.patch<{ success: boolean; data: ThreatFeedStatus }>(`/feeds/${source}/toggle`, { enabled });
+    return res.data.data;
+  }
+
   // --- Health Check ---
   public async getHealth(): Promise<any> {
     const res = await this.client.get('/health');
@@ -304,5 +376,6 @@ class ApiService {
 }
 
 export const api = new ApiService();
+
 
 

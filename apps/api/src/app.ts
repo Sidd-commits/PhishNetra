@@ -18,6 +18,9 @@ import siemRoutes from './routes/siemRoutes';
 import webhookRoutes from './routes/webhookRoutes';
 import caseRoutes from './routes/caseRoutes';
 import ingestRoutes from './routes/ingestRoutes';
+import settingsRoutes from './routes/settingsRoutes';
+import auditRoutes from './routes/auditRoutes';
+import feedRoutes from './routes/feedRoutes';
 import systemRoutes from './routes/systemRoutes';
 import healthRoutes from './routes/healthRoutes';
 import { errorHandler } from './middleware/errorHandler';
@@ -74,6 +77,9 @@ export const createApp = (): express.Application => {
   app.use('/api/notifications', webhookRoutes);
   app.use('/api/cases', caseRoutes);
   app.use('/api/ingest', ingestRoutes);
+  app.use('/api/settings', settingsRoutes);
+  app.use('/api/audit-logs', auditRoutes);
+  app.use('/api/feeds', feedRoutes);
   app.use('/api/system', systemRoutes);
   app.use('/api/health', healthRoutes);
 

@@ -1149,5 +1149,145 @@ export const RawIOCExtractionResultSchema = z.object({
 });
 export type RawIOCExtractionResult = z.infer<typeof RawIOCExtractionResultSchema>;
 
+// ============================================================================
+// Milestone 9: Governance, Calibration, Audit Logging & Feed Synchronization
+// ============================================================================
+
+export const LayerWeightsSchema = z.object({
+  url: z.number().min(0).max(1).default(0.15),
+  domain: z.number().min(0).max(1).default(0.10),
+  dns: z.number().min(0).max(1).default(0.08),
+  tls: z.number().min(0).max(1).default(0.07),
+  reputation: z.number().min(0).max(1).default(0.20),
+  ml: z.number().min(0).max(1).default(0.15),
+  content: z.number().min(0).max(1).default(0.15),
+  brand: z.number().min(0).max(1).default(0.10)
+});
+export type LayerWeights = z.infer<typeof LayerWeightsSchema>;
+
+export const RiskThresholdsSchema = z.object({
+  safeMax: z.number().min(10).max(50).default(35),
+  suspiciousMax: z.number().min(51).max(85).default(70)
+});
+export type RiskThresholds = z.infer<typeof RiskThresholdsSchema>;
+
+export const ReputationProviderConfigSchema = z.object({
+  urlhausEnabled: z.boolean().default(true),
+  phishTankEnabled: z.boolean().default(true),
+  virusTotalEnabled: z.boolean().default(false)
+});
+export type ReputationProviderConfig = z.infer<typeof ReputationProviderConfigSchema>;
+
+export const SystemConfigSchema = z.object({
+  weights: LayerWeightsSchema,
+  thresholds: RiskThresholdsSchema,
+  providers: ReputationProviderConfigSchema,
+  whitelistedDomains: z.array(z.string()).default([]),
+  autoRemediateCritical: z.boolean().default(false),
+  feedSyncIntervalMinutes: z.number().int().min(5).max(1440).default(60),
+  updatedAt: z.string(),
+  updatedBy: z.string()
+});
+export type SystemConfig = z.infer<typeof SystemConfigSchema>;
+
+export const UpdateSystemConfigRequestSchema = z.object({
+  weights: LayerWeightsSchema.partial().optional(),
+  thresholds: RiskThresholdsSchema.partial().optional(),
+  providers: ReputationProviderConfigSchema.partial().optional(),
+  whitelistedDomains: z.array(z.string()).optional(),
+  autoRemediateCritical: z.boolean().optional(),
+  feedSyncIntervalMinutes: z.number().int().min(5).max(1440).optional()
+});
+export type UpdateSystemConfigRequest = z.infer<typeof UpdateSystemConfigRequestSchema>;
+
+export const ApiKeyItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  keyPrefix: z.string(),
+  role: z.enum(['USER', 'ANALYST', 'ADMIN']),
+  createdAt: z.string(),
+  lastUsedAt: z.string().optional().nullable(),
+  expiresAt: z.string().optional().nullable(),
+  status: z.enum(['ACTIVE', 'REVOKED'])
+});
+export type ApiKeyItem = z.infer<typeof ApiKeyItemSchema>;
+
+export const CreateApiKeyRequestSchema = z.object({
+  name: z.string().min(2).max(100),
+  role: z.enum(['USER', 'ANALYST', 'ADMIN']).default('ANALYST'),
+  expiresInDays: z.number().int().min(1).max(365).optional()
+});
+export type CreateApiKeyRequest = z.infer<typeof CreateApiKeyRequestSchema>;
+
+export const CreateApiKeyResponseSchema = z.object({
+  apiKey: ApiKeyItemSchema,
+  secretToken: z.string()
+});
+export type CreateApiKeyResponse = z.infer<typeof CreateApiKeyResponseSchema>;
+
+export const AuditLogCategorySchema = z.enum([
+  'AUTH',
+  'ANALYSIS',
+  'CASE',
+  'REMEDIATION',
+  'CONFIG',
+  'THREAT_FEED',
+  'MLOPS',
+  'SECURITY'
+]);
+export type AuditLogCategory = z.infer<typeof AuditLogCategorySchema>;
+
+export const AuditLogSeveritySchema = z.enum([
+  'INFO',
+  'WARNING',
+  'CRITICAL'
+]);
+export type AuditLogSeverity = z.infer<typeof AuditLogSeveritySchema>;
+
+export const AuditLogEntrySchema = z.object({
+  id: z.string(),
+  timestamp: z.string(),
+  actor: z.string(),
+  action: z.string(),
+  category: AuditLogCategorySchema,
+  severity: AuditLogSeveritySchema,
+  target: z.string().optional().nullable(),
+  details: z.string(),
+  ipAddress: z.string().optional().nullable()
+});
+export type AuditLogEntry = z.infer<typeof AuditLogEntrySchema>;
+
+export const ThreatFeedSourceSchema = z.enum([
+  'URLHAUS',
+  'OPENPHISH',
+  'PHISHTANK',
+  'CISA_KEV'
+]);
+export type ThreatFeedSource = z.infer<typeof ThreatFeedSourceSchema>;
+
+export const ThreatFeedStatusSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  source: ThreatFeedSourceSchema,
+  enabled: z.boolean(),
+  iocCount: z.number().int(),
+  lastSyncStatus: z.enum(['SUCCESS', 'RUNNING', 'FAILED', 'NEVER']),
+  lastSyncAt: z.string().optional().nullable(),
+  errorMessage: z.string().optional().nullable()
+});
+export type ThreatFeedStatus = z.infer<typeof ThreatFeedStatusSchema>;
+
+export const ThreatFeedSyncResultSchema = z.object({
+  source: ThreatFeedSourceSchema,
+  syncDurationMs: z.number().int(),
+  totalFetched: z.number().int(),
+  newIocsAdded: z.number().int(),
+  duplicatesSkipped: z.number().int(),
+  status: z.enum(['SUCCESS', 'FAILED']),
+  syncedAt: z.string()
+});
+export type ThreatFeedSyncResult = z.infer<typeof ThreatFeedSyncResultSchema>;
+
+
 
 

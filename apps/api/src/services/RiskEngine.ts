@@ -19,6 +19,8 @@ import {
   RISK_THRESHOLDS
 } from '@phishnetra/shared';
 
+import { settingsService } from './settings/SettingsService';
+
 export interface MultiLayerEvaluationInput {
   urlLayer: URLIntelligence;
   domainLayer: DomainIntelligence;
@@ -56,6 +58,18 @@ export class RiskEngine {
       pageLayer,
       layerEvidences
     } = input;
+
+    const currentConfig = settingsService.getConfig();
+    const dynamicWeights: Record<string, number> = {
+      URL: currentConfig.weights.url ?? LAYER_WEIGHTS.URL,
+      DOMAIN: currentConfig.weights.domain ?? LAYER_WEIGHTS.DOMAIN,
+      DNS: currentConfig.weights.dns ?? LAYER_WEIGHTS.DNS,
+      TLS: currentConfig.weights.tls ?? LAYER_WEIGHTS.TLS,
+      REPUTATION: currentConfig.weights.reputation ?? LAYER_WEIGHTS.REPUTATION,
+      ML: currentConfig.weights.ml ?? LAYER_WEIGHTS.ML,
+      CONTENT: currentConfig.weights.content ?? LAYER_WEIGHTS.CONTENT,
+      BRAND: currentConfig.weights.brand ?? LAYER_WEIGHTS.BRAND
+    };
 
     const layerScores: Record<string, number> = {
       URL: 0,
@@ -177,7 +191,7 @@ export class RiskEngine {
     let activeWeightsSum = 0;
     const weightsToApply: Record<string, number> = {};
 
-    for (const [layer, defaultWeight] of Object.entries(LAYER_WEIGHTS)) {
+    for (const [layer, defaultWeight] of Object.entries(dynamicWeights)) {
       // If Reputation is completely unconfigured, exclude its weight
       if (layer === 'REPUTATION' && reputationLayer.providers.every(p => !p.isConfigured)) {
         continue;
@@ -217,17 +231,20 @@ export class RiskEngine {
 
     const finalRiskScore = Math.round(Math.min(100, Math.max(0, compositeScore)) * 10) / 10;
 
-    // Determine Verdict and Risk Level
+    // Determine Verdict and Risk Level using configured thresholds
+    const safeThreshold = currentConfig.thresholds.safeMax || RISK_THRESHOLDS.SAFE_MAX;
+    const suspiciousThreshold = currentConfig.thresholds.suspiciousMax || RISK_THRESHOLDS.SUSPICIOUS_MAX;
+
     let verdict: ThreatVerdict = 'SAFE';
     let riskLevel: RiskLevel = 'LOW';
 
     if (finalRiskScore > RISK_THRESHOLDS.HIGH_MAX) {
       verdict = 'PHISHING';
       riskLevel = 'CRITICAL';
-    } else if (finalRiskScore > RISK_THRESHOLDS.SUSPICIOUS_MAX) {
+    } else if (finalRiskScore > suspiciousThreshold) {
       verdict = 'PHISHING';
       riskLevel = 'HIGH';
-    } else if (finalRiskScore > RISK_THRESHOLDS.SAFE_MAX) {
+    } else if (finalRiskScore > safeThreshold) {
       verdict = 'SUSPICIOUS';
       riskLevel = 'MEDIUM';
     } else {
