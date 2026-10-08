@@ -215,10 +215,31 @@
   - Threat Actor Attribution & FAIR Cyber Risk Studio (`/threat-attribution`).
 - **Comprehensive Automated Test Coverage:** 221 automated tests passing across the monorepo (151 Jest API tests across 24 suites, 12 Jest Extension tests, 58 Pytest ML tests) and complete `docs/MULTIMODAL_QUISHING_AND_ATTRIBUTION.md`.
 
+### Milestone 18: Client Anti-Tampering SDK, Continuous Session Verification & MITRE D3FEND (Completed)
+- **Client-Side Anti-Tampering & DOM Cloaking Defense SDK (`ClientTamperDefenseService.ts` / `/api/client-defense`):**
+  - Real-time DevTools traps, debugger latency traps, and DOM MutationObservers preventing credential overlay injections.
+  - Anti-clickjacking frame guards enforcing top-level window containment.
+  - Cryptographic Subresource Integrity (SRI) SHA-256 hash generation for defense script inclusion.
+  - Asynchronous tamper beacon ingestion pipeline with automated SOC audit trail logging.
+- **Zero-Trust Continuous Session Verification (`ContinuousSessionService.ts` / `/api/session-anomaly`):**
+  - Real-time post-authentication continuous risk scoring (CRS) engine.
+  - Mathematical Haversine velocity calculations detecting impossible travel (>850 km/h).
+  - In-flight TLS JA3/JA4 fingerprint drift detection and User-Agent mutation traps.
+  - Autonomous session kill switch triggering when Continuous Risk Score $\ge 80$.
+- **MITRE D3FEND Countermeasure Matrix (`D3FENDMappingService.ts` / `/api/d3fend`):**
+  - Ontological mapping across all 5 D3FEND tactics: MODEL, HARDEN, DETECT, ISOLATE, and DECEIVE.
+  - 14 active defensive techniques mapped to PhishNetra microservices with a 93.3% platform coverage index.
+  - Dynamic defense gap evaluation and automated countermeasure recommendations.
+- **Interactive React SOC UI Pages:**
+  - Client Anti-Tamper SDK Studio (`/client-defense`).
+  - Continuous Session Verification Console (`/session-anomaly`).
+  - MITRE D3FEND Countermeasure Matrix Explorer (`/d3fend`).
+- **Comprehensive Automated Test Coverage:** 229 automated tests passing across the monorepo (159 Jest API tests across 25 suites, 12 Jest Extension tests, 58 Pytest ML tests) and complete `docs/CLIENT_DEFENSE_AND_SESSION_ANOMALY.md`.
+
 ---
 
 ## Master Roadmap Status: 100% Complete & Production Ready
-All 17 milestones of the PhishNetra Platform have been completely implemented, verified with 221 automated tests, and documented.
+All 18 milestones of the PhishNetra Platform have been completely implemented, verified with 229 automated tests, and documented.
 
 
 

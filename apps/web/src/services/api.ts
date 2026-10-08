@@ -86,7 +86,13 @@ import {
   ThreatActorProfile,
   AttributionMatchResult,
   FAIRRiskParams,
-  FAIRRiskAssessmentResult
+  FAIRRiskAssessmentResult,
+  ClientGuardConfig,
+  ClientGuardScriptResult,
+  ClientTamperEvent,
+  SessionTelemetryProbe,
+  ContinuousRiskAssessment,
+  D3FENDMatrixCoverage
 } from '@phishnetra/shared';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -722,6 +728,32 @@ class ApiService {
 
   public async calculateFAIRRisk(params: FAIRRiskParams): Promise<FAIRRiskAssessmentResult> {
     const res = await this.client.post<{ success: boolean; data: FAIRRiskAssessmentResult }>('/risk-quantification/calculate', params);
+    return res.data.data;
+  }
+
+  // --- Milestone 18: Client Defense, Session Anomaly & MITRE D3FEND ---
+  public async generateClientGuard(config: ClientGuardConfig): Promise<ClientGuardScriptResult> {
+    const res = await this.client.post<{ success: boolean; data: ClientGuardScriptResult }>('/client-defense/generate', config);
+    return res.data.data;
+  }
+
+  public async listClientTamperEvents(): Promise<ClientTamperEvent[]> {
+    const res = await this.client.get<{ success: boolean; data: ClientTamperEvent[] }>('/client-defense/events');
+    return res.data.data;
+  }
+
+  public async evaluateSessionAnomaly(probe: SessionTelemetryProbe): Promise<ContinuousRiskAssessment> {
+    const res = await this.client.post<{ success: boolean; data: ContinuousRiskAssessment }>('/session-anomaly/evaluate', probe);
+    return res.data.data;
+  }
+
+  public async getSessionTelemetryHistory(sessionId: string): Promise<SessionTelemetryProbe[]> {
+    const res = await this.client.get<{ success: boolean; data: SessionTelemetryProbe[] }>(`/session-anomaly/history/${sessionId}`);
+    return res.data.data;
+  }
+
+  public async getD3FENDMatrix(): Promise<D3FENDMatrixCoverage> {
+    const res = await this.client.get<{ success: boolean; data: D3FENDMatrixCoverage }>('/d3fend/matrix');
     return res.data.data;
   }
 

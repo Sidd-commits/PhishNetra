@@ -36,6 +36,9 @@ import { AiTMDefensePage } from './pages/AiTMDefensePage';
 import { ThreatFusionPage } from './pages/ThreatFusionPage';
 import { QuishingDefensePage } from './pages/QuishingDefensePage';
 import { ThreatAttributionPage } from './pages/ThreatAttributionPage';
+import { ClientDefensePage } from './pages/ClientDefensePage';
+import { SessionAnomalyPage } from './pages/SessionAnomalyPage';
+import { D3FENDMatrixPage } from './pages/D3FENDMatrixPage';
 
 export const App: React.FC = () => {
   return (
@@ -324,6 +327,36 @@ export const App: React.FC = () => {
                   element={
                     <ProtectedRoute>
                       <ThreatAttributionPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Client-Side Anti-Tampering & DOM Cloaking Defense SDK */}
+                <Route
+                  path="/client-defense"
+                  element={
+                    <ProtectedRoute>
+                      <ClientDefensePage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Zero-Trust Continuous Session Verification */}
+                <Route
+                  path="/session-anomaly"
+                  element={
+                    <ProtectedRoute>
+                      <SessionAnomalyPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* MITRE D3FEND Defensive Matrix Mapping */}
+                <Route
+                  path="/d3fend"
+                  element={
+                    <ProtectedRoute>
+                      <D3FENDMatrixPage />
                     </ProtectedRoute>
                   }
                 />

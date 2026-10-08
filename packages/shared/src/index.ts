@@ -2249,4 +2249,110 @@ export const FAIRRiskAssessmentResultSchema = z.object({
 });
 export type FAIRRiskAssessmentResult = z.infer<typeof FAIRRiskAssessmentResultSchema>;
 
+// ============================================================================
+// Milestone 18: Client Anti-Tamper SDK, Continuous Session Verification & MITRE D3FEND
+// ============================================================================
+
+// 1. Client-Side Anti-Tampering & DOM Cloaking Defense
+export const ClientGuardConfigSchema = z.object({
+  enableDevToolsTrap: z.boolean().default(true),
+  enableMutationTrap: z.boolean().default(true),
+  enableClickjackingTrap: z.boolean().default(true),
+  enableWatermarking: z.boolean().default(true),
+  reportingEndpoint: z.string().default('/api/client-defense/beacon'),
+  targetDomain: z.string().min(2)
+});
+export type ClientGuardConfig = z.infer<typeof ClientGuardConfigSchema>;
+
+export const ClientTamperEventSchema = z.object({
+  eventId: z.string(),
+  timestamp: z.string(),
+  targetDomain: z.string(),
+  tamperType: z.enum([
+    'DEVTOOLS_OPENED',
+    'DOM_OVERLAY_INJECTED',
+    'CLICKJACKING_IFRAME_DETECTED',
+    'SCRIPT_MODIFIED',
+    'KEYLOGGER_INTERCEPTOR'
+  ]),
+  clientIp: z.string(),
+  userAgent: z.string(),
+  payloadDetails: z.record(z.string(), z.any()),
+  severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'])
+});
+export type ClientTamperEvent = z.infer<typeof ClientTamperEventSchema>;
+
+export const ClientGuardScriptResultSchema = z.object({
+  configId: z.string(),
+  generatedAt: z.string(),
+  targetDomain: z.string(),
+  obfuscatedScript: z.string(),
+  scriptIntegrityHash: z.string()
+});
+export type ClientGuardScriptResult = z.infer<typeof ClientGuardScriptResultSchema>;
+
+// 2. Zero-Trust Continuous Session Verification & Impossible Travel Anomaly
+export const SessionTelemetryProbeSchema = z.object({
+  sessionId: z.string(),
+  userEmail: z.string().email(),
+  timestamp: z.string(),
+  ipAddress: z.string(),
+  geoCoordinates: z.object({
+    latitude: z.number(),
+    longitude: z.number(),
+    country: z.string(),
+    city: z.string()
+  }),
+  tlsJa3Fingerprint: z.string(),
+  userAgent: z.string()
+});
+export type SessionTelemetryProbe = z.infer<typeof SessionTelemetryProbeSchema>;
+
+export const ContinuousRiskAssessmentSchema = z.object({
+  assessmentId: z.string(),
+  sessionId: z.string(),
+  userEmail: z.string(),
+  evaluatedAt: z.string(),
+  continuousRiskScore: z.number().min(0).max(100),
+  anomaliesDetected: z.array(z.string()),
+  impossibleTravelVelocityKmh: z.number().optional(),
+  tlsDriftDetected: z.boolean(),
+  deviceProfileMutated: z.boolean(),
+  actionTaken: z.enum(['ALLOW', 'STEP_UP_CHALLENGE', 'TERMINATE_SESSION']),
+  killSwitchDispatched: z.boolean()
+});
+export type ContinuousRiskAssessment = z.infer<typeof ContinuousRiskAssessmentSchema>;
+
+// 3. MITRE D3FEND Defensive Countermeasure Matrix
+export const D3FENDTacticSchema = z.enum([
+  'MODEL',
+  'HARDEN',
+  'DETECT',
+  'ISOLATE',
+  'DECEIVE'
+]);
+export type D3FENDTactic = z.infer<typeof D3FENDTacticSchema>;
+
+export const D3FENDTechniqueMappingSchema = z.object({
+  d3fendId: z.string(),
+  techniqueName: z.string(),
+  tactic: D3FENDTacticSchema,
+  phishNetraCapability: z.string(),
+  coverageScore: z.number().min(0).max(100),
+  verificationStatus: z.enum(['VERIFIED', 'PARTIAL', 'PLANNED'])
+});
+export type D3FENDTechniqueMapping = z.infer<typeof D3FENDTechniqueMappingSchema>;
+
+export const D3FENDMatrixCoverageSchema = z.object({
+  matrixId: z.string(),
+  generatedAt: z.string(),
+  totalTechniques: z.number(),
+  verifiedTechniques: z.number(),
+  overallDefensivePostureScore: z.number().min(0).max(100),
+  tacticCoverage: z.record(z.string(), z.number()),
+  techniques: z.array(D3FENDTechniqueMappingSchema)
+});
+export type D3FENDMatrixCoverage = z.infer<typeof D3FENDMatrixCoverageSchema>;
+
+
 

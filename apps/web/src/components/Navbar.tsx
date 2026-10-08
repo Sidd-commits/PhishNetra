@@ -199,7 +199,7 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={() => toggleDropdown('intel')}
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    isGroupActive(['/graph', '/campaigns', '/feeds', '/reports', '/executive-briefing', '/hunting', '/attack-surface', '/rbi-sandbox', '/intel-fusion', '/threat-attribution']) || openDropdown === 'intel'
+                    isGroupActive(['/graph', '/campaigns', '/feeds', '/reports', '/executive-briefing', '/hunting', '/attack-surface', '/rbi-sandbox', '/intel-fusion', '/threat-attribution', '/d3fend']) || openDropdown === 'intel'
                       ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30'
                       : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                   }`}
@@ -211,6 +211,16 @@ export const Navbar: React.FC = () => {
 
                 {openDropdown === 'intel' && (
                   <div className="absolute left-0 mt-2 w-60 rounded-2xl bg-slate-900/95 border border-slate-800 p-2 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-top-2">
+                    <Link
+                      to="/d3fend"
+                      className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
+                    >
+                      <ShieldCheck className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-white">MITRE D3FEND Matrix</div>
+                        <div className="text-[10px] text-slate-400">Tactics, techniques & coverage</div>
+                      </div>
+                    </Link>
                     <Link
                       to="/threat-attribution"
                       className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
@@ -320,7 +330,7 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={() => toggleDropdown('soc')}
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    isGroupActive(['/cases', '/playbooks', '/takedowns', '/siem', '/audit-logs', '/integrations', '/copilot', '/deception', '/tarpit', '/aitm-defense']) || openDropdown === 'soc'
+                    isGroupActive(['/cases', '/playbooks', '/takedowns', '/siem', '/audit-logs', '/integrations', '/copilot', '/deception', '/tarpit', '/aitm-defense', '/client-defense', '/session-anomaly']) || openDropdown === 'soc'
                       ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
                       : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                   }`}
@@ -332,6 +342,26 @@ export const Navbar: React.FC = () => {
 
                 {openDropdown === 'soc' && (
                   <div className="absolute left-0 mt-2 w-60 rounded-2xl bg-slate-900/95 border border-slate-800 p-2 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-top-2">
+                    <Link
+                      to="/client-defense"
+                      className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
+                    >
+                      <Shield className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-white">Client Anti-Tamper SDK</div>
+                        <div className="text-[10px] text-slate-400">DOM cloaking & devtools traps</div>
+                      </div>
+                    </Link>
+                    <Link
+                      to="/session-anomaly"
+                      className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
+                    >
+                      <Activity className="w-4 h-4 text-rose-400 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-white">Continuous Session Trust</div>
+                        <div className="text-[10px] text-slate-400">Impossible travel & JA3 drift</div>
+                      </div>
+                    </Link>
                     <Link
                       to="/aitm-defense"
                       className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
@@ -559,6 +589,7 @@ export const Navbar: React.FC = () => {
 
           <div className="space-y-1">
             <span className="text-[10px] font-mono uppercase text-slate-500 px-3">Threat Intelligence</span>
+            <Link to="/d3fend" className="block px-3 py-1.5 rounded-lg text-xs text-cyan-300 hover:bg-slate-800">MITRE D3FEND Matrix</Link>
             <Link to="/threat-attribution" className="block px-3 py-1.5 rounded-lg text-xs text-rose-300 hover:bg-slate-800">Threat Actor Matrix & FAIR</Link>
             <Link to="/intel-fusion" className="block px-3 py-1.5 rounded-lg text-xs text-purple-300 hover:bg-slate-800">Threat Fusion & Compliance</Link>
             <Link to="/rbi-sandbox" className="block px-3 py-1.5 rounded-lg text-xs text-cyan-300 hover:bg-slate-800">RBI Sandbox</Link>
@@ -573,6 +604,8 @@ export const Navbar: React.FC = () => {
 
           <div className="space-y-1">
             <span className="text-[10px] font-mono uppercase text-slate-500 px-3">SOC Operations</span>
+            <Link to="/client-defense" className="block px-3 py-1.5 rounded-lg text-xs text-emerald-300 hover:bg-slate-800">Client Anti-Tamper SDK</Link>
+            <Link to="/session-anomaly" className="block px-3 py-1.5 rounded-lg text-xs text-rose-300 hover:bg-slate-800">Continuous Session Trust</Link>
             <Link to="/aitm-defense" className="block px-3 py-1.5 rounded-lg text-xs text-rose-300 hover:bg-slate-800">AiTM Proxy Defense</Link>
             <Link to="/tarpit" className="block px-3 py-1.5 rounded-lg text-xs text-orange-300 hover:bg-slate-800">Phishing Tarpit</Link>
             <Link to="/copilot" className="block px-3 py-1.5 rounded-lg text-xs text-cyan-300 hover:bg-slate-800">AI SOC Co-Pilot</Link>

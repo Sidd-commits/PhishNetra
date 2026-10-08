@@ -43,6 +43,9 @@ import { complianceRouter } from './routes/complianceRoutes';
 import { quishingRouter } from './routes/quishingRoutes';
 import { attributionRouter } from './routes/attributionRoutes';
 import { riskQuantificationRouter } from './routes/riskQuantificationRoutes';
+import { clientDefenseRouter } from './routes/clientDefenseRoutes';
+import { sessionAnomalyRouter } from './routes/sessionAnomalyRoutes';
+import { d3fendRouter } from './routes/d3fendRoutes';
 import { metricsService } from './services/metrics/PrometheusMetricsService';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -132,6 +135,9 @@ export const createApp = (): express.Application => {
   app.use('/api/quishing', quishingRouter);
   app.use('/api/attribution', attributionRouter);
   app.use('/api/risk-quantification', riskQuantificationRouter);
+  app.use('/api/client-defense', clientDefenseRouter);
+  app.use('/api/session-anomaly', sessionAnomalyRouter);
+  app.use('/api/d3fend', d3fendRouter);
 
   // Fallback 404 for unknown endpoints
   app.use((req, res) => {
