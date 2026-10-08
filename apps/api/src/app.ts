@@ -37,6 +37,9 @@ import easmRoutes from './routes/easmRoutes';
 import rbiRoutes from './routes/rbiRoutes';
 import tarpitRoutes from './routes/tarpitRoutes';
 import taxiiServerRoutes from './routes/taxiiServerRoutes';
+import { aitmRouter } from './routes/aitmRoutes';
+import { intelFusionRouter } from './routes/intelFusionRoutes';
+import { complianceRouter } from './routes/complianceRoutes';
 import { metricsService } from './services/metrics/PrometheusMetricsService';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -120,6 +123,9 @@ export const createApp = (): express.Application => {
   app.use('/api/rbi', rbiRoutes);
   app.use('/api/tarpit', tarpitRoutes);
   app.use('/api/taxii21', taxiiServerRoutes);
+  app.use('/api/aitm', aitmRouter);
+  app.use('/api/intel-fusion', intelFusionRouter);
+  app.use('/api/compliance', complianceRouter);
 
   // Fallback 404 for unknown endpoints
   app.use((req, res) => {

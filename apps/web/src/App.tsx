@@ -32,6 +32,8 @@ import { CanaryDeceptionPage } from './pages/CanaryDeceptionPage';
 import { AttackSurfacePage } from './pages/AttackSurfacePage';
 import { RBISandboxPage } from './pages/RBISandboxPage';
 import { PhishingTarpitPage } from './pages/PhishingTarpitPage';
+import { AiTMDefensePage } from './pages/AiTMDefensePage';
+import { ThreatFusionPage } from './pages/ThreatFusionPage';
 
 export const App: React.FC = () => {
   return (
@@ -280,6 +282,26 @@ export const App: React.FC = () => {
                   element={
                     <ProtectedRoute>
                       <PhishingTarpitPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Adversary-in-the-Middle (AiTM) Reverse Proxy Defense */}
+                <Route
+                  path="/aitm-defense"
+                  element={
+                    <ProtectedRoute>
+                      <AiTMDefensePage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Threat Intelligence Fusion & Compliance Studio */}
+                <Route
+                  path="/intel-fusion"
+                  element={
+                    <ProtectedRoute>
+                      <ThreatFusionPage />
                     </ProtectedRoute>
                   }
                 />

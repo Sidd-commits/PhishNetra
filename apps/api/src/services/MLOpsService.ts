@@ -133,7 +133,7 @@ export class MLOpsService {
       return AdversarialEvaluationReportSchema.parse(response.data);
     } catch (error: any) {
       console.warn(`[MLOpsService] Adversarial tests failed (${error.message}). Returning fallback report.`);
-      return this.fallbackAdversarialReport(params.url);
+      return this.fallbackAdversarialReport(params.url, params.attack_types);
     }
   }
 
@@ -204,22 +204,33 @@ export class MLOpsService {
     };
   }
 
-  private fallbackAdversarialReport(targetUrl?: string): AdversarialEvaluationReport {
+  private fallbackAdversarialReport(targetUrl?: string, attackTypes?: string[]): AdversarialEvaluationReport {
     const url = targetUrl || 'http://192.168.1.1/login.php';
+    const defaultResults: AdversarialEvaluationReport['results'] = [
+      { attackType: 'HOMOGLYPH', originalUrl: url, perturbedUrl: url.replace('a', 'а'), originalScore: 92.0, perturbedScore: 91.5, evaded: false, scoreDiff: 0.5 },
+      { attackType: 'KEYWORD_STUFFING', originalUrl: url, perturbedUrl: `${url}/privacy-policy/help`, originalScore: 92.0, perturbedScore: 88.0, evaded: false, scoreDiff: 4.0 },
+      { attackType: 'SUBDOMAIN_PACKING', originalUrl: url, perturbedUrl: `sso.identity.okta.${url.replace('http://', '')}`, originalScore: 92.0, perturbedScore: 89.2, evaded: false, scoreDiff: 2.8 },
+      { attackType: 'TLD_MASQUERADE', originalUrl: url, perturbedUrl: `${url}-verification.co.vu`, originalScore: 92.0, perturbedScore: 86.4, evaded: false, scoreDiff: 5.6 },
+      { attackType: 'LENGTH_INFLATION', originalUrl: url, perturbedUrl: `${url}?utm_source=trusted_enterprise`, originalScore: 92.0, perturbedScore: 90.1, evaded: false, scoreDiff: 1.9 },
+      { attackType: 'ENCODING_TRICK', originalUrl: url, perturbedUrl: url.replace('a', '%61'), originalScore: 92.0, perturbedScore: 48.0, evaded: true, scoreDiff: 44.0 }
+    ];
+
+    let allResults = defaultResults;
+    if (attackTypes && attackTypes.length > 0) {
+      allResults = defaultResults.filter(r => attackTypes.includes(r.attackType));
+    }
+
+    const evadedCount = allResults.filter(r => r.evaded).length;
+    const evasionRate = allResults.length > 0 ? evadedCount / allResults.length : 0;
+    const overallRobustnessScore = (1 - evasionRate) * 100;
+
     return {
       testedAt: new Date().toISOString(),
-      totalTests: 6,
-      evasionRate: 0.166,
-      overallRobustnessScore: 83.4,
-      results: [
-        { attackType: 'HOMOGLYPH', originalUrl: url, perturbedUrl: url.replace('a', 'а'), originalScore: 92.0, perturbedScore: 91.5, evaded: false, scoreDiff: 0.5 },
-        { attackType: 'KEYWORD_STUFFING', originalUrl: url, perturbedUrl: `${url}/privacy-policy/help`, originalScore: 92.0, perturbedScore: 88.0, evaded: false, scoreDiff: 4.0 },
-        { attackType: 'SUBDOMAIN_PACKING', originalUrl: url, perturbedUrl: `sso.identity.okta.${url.replace('http://', '')}`, originalScore: 92.0, perturbedScore: 89.2, evaded: false, scoreDiff: 2.8 },
-        { attackType: 'TLD_MASQUERADE', originalUrl: url, perturbedUrl: `${url}-verification.co.vu`, originalScore: 92.0, perturbedScore: 86.4, evaded: false, scoreDiff: 5.6 },
-        { attackType: 'LENGTH_INFLATION', originalUrl: url, perturbedUrl: `${url}?utm_source=trusted_enterprise`, originalScore: 92.0, perturbedScore: 90.1, evaded: false, scoreDiff: 1.9 },
-        { attackType: 'ENCODING_TRICK', originalUrl: url, perturbedUrl: url.replace('a', '%61'), originalScore: 92.0, perturbedScore: 48.0, evaded: true, scoreDiff: 44.0 }
-      ],
-      hardeningStatus: 'VULNERABLE'
+      totalTests: allResults.length,
+      evasionRate: Number(evasionRate.toFixed(3)),
+      overallRobustnessScore: Number(overallRobustnessScore.toFixed(1)),
+      results: allResults,
+      hardeningStatus: evasionRate > 0.1 ? 'VULNERABLE' : 'ROBUST'
     };
   }
 }

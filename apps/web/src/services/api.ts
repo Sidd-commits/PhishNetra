@@ -73,7 +73,14 @@ import {
   TarpitTask,
   LaunchTarpitTaskRequest,
   TAXIICollection,
-  TAXIIDiscovery
+  TAXIIDiscovery,
+  AiTMSessionScanRequest,
+  AiTMSessionScanResult,
+  ThreatFusionEntry,
+  ThreatFusionScoreRequest,
+  BayesianDecayConfig,
+  ComplianceFramework,
+  ComplianceAuditResult
 } from '@phishnetra/shared';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -641,6 +648,39 @@ class ApiService {
   public async listTaxiiCollections(): Promise<{ collections: TAXIICollection[] }> {
     const res = await this.client.get<{ collections: TAXIICollection[] }>('/taxii21/taxii2/api1/collections/');
     return res.data;
+  }
+
+  // --- Milestone 16: AiTM Reverse Proxy Defense, Threat Fusion & Compliance ---
+  public async scanAiTMSession(req: AiTMSessionScanRequest): Promise<AiTMSessionScanResult> {
+    const res = await this.client.post<{ success: boolean; data: AiTMSessionScanResult }>('/aitm/scan', req);
+    return res.data.data;
+  }
+
+  public async listFusedThreats(): Promise<ThreatFusionEntry[]> {
+    const res = await this.client.get<{ success: boolean; data: ThreatFusionEntry[] }>('/intel-fusion');
+    return res.data.data;
+  }
+
+  public async scoreFusedThreat(req: ThreatFusionScoreRequest): Promise<ThreatFusionEntry> {
+    const res = await this.client.post<{ success: boolean; data: ThreatFusionEntry }>('/intel-fusion/score', req);
+    return res.data.data;
+  }
+
+  public async getBayesianDecayConfig(): Promise<BayesianDecayConfig> {
+    const res = await this.client.get<{ success: boolean; data: BayesianDecayConfig }>('/intel-fusion/config');
+    return res.data.data;
+  }
+
+  public async updateBayesianDecayConfig(updates: Partial<BayesianDecayConfig>): Promise<BayesianDecayConfig> {
+    const res = await this.client.patch<{ success: boolean; data: BayesianDecayConfig }>('/intel-fusion/config', updates);
+    return res.data.data;
+  }
+
+  public async runComplianceAudit(framework?: ComplianceFramework): Promise<ComplianceAuditResult> {
+    const res = await this.client.get<{ success: boolean; data: ComplianceAuditResult }>(
+      `/compliance/audit?framework=${framework || 'NIST_CSF_2'}`
+    );
+    return res.data.data;
   }
 
   // --- Health Check ---

@@ -2008,3 +2008,111 @@ export const TAXIIDiscoverySchema = z.object({
   apiRoots: z.array(z.string())
 });
 export type TAXIIDiscovery = z.infer<typeof TAXIIDiscoverySchema>;
+
+// ============================================================================
+// Milestone 16: AiTM Reverse Proxy Defense, Threat Intel Fusion & Compliance
+// ============================================================================
+
+// 1. Adversary-in-the-Middle (AiTM) Reverse Proxy Defense Schemas
+export const AiTMThreatTypeSchema = z.enum([
+  'EVILGINX_REVERSE_PROXY',
+  'MODLISHKA_PROXY',
+  'MURAENA_PROXY',
+  'COOKIE_SESSION_INTERCEPT',
+  'DOMAIN_BINDING_MISMATCH',
+  'HEADER_INJECTION_ANOMALY'
+]);
+export type AiTMThreatType = z.infer<typeof AiTMThreatTypeSchema>;
+
+export const AiTMProxyIndicatorSchema = z.object({
+  type: z.string(),
+  severity: EvidenceSeveritySchema,
+  description: z.string(),
+  detectedPattern: z.string()
+});
+export type AiTMProxyIndicator = z.infer<typeof AiTMProxyIndicatorSchema>;
+
+export const AiTMSessionScanRequestSchema = z.object({
+  targetUrl: z.string().min(3),
+  headers: z.record(z.string()).optional(),
+  cookiesPresent: z.array(z.string()).optional(),
+  claimedHost: z.string().optional()
+});
+export type AiTMSessionScanRequest = z.infer<typeof AiTMSessionScanRequestSchema>;
+
+export const AiTMSessionScanResultSchema = z.object({
+  id: z.string(),
+  targetUrl: z.string(),
+  isAiTMProxy: z.boolean(),
+  threatType: AiTMThreatTypeSchema.optional().nullable(),
+  riskScore: z.number().min(0).max(100),
+  indicators: z.array(AiTMProxyIndicatorSchema),
+  recommendedAction: z.enum(['BLOCK_AND_INVALIDATE', 'ENFORCE_FIDO2_STEPUP', 'FLAG_SUSPICIOUS', 'ALLOW']),
+  mitigationArtifact: z.string(),
+  evaluatedAt: z.string()
+});
+export type AiTMSessionScanResult = z.infer<typeof AiTMSessionScanResultSchema>;
+
+// 2. Threat Intelligence Fusion & Bayesian Half-Life Decay Schemas
+export const ThreatFusionEntrySchema = z.object({
+  id: z.string(),
+  iocValue: z.string(),
+  iocType: z.enum(['DOMAIN', 'IP', 'URL', 'HASH', 'ASN']),
+  firstSeen: z.string(),
+  lastSeen: z.string(),
+  sourceFeeds: z.array(z.string()),
+  baseScore: z.number().min(0).max(100),
+  decayedScore: z.number().min(0).max(100),
+  halfLifeHours: z.number(),
+  confidence: z.number().min(0).max(1),
+  status: z.enum(['ACTIVE', 'DECAYED', 'BENIGN'])
+});
+export type ThreatFusionEntry = z.infer<typeof ThreatFusionEntrySchema>;
+
+export const BayesianDecayConfigSchema = z.object({
+  defaultHalfLifeHours: z.number().default(48),
+  fastFluxIpHalfLifeHours: z.number().default(24),
+  domainHalfLifeHours: z.number().default(168),
+  decayFloorScore: z.number().default(5)
+});
+export type BayesianDecayConfig = z.infer<typeof BayesianDecayConfigSchema>;
+
+export const ThreatFusionScoreRequestSchema = z.object({
+  iocValue: z.string().min(2),
+  iocType: z.enum(['DOMAIN', 'IP', 'URL', 'HASH', 'ASN']),
+  sourceFeeds: z.array(z.string()).optional(),
+  customHalfLifeHours: z.number().optional()
+});
+export type ThreatFusionScoreRequest = z.infer<typeof ThreatFusionScoreRequestSchema>;
+
+// 3. Enterprise Compliance & Posture Audit Schemas
+export const ComplianceFrameworkSchema = z.enum([
+  'NIST_CSF_2',
+  'CIS_CONTROLS_V8',
+  'SOC_2_TYPE_II',
+  'ISO_27001'
+]);
+export type ComplianceFramework = z.infer<typeof ComplianceFrameworkSchema>;
+
+export const ComplianceControlItemSchema = z.object({
+  controlId: z.string(),
+  controlName: z.string(),
+  framework: ComplianceFrameworkSchema,
+  status: z.enum(['PASSED', 'WARNING', 'FAIL']),
+  evidenceDescription: z.string(),
+  score: z.number().min(0).max(100)
+});
+export type ComplianceControlItem = z.infer<typeof ComplianceControlItemSchema>;
+
+export const ComplianceAuditResultSchema = z.object({
+  auditId: z.string(),
+  auditedAt: z.string(),
+  framework: ComplianceFrameworkSchema,
+  overallCompliancePercent: z.number().min(0).max(100),
+  totalControls: z.number(),
+  passedControls: z.number(),
+  controls: z.array(ComplianceControlItemSchema),
+  executiveSummary: z.string()
+});
+export type ComplianceAuditResult = z.infer<typeof ComplianceAuditResultSchema>;
+

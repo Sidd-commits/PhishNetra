@@ -179,10 +179,28 @@
   - Phishing Tarpit & Credential Poisoner (`/tarpit`)
 - **Comprehensive Automated Test Coverage:** 202 automated tests passing across the monorepo (132 Jest API tests across 22 suites, 12 Jest Extension tests, 58 Pytest ML tests) and complete `docs/RBI_SANDBOX_AND_TARPIT.md`.
 
+### Milestone 16: AiTM Reverse Proxy Defense, Threat Intel Bayesian Fusion & Enterprise Compliance Studio (Completed)
+- **Adversary-in-the-Middle (AiTM) Reverse Proxy Defense Engine (`AiTMDefenseService.ts` / `/api/aitm`):**
+  - Real-time Evilginx 2/3, Modlishka, and Muraena reverse proxy signature detection.
+  - Ingress header anomaly traps (`X-Forwarded-Host`, `X-Forwarded-For`, `X-Original-URL`, `CF-Connecting-IP`, `X-Real-IP`).
+  - Active session cookie intercept detection (`ESTSAUTH`, `session_token`) and automated Passkey / FIDO2 / WebAuthn step-up enforcement.
+  - Automated Snort / Suricata NIDS rule and ModSecurity WAF rule compiler.
+- **Threat Intelligence Fusion with Bayesian Temporal Half-Life Decay (`ThreatFusionService.ts` / `/api/intel-fusion`):**
+  - Multi-source indicator normalization, cross-feed deduplication, and corroborating source weight boost.
+  - Exponential Bayesian temporal decay formula: $Score(t) = \max(Floor, Base \times 2^{-\Delta t / \tau_{1/2}})$.
+  - Configurable half-life matrix across domains (168h), IPs (72h), hashes (720h), and headers (48h).
+- **Enterprise Compliance Studio (`ComplianceAuditService.ts` / `/api/compliance`):**
+  - Continuous posture assessment across NIST CSF 2.0 (GV, ID, PR, DE, RS, RC), CIS Controls v8 (IG1-3), SOC 2 Type II, and ISO/IEC 27001:2022.
+  - Automated control check pass/fail scoring, compliance posture percentages, and corrective gap remediation roadmap.
+- **Interactive React SOC UI Pages:**
+  - AiTM Reverse Proxy Defense Studio (`/aitm-defense`).
+  - Threat Intelligence Fusion & Compliance Hub (`/intel-fusion`).
+- **Comprehensive Automated Test Coverage:** 210 automated tests passing across the monorepo (140 Jest API tests across 23 suites, 12 Jest Extension tests, 58 Pytest ML tests) and complete `docs/AITM_AND_INTEL_FUSION.md`.
+
 ---
 
 ## Master Roadmap Status: 100% Complete & Production Ready
-All 15 milestones of the PhishNetra Platform have been completely implemented, verified with 202 automated tests, and documented.
+All 16 milestones of the PhishNetra Platform have been completely implemented, verified with 210 automated tests, and documented.
 
 
 
