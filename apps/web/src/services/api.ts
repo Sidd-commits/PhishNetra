@@ -50,7 +50,15 @@ import {
   OrganizationWorkspace,
   TeamMember,
   OrganizationRole,
-  ExecutiveThreatReport
+  ExecutiveThreatReport,
+  PlaybookDefinition,
+  PlaybookExecutionRun,
+  CreatePlaybookRequest,
+  TriggerPlaybookRequest,
+  ForensicArtifact,
+  ThreatHuntQuery,
+  ThreatHuntResult,
+  ThreatConnectorStatus
 } from '@phishnetra/shared';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -439,6 +447,74 @@ class ApiService {
   // --- Milestone 12: Executive Threat Intelligence Briefings ---
   public async getExecutiveReport(timeRange = 'Last 30 Days'): Promise<ExecutiveThreatReport> {
     const res = await this.client.get<{ success: boolean; data: ExecutiveThreatReport }>(`/reports/executive?timeRange=${encodeURIComponent(timeRange)}`);
+    return res.data.data;
+  }
+
+  // --- Milestone 13: SOAR Playbooks Orchestration ---
+  public async listPlaybooks(): Promise<PlaybookDefinition[]> {
+    const res = await this.client.get<{ success: boolean; data: PlaybookDefinition[] }>('/playbooks');
+    return res.data.data;
+  }
+
+  public async getPlaybook(id: string): Promise<PlaybookDefinition> {
+    const res = await this.client.get<{ success: boolean; data: PlaybookDefinition }>(`/playbooks/${id}`);
+    return res.data.data;
+  }
+
+  public async createPlaybook(req: CreatePlaybookRequest): Promise<PlaybookDefinition> {
+    const res = await this.client.post<{ success: boolean; data: PlaybookDefinition }>('/playbooks', req);
+    return res.data.data;
+  }
+
+  public async updatePlaybook(id: string, updates: Partial<PlaybookDefinition>): Promise<PlaybookDefinition> {
+    const res = await this.client.patch<{ success: boolean; data: PlaybookDefinition }>(`/playbooks/${id}`, updates);
+    return res.data.data;
+  }
+
+  public async deletePlaybook(id: string): Promise<boolean> {
+    const res = await this.client.delete<{ success: boolean }>(`/playbooks/${id}`);
+    return res.data.success;
+  }
+
+  public async triggerPlaybook(req: TriggerPlaybookRequest): Promise<PlaybookExecutionRun> {
+    const res = await this.client.post<{ success: boolean; data: PlaybookExecutionRun }>('/playbooks/trigger', req);
+    return res.data.data;
+  }
+
+  public async listPlaybookRuns(playbookId?: string): Promise<PlaybookExecutionRun[]> {
+    const res = await this.client.get<{ success: boolean; data: PlaybookExecutionRun[] }>(`/playbooks/runs${playbookId ? `?playbookId=${playbookId}` : ''}`);
+    return res.data.data;
+  }
+
+  // --- Milestone 13: Threat Hunting & Forensic Replay ---
+  public async executeThreatHunt(query: ThreatHuntQuery): Promise<ThreatHuntResult> {
+    const res = await this.client.post<{ success: boolean; data: ThreatHuntResult }>('/hunting/query', query);
+    return res.data.data;
+  }
+
+  public async getForensicArtifact(targetUrl?: string): Promise<ForensicArtifact> {
+    const res = await this.client.get<{ success: boolean; data: ForensicArtifact }>(`/hunting/artifact${targetUrl ? `?targetUrl=${encodeURIComponent(targetUrl)}` : ''}`);
+    return res.data.data;
+  }
+
+  // --- Milestone 13: Threat Platform Connectors ---
+  public async listThreatConnectors(): Promise<ThreatConnectorStatus[]> {
+    const res = await this.client.get<{ success: boolean; data: ThreatConnectorStatus[] }>('/connectors');
+    return res.data.data;
+  }
+
+  public async syncThreatConnector(id: string): Promise<ThreatConnectorStatus> {
+    const res = await this.client.post<{ success: boolean; data: ThreatConnectorStatus }>(`/connectors/${id}/sync`);
+    return res.data.data;
+  }
+
+  public async syncAllThreatConnectors(): Promise<ThreatConnectorStatus[]> {
+    const res = await this.client.post<{ success: boolean; data: ThreatConnectorStatus[] }>('/connectors/sync-all');
+    return res.data.data;
+  }
+
+  public async toggleThreatConnector(id: string, enabled: boolean): Promise<ThreatConnectorStatus> {
+    const res = await this.client.patch<{ success: boolean; data: ThreatConnectorStatus }>(`/connectors/${id}/toggle`, { enabled });
     return res.data.data;
   }
 

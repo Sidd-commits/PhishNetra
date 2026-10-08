@@ -25,6 +25,8 @@ import { SimulationPage } from './pages/SimulationPage';
 import { TakedownCenterPage } from './pages/TakedownCenterPage';
 import { OrganizationPage } from './pages/OrganizationPage';
 import { ExecutiveBriefingPage } from './pages/ExecutiveBriefingPage';
+import { PlaybooksPage } from './pages/PlaybooksPage';
+import { ThreatHuntingPage } from './pages/ThreatHuntingPage';
 
 export const App: React.FC = () => {
   return (
@@ -138,8 +140,24 @@ export const App: React.FC = () => {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/hunting"
+                  element={
+                    <ProtectedRoute>
+                      <ThreatHuntingPage />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* SOC Ops & SIEM Routes */}
+                <Route
+                  path="/playbooks"
+                  element={
+                    <ProtectedRoute>
+                      <PlaybooksPage />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/cases"
                   element={

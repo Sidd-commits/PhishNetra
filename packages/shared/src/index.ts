@@ -1499,8 +1499,202 @@ export const ExecutiveThreatReportSchema = z.object({
 });
 export type ExecutiveThreatReport = z.infer<typeof ExecutiveThreatReportSchema>;
 
+// ============================================================================
+// Milestone 13: SOAR Playbooks, Threat Hunting & TAXII/MISP Connectors
+// ============================================================================
 
+export const PlaybookTriggerTypeSchema = z.enum([
+  'ON_PHISHING_DETECTED',
+  'ON_HIGH_SEVERITY_INCIDENT',
+  'ON_ZERO_DAY_DISCOVERY',
+  'ON_BRAND_IMPERSONATION',
+  'ON_MANUAL_TRIGGER'
+]);
+export type PlaybookTriggerType = z.infer<typeof PlaybookTriggerTypeSchema>;
 
+export const PlaybookActionTypeSchema = z.enum([
+  'BLOCK_DNS_SINKHOLE',
+  'DISPATCH_RFC2142_TAKEDOWN',
+  'CREATE_SOC_CASE',
+  'NOTIFY_WEBHOOK',
+  'ISOLATE_ENDPOINT_IOC',
+  'TRIGGER_EMAIL_QUARANTINE'
+]);
+export type PlaybookActionType = z.infer<typeof PlaybookActionTypeSchema>;
 
+export const PlaybookStepStatusSchema = z.enum([
+  'PENDING',
+  'RUNNING',
+  'COMPLETED',
+  'SKIPPED',
+  'FAILED'
+]);
+export type PlaybookStepStatus = z.infer<typeof PlaybookStepStatusSchema>;
 
+export const PlaybookStepSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  actionType: PlaybookActionTypeSchema,
+  parameters: z.record(z.any()).default({}),
+  status: PlaybookStepStatusSchema.default('PENDING'),
+  output: z.string().optional().nullable(),
+  executionDurationMs: z.number().optional().nullable()
+});
+export type PlaybookStep = z.infer<typeof PlaybookStepSchema>;
 
+export const PlaybookDefinitionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  triggerType: PlaybookTriggerTypeSchema,
+  enabled: z.boolean().default(true),
+  conditions: z.object({
+    minRiskScore: z.number().min(0).max(100).default(60),
+    targetedBrands: z.array(z.string()).default([]),
+    requiredVerdict: ThreatVerdictSchema.optional().nullable(),
+    requireConfidence: z.number().min(0).max(1).default(0.7)
+  }),
+  steps: z.array(PlaybookStepSchema),
+  executionCount: z.number().int().default(0),
+  lastExecutedAt: z.string().optional().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string()
+});
+export type PlaybookDefinition = z.infer<typeof PlaybookDefinitionSchema>;
+
+export const PlaybookExecutionRunSchema = z.object({
+  id: z.string(),
+  playbookId: z.string(),
+  playbookName: z.string(),
+  triggerSource: z.string(),
+  triggeredBy: z.string(),
+  status: z.enum(['RUNNING', 'SUCCESS', 'PARTIAL', 'FAILED']),
+  targetUrl: z.string(),
+  targetDomain: z.string(),
+  steps: z.array(PlaybookStepSchema),
+  logs: z.array(z.string()),
+  startedAt: z.string(),
+  completedAt: z.string().optional().nullable()
+});
+export type PlaybookExecutionRun = z.infer<typeof PlaybookExecutionRunSchema>;
+
+export const CreatePlaybookRequestSchema = z.object({
+  name: z.string().min(2),
+  description: z.string().min(5),
+  triggerType: PlaybookTriggerTypeSchema,
+  enabled: z.boolean().optional().default(true),
+  conditions: z.object({
+    minRiskScore: z.number().min(0).max(100).optional().default(60),
+    targetedBrands: z.array(z.string()).optional().default([]),
+    requiredVerdict: ThreatVerdictSchema.optional().nullable(),
+    requireConfidence: z.number().min(0).max(1).optional().default(0.7)
+  }).optional(),
+  steps: z.array(PlaybookStepSchema.omit({ status: true, output: true, executionDurationMs: true }))
+});
+export type CreatePlaybookRequest = z.infer<typeof CreatePlaybookRequestSchema>;
+
+export const TriggerPlaybookRequestSchema = z.object({
+  playbookId: z.string(),
+  targetUrl: z.string().min(3),
+  targetBrand: z.string().optional(),
+  riskScore: z.number().optional().default(85),
+  verdict: ThreatVerdictSchema.optional().default('PHISHING'),
+  customPayload: z.record(z.any()).optional()
+});
+export type TriggerPlaybookRequest = z.infer<typeof TriggerPlaybookRequestSchema>;
+
+// Threat Hunting & Forensic Replay Schemas
+export const ForensicArtifactSchema = z.object({
+  id: z.string(),
+  targetUrl: z.string(),
+  domain: z.string(),
+  harArchive: z.object({
+    totalRequests: z.number().int(),
+    compressedSizeBytes: z.number().int(),
+    entriesCount: z.number().int(),
+    sampleHttpEntries: z.array(z.object({
+      url: z.string(),
+      method: z.string(),
+      status: z.number().int(),
+      mimeType: z.string(),
+      timeMs: z.number()
+    }))
+  }),
+  tlsCertificateChain: z.array(z.object({
+    subject: z.string(),
+    issuer: z.string(),
+    validFrom: z.string(),
+    validTo: z.string(),
+    fingerprintSha256: z.string()
+  })),
+  domMutations: z.array(z.string()),
+  dnsResolutionHistory: z.array(z.object({
+    recordType: z.string(),
+    value: z.string(),
+    ttl: z.number().int(),
+    firstSeen: z.string()
+  })),
+  liveHttpHeaders: z.record(z.string()),
+  rawHtmlPreview: z.string(),
+  createdAt: z.string()
+});
+export type ForensicArtifact = z.infer<typeof ForensicArtifactSchema>;
+
+export const ThreatHuntQueryTypeSchema = z.enum([
+  'DOMAIN_REGEX',
+  'IP_CIDR',
+  'ASN_LOOKUP',
+  'HASH_SHA256',
+  'BRAND_NAME',
+  'JA3_FINGERPRINT'
+]);
+export type ThreatHuntQueryType = z.infer<typeof ThreatHuntQueryTypeSchema>;
+
+export const ThreatHuntQuerySchema = z.object({
+  queryType: ThreatHuntQueryTypeSchema,
+  queryValue: z.string().min(1),
+  timeRange: z.string().optional().default('All Time')
+});
+export type ThreatHuntQuery = z.infer<typeof ThreatHuntQuerySchema>;
+
+export const ThreatHuntResultSchema = z.object({
+  query: ThreatHuntQuerySchema,
+  totalMatches: z.number().int(),
+  matches: z.array(z.object({
+    id: z.string(),
+    indicator: z.string(),
+    indicatorType: z.string(),
+    verdict: ThreatVerdictSchema,
+    riskScore: z.number(),
+    firstSeen: z.string(),
+    lastSeen: z.string(),
+    campaignTag: z.string().optional().nullable(),
+    sourceLayer: z.string()
+  })),
+  relatedCampaigns: z.array(z.string()),
+  activeSinkholes: z.array(z.string()),
+  pivotSuggestions: z.array(z.string())
+});
+export type ThreatHuntResult = z.infer<typeof ThreatHuntResultSchema>;
+
+// Threat Intel Platform Connectors (TAXII 2.1, MISP, AlienVault)
+export const ThreatConnectorTypeSchema = z.enum([
+  'TAXII21_FEED',
+  'MISP_COMMUNITY',
+  'ALIENVAULT_OTX',
+  'ABUSE_IPDB'
+]);
+export type ThreatConnectorType = z.infer<typeof ThreatConnectorTypeSchema>;
+
+export const ThreatConnectorStatusSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: ThreatConnectorTypeSchema,
+  endpointUrl: z.string(),
+  enabled: z.boolean(),
+  pollIntervalMinutes: z.number().int(),
+  lastPollAt: z.string().optional().nullable(),
+  totalIocsIngested: z.number().int(),
+  status: z.enum(['HEALTHY', 'SYNCING', 'ERROR'])
+});
+export type ThreatConnectorStatus = z.infer<typeof ThreatConnectorStatusSchema>;

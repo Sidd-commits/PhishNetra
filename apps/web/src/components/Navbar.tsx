@@ -28,7 +28,9 @@ import {
   Crosshair,
   Gavel,
   Building2,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Workflow,
+  SearchCode
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -180,7 +182,7 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={() => toggleDropdown('intel')}
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    isGroupActive(['/graph', '/campaigns', '/feeds', '/reports', '/executive-briefing']) || openDropdown === 'intel'
+                    isGroupActive(['/graph', '/campaigns', '/feeds', '/reports', '/executive-briefing', '/hunting']) || openDropdown === 'intel'
                       ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30'
                       : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                   }`}
@@ -200,6 +202,16 @@ export const Navbar: React.FC = () => {
                       <div>
                         <div className="text-xs font-bold text-white">Executive Dossier</div>
                         <div className="text-[10px] text-slate-400">Board-level briefing & KPI export</div>
+                      </div>
+                    </Link>
+                    <Link
+                      to="/hunting"
+                      className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
+                    >
+                      <SearchCode className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-white">Threat Hunting Lab</div>
+                        <div className="text-[10px] text-slate-400">Regex, JA3, CIDR & HAR sandbox</div>
                       </div>
                     </Link>
                     <Link
@@ -251,7 +263,7 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={() => toggleDropdown('soc')}
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    isGroupActive(['/cases', '/takedowns', '/siem', '/audit-logs', '/integrations']) || openDropdown === 'soc'
+                    isGroupActive(['/cases', '/playbooks', '/takedowns', '/siem', '/audit-logs', '/integrations']) || openDropdown === 'soc'
                       ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
                       : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                   }`}
@@ -271,6 +283,16 @@ export const Navbar: React.FC = () => {
                       <div>
                         <div className="text-xs font-bold text-white">Incident Cases</div>
                         <div className="text-[10px] text-slate-400">Triage & 1-click defense rules</div>
+                      </div>
+                    </Link>
+                    <Link
+                      to="/playbooks"
+                      className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
+                    >
+                      <Workflow className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-white">SOAR Playbooks</div>
+                        <div className="text-[10px] text-slate-400">Autonomous containment & DNS RPZ</div>
                       </div>
                     </Link>
                     <Link
@@ -440,6 +462,7 @@ export const Navbar: React.FC = () => {
           <div className="space-y-1">
             <span className="text-[10px] font-mono uppercase text-slate-500 px-3">Threat Intelligence</span>
             <Link to="/executive-briefing" className="block px-3 py-1.5 rounded-lg text-xs text-cyan-300 hover:bg-slate-800">Executive Dossier</Link>
+            <Link to="/hunting" className="block px-3 py-1.5 rounded-lg text-xs text-emerald-300 hover:bg-slate-800">Threat Hunting Lab</Link>
             <Link to="/graph" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Threat Graph</Link>
             <Link to="/campaigns" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Campaigns</Link>
             <Link to="/feeds" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Threat Feeds</Link>
@@ -449,6 +472,7 @@ export const Navbar: React.FC = () => {
           <div className="space-y-1">
             <span className="text-[10px] font-mono uppercase text-slate-500 px-3">SOC Operations</span>
             <Link to="/cases" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Incident Cases</Link>
+            <Link to="/playbooks" className="block px-3 py-1.5 rounded-lg text-xs text-indigo-300 hover:bg-slate-800">SOAR Playbooks</Link>
             <Link to="/takedowns" className="block px-3 py-1.5 rounded-lg text-xs text-rose-300 hover:bg-slate-800">Legal Takedowns</Link>
             <Link to="/siem" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">SIEM & Webhooks</Link>
             <Link to="/audit-logs" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Audit Trail</Link>
