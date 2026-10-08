@@ -13,29 +13,27 @@
 | **Milestone 2** | Month 1.5 → 3 | Multi-Layer Intelligence (RDAP, DNS, TLS, Reputation Feeds, Risk Engine) | **COMPLETED** |
 | **Milestone 3 / Implementation 3** | Month 3 → 5 | Secure Web Content Analysis, Isolated Browser Sandbox, DOM/Form/Brand Analysis | **COMPLETED** |
 | **Milestone 4 / Implementation 4** | Month 5 → 6 | Async Worker Architecture (BullMQ, Redis), Caching & Batch Ingestion, Domain Dossier | **COMPLETED** |
-| **Milestone 5** | Month 6 → 7 | Chrome Manifest V3 Browser Extension & Real-Time Threat Blocking | Planned |
+| **Milestone 5** | Month 6 → 7 | Chrome Manifest V3 Browser Extension & Real-Time Threat Mitigation | **COMPLETED** |
 | **Milestone 6** | Month 7 → 8 | Threat Graph Engine, IOC Clustering & Analyst Intelligence Explorer | Planned |
 | **Milestone 7** | Month 8 → 9 | MLOps Lifecycle, Continuous Retraining, Model Registry & Adversarial Hardening | Planned |
 | **Milestone 8** | Month 9 → 10 | Enterprise Deployment, Latency Optimization (<250ms), Final Benchmarking | Planned |
 
 ---
 
-## Implementation 4 Deliverables Summary
-1. **Async Worker & Queue Architecture (`AsyncAnalysisQueue.ts`):** High-throughput asynchronous worker pool supporting concurrency throttling (5 parallel workers), job status lifecycle (`QUEUED`, `RUNNING`, `COMPLETED`, `PARTIAL`, `FAILED`, `CANCELLED`), and event-driven progress broadcasting.
-2. **Persistent Multi-Tier Cache Layer (`services/cache/`):** Unified `ICacheService` abstraction with `MemoryCacheService` (LRU eviction + automatic TTL sweeps) and `RedisCacheService` with graceful offline fallback. Predefined TTLs for Domain RDAP (24h), DNS (1h), and Reputation (15m).
-3. **High-Capacity Batch Ingestion Engine (`BatchService.ts`):** Multi-format URL ingestion (arrays, multiline text, CSV/JSON file uploads) supporting up to 500 URLs per job with live completion counters, average risk calculations, cancellation endpoints, and CSV/JSON export.
-4. **Typosquatting, Homoglyph & Confusable Glyphs Engine (`typosquatting.ts`):** Cyrillic/Greek lookalike homoglyph detection, Damerau-Levenshtein edit distance against 17 top targeted enterprise brands, combosquatting detection, and simulated lookalike permutation generator.
-5. **Domain Intelligence & Dossier Hub (`DomainService.ts` / `/domains/:domain`):** Integrated domain dossiers aggregating RDAP age categories, nameserver lists, historical scans, and typosquatting threat matrices.
-6. **Community Threat Reports & Moderation Hub (`ReportService.ts` / `/reports`):** Crowdsourced threat submissions, false-positive remediation reporting, and SOC analyst moderation actions (`APPROVED`, `REJECTED`, `RESOLVED`).
-7. **Expanded React SOC Console:**
-   - **Batch Scanner Page (`/batch`):** Interactive bulk scan launcher, live progress tracking, summary cards, item-level verdicts, and export controls.
-   - **Domain Dossier Page (`/domains` & `/domains/:domain`):** Domain search, WHOIS timeline, DNS records, and typosquatting alert matrices.
-   - **Threat Reports Page (`/reports`):** Report submission modal, filter tabs, and analyst moderation actions.
-8. **Comprehensive Automated Verification:** 94 automated tests passing (50 Jest API tests across 11 suites + 44 Pytest ML tests).
+## Implementation 5 Deliverables Summary
+1. **Manifest V3 Extension Architecture (`apps/extension/`):** Background service worker (`serviceWorker.ts`), declarative permissions, content script injection, and build scripts.
+2. **Instant Local Lexical Heuristics (<5ms):** Instant Shannon entropy calculation, Punycode/IDN homoglyph flagging, suspicious TLD detection, and raw IP address warnings.
+3. **Dynamic Chrome Action Badge Manager:** Live color-coded action badge (Green/Safe, Amber/Suspicious, Red/Phishing, Blue/Scanning, Emerald/Whitelisted, Gray/Bypassed).
+4. **Zero Silent Redirects Security Policy:** High-security DOM barrier (`interstitial.ts`) neutralizing credential theft with 3 choices: (1) Return to Safety, (2) Inspect SOC Evidence, (3) Session Bypass.
+5. **Suspicious Floating Warning Banner:** Non-intrusive top banner (`banner.ts`) for intermediate-risk sites.
+6. **High-Density React SOC Popup Console (`popup.tsx` / `PopupApp.tsx`):** Real-time gauge, multi-layer intelligence chips, flagged indicators, one-click phishing reporting, and deep investigation link.
+7. **Extension Options & Whitelist Page (`options.tsx` / `OptionsApp.tsx`):** Custom API configuration, sensitivity threshold slider, local cache purging, and enterprise domain whitelisting.
+8. **106 Automated Tests Passing:** 50 Jest API tests, 12 Jest Extension tests, 44 Pytest ML tests.
 
 ---
 
-## Future Milestone 5 Preview (Next Milestone)
-* **Chrome Manifest V3 Browser Extension:** Background service worker, tab URL interception, and badge risk indicator.
-* **Real-Time Threat Blocking:** Threat warning interstitial screen and one-click navigation to SOC investigation view.
+## Future Milestone 6 Preview (Next Milestone)
+* **Threat Graph Engine & IOC Correlation:** Graph database integration (Neo4j / NetworkX), domain infrastructure correlation, and autonomous C2 campaign clustering.
+* **Analyst Graph Explorer:** Interactive graph visualization of infrastructure relationships, shared certificates, and IP clusters.
+
 

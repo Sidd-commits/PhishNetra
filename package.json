@@ -10,12 +10,15 @@
   "scripts": {
     "dev:api": "npm run dev --workspace=@phishnetra/api",
     "dev:web": "npm run dev --workspace=@phishnetra/web",
+    "dev:extension": "npm run dev --workspace=@phishnetra/extension",
     "build:api": "npm run build --workspace=@phishnetra/api",
     "build:web": "npm run build --workspace=@phishnetra/web",
     "build:shared": "npm run build --workspace=@phishnetra/shared",
-    "build": "npm run build:shared && npm run build:api && npm run build:web",
+    "build:extension": "npm run build --workspace=@phishnetra/extension",
+    "build": "npm run build:shared && npm run build:api && npm run build:web && npm run build:extension",
     "test:api": "npm run test --workspace=@phishnetra/api",
-    "test": "npm run test:api"
+    "test:extension": "npm run test --workspace=@phishnetra/extension",
+    "test": "npm run test:api && npm run test:extension"
   },
   "keywords": [
     "cybersecurity",
