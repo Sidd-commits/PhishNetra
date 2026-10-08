@@ -1,88 +1,99 @@
-# PhishNetra — System Architecture (Implementation 3)
+# PhishNetra — System Architecture (Milestone 4)
 
 **Project:** PhishNetra — A MultiLayered AI-Driven Zero-Trust Framework for Real-Time Phishing Detection and Browser-Level Threat Mitigation  
-**Current Milestone:** Implementation 3 (Secure Web Content Analysis & AI-Assisted Phishing Detection)
+**Current Milestone:** Milestone 4 (Async Distributed Architecture, Persistent Caching, High-Throughput Batch Engine & Domain Dossier Hub)
 
 ---
 
 ## 1. High-Level Architecture Diagram
 
 ```text
-                        ┌─────────────────────────────────────────┐
-                        │        React SOC Web Dashboard         │
-                        │       (apps/web - Vite + Tailwind)      │
-                        └────────────────────┬────────────────────┘
-                                             │ HTTP / REST + JWT
-                                             ▼
-                        ┌─────────────────────────────────────────┐
-                        │          Node.js Express API            │
-                        │               (apps/api)                │
-                        └────────────────────┬────────────────────┘
-                                             │
-                                             ▼
-                                URL Canonicalization Engine
-                                             │
-             ┌──────────────────────┬────────┴────────┬─────────────────────┐
-             ▼                      ▼                 ▼                     ▼
-     ┌───────────────┐      ┌───────────────┐ ┌───────────────┐     ┌───────────────┐
-     │ Layer 1: URL  │      │Layer 2: Domain│ │ Layer 3: DNS  │     │ Layer 4: TLS  │
-     │ Intelligence  │      │  Intel & RDAP │ │ & IP Intel    │     │ Intelligence  │
-     │ (Lexical/Hex) │      │ (Age Category)│ │ (A/MX/SSRF)   │     │ (Certs/SNI)   │
-     └───────┬───────┘      └───────┬───────┘ └───────┬───────┘     └───────┬───────┘
-             │                      │                 │                     │
-             └──────────────┬───────┴────────┬────────┴─────────────────────┘
-                            │                │
-                            ▼                ▼
-                    ┌───────────────┐ ┌───────────────┐
-                    │ Layer 5: Feed │ │ Layer 6: URL  │
-                    │  Reputation   │ │  ML Baseline  │
-                    │(URLhaus/Virus)│ │ (FastAPI:8000)│
-                    └───────┬───────┘ └───────┬───────┘
-                            │                 │
-                            └────────┬────────┘
-                                     │
-                                     ▼
-                   ┌───────────────────────────────────┐
-                   │   Secure Page Analysis Request    │
-                   │ (Delegated to Isolated Python MS) │
-                   └─────────────────┬─────────────────┘
-                                     │
-                                     ▼
-             ╔═══════════════════════════════════════════════╗
-             ║       Isolated Analyzer Service (:8000)       ║
-             ║  ┌─────────────────────────────────────────┐  ║
-             ║  │ SSRF Defense & Pre-flight DNS Rebinding │  ║
-             ║  └────────────────────┬────────────────────┘  ║
-             ║                       ▼                       ║
-             ║  ┌─────────────────────────────────────────┐  ║
-             ║  │ Ephemeral Playwright / Chromium Context │  ║
-             ║  │ (Route Interception, Resource Limits)   │  ║
-             ║  └────────────────────┬────────────────────┘  ║
-             ║                       ▼                       ║
-             ║  ┌─────────────────────────────────────────┐  ║
-             ║  │ Passive Extraction & Analysis Engines:  │  ║
-             ║  │ • DOM Analyzer (Forms, Inputs, Scripts) │  ║
-             ║  │ • Form Analyzer (Action, Cross-Origin)  │  ║
-             ║  │ • JS Heuristics (Eval, Obfuscation)     │  ║
-             ║  │ • Brand & Keyword Consistency Engine    │  ║
-             ║  │ • Visual Analyzer (Viewport, Capture)   │  ║
-             ║  └────────────────────┬────────────────────┘  ║
-             ║                       ▼                       ║
-             ║  ┌─────────────────────────────────────────┐  ║
-             ║  │ 20-Dim Content Features & Content Model │  ║
-             ║  └─────────────────────────────────────────┘  ║
-             ╚═══════════════════════╤═══════════════════════╝
-                                     │
-                                     ▼
-                        ┌─────────────────────────┐
-                        │ Multi-Layer Risk Engine │
-                        │  (8-Layer Calibrated)   │
-                        └────────────┬────────────┘
-                                     │
-                     ┌───────────────┴───────────────┐
-                     ▼                               ▼
-        Structured Layer Evidence          SQLite / Prisma Database
-        (Grouped & Tagged Signals)        (User, Analysis, PageFindings)
+                        ┌────────────────────────────────────────────────────────┐
+                        │               React SOC Web Dashboard                  │
+                        │              (apps/web - Vite + Tailwind)              │
+                        │  [/dashboard]  [/analyze]  [/batch]  [/domains]  [/reports] │
+                        └───────────────────────────┬────────────────────────────┘
+                                                    │ HTTP / REST + JWT
+                                                    ▼
+                        ┌────────────────────────────────────────────────────────┐
+                        │                  Node.js Express API                   │
+                        │                       (apps/api)                       │
+                        └─────────────┬────────────────────────────┬─────────────┘
+                                      │                            │
+                 ┌────────────────────┴───────────┐                ▼
+                 │ Async Batch Dispatcher & Queue │     ┌────────────────────────┐
+                 │    (AsyncAnalysisQueue.ts)     │     │ Persistent Multi-Tier  │
+                 │   [Concurrency: 5 Workers]     │     │      Cache Layer       │
+                 └────────────────────┬───────────┘     │ (Redis / Memory LRU)   │
+                                      │                 └──────────┬─────────────┘
+                                      ▼                            │
+                        ┌───────────────────────────┐              │
+                        │       Risk Engine &       │◄─────────────┘
+                        │ URL Canonicalization Core │
+                        └─────────────┬─────────────┘
+                                      │
+              ┌───────────────────────┼───────────────────────┐
+              ▼                       ▼                       ▼
+      ┌───────────────┐       ┌───────────────┐       ┌───────────────┐
+      │ Layer 1: URL  │       │Layer 2: Domain│       │ Layer 3: DNS  │
+      │ Intelligence  │       │  Intel & RDAP │       │ & IP Intel    │
+      │ (Lexical/Hex) │       │ (Age Category)│       │ (A/MX/SSRF)   │
+      └───────┬───────┘       └───────┬───────┘       └───────┬───────┘
+              │                       │                       │
+              └───────────────┬───────┴────────┬──────────────┘
+                              │                │
+                              ▼                ▼
+                      ┌───────────────┐ ┌───────────────┐
+                      │ Layer 5: Feed │ │ Layer 6: URL  │
+                      │  Reputation   │ │  ML Baseline  │
+                      │(URLhaus/Virus)│ │ (FastAPI:8000)│
+                      └───────┬───────┘ └───────┬───────┘
+                              │                 │
+                              └────────┬────────┘
+                                       │
+                                       ▼
+                     ┌───────────────────────────────────┐
+                     │   Secure Page Analysis Request    │
+                     │ (Delegated to Isolated Python MS) │
+                     └─────────────────┬─────────────────┘
+                                       │
+                                       ▼
+               ╔═══════════════════════════════════════════════╗
+               ║       Isolated Analyzer Service (:8000)       ║
+               ║  ┌─────────────────────────────────────────┐  ║
+               ║  │ SSRF Defense & Pre-flight DNS Rebinding │  ║
+               ║  └────────────────────┬────────────────────┘  ║
+               ║                       ▼                       ║
+               ║  ┌─────────────────────────────────────────┐  ║
+               ║  │ Ephemeral Playwright / Chromium Context │  ║
+               ║  │ (Route Interception, Resource Limits)   │  ║
+               ║  └────────────────────┬────────────────────┘  ║
+               ║                       ▼                       ║
+               ║  ┌─────────────────────────────────────────┐  ║
+               ║  │ Passive Extraction & Analysis Engines:  │  ║
+               ║  │ • DOM Analyzer (Forms, Inputs, Scripts) │  ║
+               ║  │ • Form Analyzer (Action, Cross-Origin)  │  ║
+               ║  │ • JS Heuristics (Eval, Obfuscation)     │  ║
+               ║  │ • Brand & Keyword Consistency Engine    │  ║
+               ║  │ • Visual Analyzer (Viewport, Capture)   │  ║
+               ║  └────────────────────┬────────────────────┘  ║
+               ║                       ▼                       ║
+               ║  ┌─────────────────────────────────────────┐  ║
+               ║  │ 20-Dim Content Features & Content Model │  ║
+               ║  └─────────────────────────────────────────┘  ║
+               ╚═══════════════════════╤═══════════════════════╝
+                                       │
+                                       ▼
+                          ┌─────────────────────────┐
+                          │ Multi-Layer Risk Engine │
+                          │  (8-Layer Calibrated)   │
+                          └────────────┬────────────┘
+                                       │
+                       ┌───────────────┴───────────────┐
+                       ▼                               ▼
+          Structured Layer Evidence          SQLite / Prisma Database
+          (Grouped & Tagged Signals)        (User, Analysis, BatchJob,
+                                             BatchItem, CommunityReport)
 ```
 
 ---
@@ -111,3 +122,7 @@ The Prisma database schema manages relational models:
 - **`User` Entity:** Authentication, roles, and analyst credentials.
 - **`Analysis` Entity:** Canonical URL, composite risk score, verdict, confidence, `layersJson`, `layerStatusesJson`, `pageStatus`, `pageAnalysisJson`, and human-readable `summary`.
 - **`AnalysisEvidence` Entity:** Layer attribution (`URL`, `DOMAIN`, `DNS`, `TLS`, `REPUTATION`, `ML`, `CONTENT`, `FORM`, `BRAND`, `NETWORK`), feature key, severity, and plain-English explanation.
+- **`BatchJob` Entity:** Bulk scan job identifier, user reference, total URLs, processed counts, categorized threat stats (Safe, Suspicious, Phishing, Failed), average risk score, and completion timestamp.
+- **`BatchItem` Entity:** Individual target URL within a batch job, execution state (`QUEUED`, `RUNNING`, `COMPLETED`, `FAILED`), verdict, risk score, confidence, and foreign key link to full `Analysis` record.
+- **`CommunityReport` Entity:** Crowdsourced indicator submission, target URL, classification type (`PHISHING`, `MALWARE`, `SCAM`, `FALSE_POSITIVE`), description, technical evidence, and analyst moderation status (`PENDING`, `APPROVED`, `REJECTED`, `RESOLVED`).
+

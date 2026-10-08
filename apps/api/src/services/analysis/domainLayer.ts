@@ -1,9 +1,6 @@
 import axios from 'axios';
 import { DomainIntelligence, EvidenceItem } from '@phishnetra/shared';
-
-// Simple in-memory cache for RDAP domain metadata
-const domainCache = new Map<string, { data: DomainIntelligence; evidence: EvidenceItem[]; expires: number }>();
-const CACHE_TTL_MS = 1000 * 60 * 60; // 1 hour
+import { cache, CacheManager } from '../cache/CacheManager';
 
 export class DomainLayer {
   /**
@@ -40,12 +37,20 @@ export class DomainLayer {
     // Parse domain parts
     const { domain, registrableDomain, tld, subdomain } = this.parseDomainParts(hostname);
 
-    // Check cache
-    const cached = domainCache.get(registrableDomain);
-    if (cached && cached.expires > Date.now()) {
-      return { data: cached.data, evidence: cached.evidence };
-    }
+    const cacheKey = `domain:${registrableDomain}`;
+    return cache.wrap(cacheKey, async () => {
+      return this.fetchDomainIntel(hostname, domain, registrableDomain, tld, subdomain);
+    }, CacheManager.TTL.RDAP_DOMAIN);
+  }
 
+  private async fetchDomainIntel(
+    hostname: string,
+    domain: string,
+    registrableDomain: string,
+    tld: string,
+    subdomain: string
+  ): Promise<{ data: DomainIntelligence; evidence: EvidenceItem[] }> {
+    const evidence: EvidenceItem[] = [];
     let registrar: string | null = null;
     let creationDate: string | null = null;
     let expirationDate: string | null = null;
@@ -163,13 +168,6 @@ export class DomainLayer {
       domainAgeCategory,
       isPrivacyProtected
     };
-
-    // Cache valid lookups
-    domainCache.set(registrableDomain, {
-      data: result,
-      evidence,
-      expires: Date.now() + CACHE_TTL_MS
-    });
 
     return { data: result, evidence };
   }

@@ -1,5 +1,5 @@
 // PhishNetra - Prisma Schema Definition
-// Milestone: 2 (Multi-Layer Intelligence)
+// Milestone: 4 (Async Batch Architecture, Persistent Cache, Domain Dossier & Community Reports)
 
 generator client {
   provider = "prisma-client-js"
@@ -11,15 +11,17 @@ datasource db {
 }
 
 model User {
-  id           String     @id @default(uuid())
-  email        String     @unique
+  id           String            @id @default(uuid())
+  email        String            @unique
   name         String
   passwordHash String
-  role         String     @default("USER") // USER, ANALYST, ADMIN
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  role         String            @default("USER") // USER, ANALYST, ADMIN
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
 
   analyses     Analysis[]
+  batchJobs    BatchJob[]
+  reports      CommunityReport[]
 
   @@map("users")
 }
@@ -56,7 +58,7 @@ model AnalysisEvidence {
   id           String    @id @default(uuid())
   analysisId   String
   analysis     Analysis  @relation(fields: [analysisId], references: [id], onDelete: Cascade)
-  layer        String    @default("URL") // URL, DOMAIN, DNS, TLS, REPUTATION, ML
+  layer        String    @default("URL") // URL, DOMAIN, DNS, TLS, REPUTATION, ML, CONTENT, FORM, BRAND, NETWORK
   featureKey   String
   featureValue String
   severity     String    // INFO, LOW, MEDIUM, HIGH, CRITICAL
@@ -70,3 +72,71 @@ model AnalysisEvidence {
   @@index([layer])
   @@map("analysis_evidence")
 }
+
+model BatchJob {
+  id                  String      @id @default(uuid())
+  userId              String?
+  user                User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  status              String      @default("QUEUED") // QUEUED, RUNNING, COMPLETED, PARTIAL, FAILED, CANCELLED
+  totalUrls           Int         @default(0)
+  processedUrls       Int         @default(0)
+  safeCount           Int         @default(0)
+  suspiciousCount     Int         @default(0)
+  phishingCount       Int         @default(0)
+  failedCount         Int         @default(0)
+  avgRiskScore        Float       @default(0.0)
+  includePageAnalysis Boolean     @default(false)
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  completedAt         DateTime?
+
+  items               BatchItem[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("batch_jobs")
+}
+
+model BatchItem {
+  id            String    @id @default(uuid())
+  batchJobId    String
+  batchJob      BatchJob  @relation(fields: [batchJobId], references: [id], onDelete: Cascade)
+  url           String
+  normalizedUrl String?
+  status        String    @default("QUEUED") // QUEUED, RUNNING, COMPLETED, FAILED
+  riskScore     Float?
+  verdict       String?   // SAFE, SUSPICIOUS, PHISHING, UNKNOWN
+  confidence    Float?
+  errorMessage  String?
+  analysisId    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([batchJobId])
+  @@index([status])
+  @@map("batch_items")
+}
+
+model CommunityReport {
+  id              String    @id @default(uuid())
+  userId          String?
+  user            User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userName        String?
+  domain          String
+  url             String
+  reportType      String    @default("PHISHING") // PHISHING, MALWARE, SCAM, FALSE_POSITIVE, CREDENTIAL_HARVEST
+  description     String
+  evidenceDetails String?
+  status          String    @default("PENDING") // PENDING, APPROVED, REJECTED, RESOLVED
+  moderatorNotes  String?
+  moderatedBy     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([domain])
+  @@index([status])
+  @@index([createdAt])
+  @@map("community_reports")
+}
+

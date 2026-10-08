@@ -1,6 +1,6 @@
 # PhishNetra — REST API & Multi-Layer Reference
 
-**Current Version:** `v0.2.0` (Milestone 2: Multi-Layer Threat Intelligence)  
+**Current Version:** `v0.4.0` (Milestone 4: Distributed Async Architecture, Batch Ingestion & Domain Hub)  
 **Base URL:** `http://localhost:5000/api`
 
 ---
@@ -39,105 +39,144 @@ Authenticates existing credentials.
 ## 2. Multi-Layer Threat Analysis Endpoints
 
 ### `POST /analyze`
-Performs comprehensive multi-layer threat analysis on candidate URL.
+Performs comprehensive synchronous multi-layer threat analysis on candidate URL.
 
 - **Request Body:**
   ```json
   {
-    "url": "https://paypal.com/signin"
+    "url": "https://paypal.com/signin",
+    "analyzePage": true
   }
   ```
 
 - **Response (200 OK):**
-  ```json
-  {
-    "analysisId": "e674b97e-d2e8-4ff4-a78b-d53cb1e0b12e",
-    "url": "https://paypal.com/signin",
-    "normalizedUrl": "https://paypal.com/signin",
-    "verdict": "SAFE",
-    "riskScore": 5.4,
-    "riskLevel": "LOW",
-    "confidence": 0.88,
-    "mlProbability": 0.02,
-    "layerStatuses": {
-      "URL": "SUCCESS",
-      "DOMAIN": "SUCCESS",
-      "DNS": "SUCCESS",
-      "TLS": "SUCCESS",
-      "REPUTATION": "PARTIAL",
-      "ML": "SUCCESS"
-    },
-    "layers": {
-      "url": {
-        "status": "SUCCESS",
-        "canonicalUrl": "https://paypal.com/signin",
-        "hostname": "paypal.com",
-        "entropy": 3.86,
-        "isShortener": false,
-        "isPunycode": false,
-        "features": { ... }
-      },
-      "domain": {
-        "status": "SUCCESS",
-        "domain": "paypal.com",
-        "registrableDomain": "paypal.com",
-        "domainAgeDays": 9912,
-        "domainAgeCategory": "> 365 days",
-        "registrar": "MarkMonitor Inc.",
-        "isPrivacyProtected": false
-      },
-      "dns": {
-        "status": "SUCCESS",
-        "resolvedIps": ["151.101.3.1", "151.101.195.1"],
-        "ipv4Count": 2,
-        "ipv6Count": 0,
-        "hasMx": true,
-        "ipDetails": [
-          { "ip": "151.101.3.1", "version": "IPv4", "org": "Fastly", "country": "US" }
-        ]
-      },
-      "tls": {
-        "status": "SUCCESS",
-        "hasTls": true,
-        "certificateValid": true,
-        "certificateExpired": false,
-        "hostnameMatches": true,
-        "issuer": "DigiCert Inc",
-        "daysUntilExpiry": 210,
-        "zeroTrustWarning": "ZERO-TRUST PRINCIPLE: HTTPS encrypts transport, NOT website safety."
-      },
-      "reputation": {
-        "status": "SUCCESS",
-        "isListedMalicious": false,
-        "reputationScore": 0,
-        "providers": [
-          { "providerName": "URLhaus (abuse.ch)", "status": "SUCCESS", "malicious": false }
-        ]
-      },
-      "ml": {
-        "status": "SUCCESS",
-        "phishingProbability": 0.02,
-        "confidence": 0.96,
-        "modelVersion": "v0.1.0-baseline"
-      }
-    },
-    "evidence": [
-      {
-        "layer": "DOMAIN",
-        "featureKey": "established_domain",
-        "featureValue": "27 years (9912 days)",
-        "severity": "INFO",
-        "description": "Domain has established history (9912 days old).",
-        "source": "RDAP",
-        "confidence": 0.95
-      }
-    ],
-    "createdAt": "2026-09-03T16:50:00.000Z"
-  }
-  ```
+  Returns complete multi-layer breakdown, risk score, confidence, isolated DOM/Brand analysis, and structured evidence array.
 
 ### `GET /analyze/history`
 Returns paginated historical scans for the authenticated analyst.
 
 ### `GET /analyze/:id`
 Retrieves full investigation report by analysis ID.
+
+---
+
+## 3. Asynchronous Batch Ingestion Endpoints (Milestone 4)
+
+### `POST /batch`
+Submits an array, multiline string, or CSV list of URLs to the async worker queue.
+
+- **Request Body:**
+  ```json
+  {
+    "urls": [
+      "https://example-phish.com",
+      "https://paypal.com",
+      "https://unverified-login-portal.org"
+    ],
+    "includePageAnalysis": false
+  }
+  ```
+- **Response (202 Accepted):**
+  ```json
+  {
+    "id": "b812f8e1-d52b-4fa8-b219-fc35c630129a",
+    "status": "QUEUED",
+    "totalUrls": 3,
+    "processedUrls": 0,
+    "safeCount": 0,
+    "suspiciousCount": 0,
+    "phishingCount": 0,
+    "failedCount": 0,
+    "avgRiskScore": 0.0,
+    "progressPercent": 0,
+    "createdAt": "2026-10-08T10:30:00.000Z",
+    "items": [ ... ]
+  }
+  ```
+
+### `GET /batch/:id`
+Polls live execution progress, summary counters, and item-level analysis outcomes for a batch job.
+
+### `GET /batch`
+Returns a paginated list of previous batch jobs submitted by the analyst.
+
+### `POST /batch/:id/cancel`
+Cancels any remaining unexecuted URLs in an active batch queue.
+
+### `GET /batch/:id/export?format=csv|json`
+Downloads batch scan results formatted as a downloadable CSV or JSON report.
+
+---
+
+## 4. Domain Dossier & Typosquatting Endpoints (Milestone 4)
+
+### `GET /domains/:domain`
+Aggregates WHOIS/RDAP age categorization, DNS nameservers, historical scans, and typosquatting threat matrices for a specific domain.
+
+- **Response (200 OK):**
+  ```json
+  {
+    "domain": "google.com",
+    "registrableDomain": "google.com",
+    "domainAgeDays": 10582,
+    "ageCategory": "> 365 days",
+    "registrar": "MarkMonitor, Inc.",
+    "nameservers": ["ns1.google.com", "ns2.google.com"],
+    "ipAddresses": ["142.250.190.46"],
+    "totalScans": 14,
+    "phishingScans": 0,
+    "riskScore": 15,
+    "riskLevel": "LOW",
+    "typosquattingAlerts": [
+      {
+        "variant": "g00gle.com",
+        "targetBrand": "Google",
+        "officialDomain": "google.com",
+        "type": "HOMOGLYPH",
+        "similarityScore": 98,
+        "riskLevel": "CRITICAL",
+        "explanation": "Lookalike digit substitution (0 -> o) targeting Google."
+      }
+    ]
+  }
+  ```
+
+### `POST /domains/typosquatting`
+Generates and inspects simulated typosquatting, Cyrillic homoglyph, and combosquatting permutations on demand.
+
+---
+
+## 5. Community Threat Reports & Moderation Endpoints (Milestone 4)
+
+### `POST /reports`
+Submits a crowdsourced threat indicator or false-positive remediation report.
+
+- **Request Body:**
+  ```json
+  {
+    "url": "https://suspicious-brand-login.com",
+    "reportType": "PHISHING",
+    "description": "SMS lure claiming suspended account asking for credentials.",
+    "evidenceDetails": "Form action posts to raw IP address 185.220.101.5"
+  }
+  ```
+
+### `GET /reports?status=PENDING&reportType=PHISHING`
+Filters and lists community reports.
+
+### `PATCH /reports/:id/moderate` *(Requires Analyst / Admin JWT)*
+Updates moderation status (`APPROVED`, `REJECTED`, `RESOLVED`) and records analyst notes.
+
+---
+
+## 6. System & Observability Telemetry Endpoints (Milestone 4)
+
+### `GET /system/metrics`
+Returns combined metrics on active background worker queues and persistent cache hit ratios.
+
+### `GET /system/queue`
+Returns queue length, active workers, concurrency limit, and completed task totals.
+
+### `GET /system/cache`
+Returns cache driver (`memory` | `redis`), key count, memory usage in MB, and hit ratio.
+

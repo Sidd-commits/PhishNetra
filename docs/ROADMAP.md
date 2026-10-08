@@ -12,7 +12,7 @@
 | **Milestone 1** | Month 1 → 1.5 | Architecture Foundation, Deterministic Features, Baseline ML, Web Console | **COMPLETED** |
 | **Milestone 2** | Month 1.5 → 3 | Multi-Layer Intelligence (RDAP, DNS, TLS, Reputation Feeds, Risk Engine) | **COMPLETED** |
 | **Milestone 3 / Implementation 3** | Month 3 → 5 | Secure Web Content Analysis, Isolated Browser Sandbox, DOM/Form/Brand Analysis | **COMPLETED** |
-| **Milestone 4** | Month 5 → 6 | Async Worker Architecture (BullMQ, Redis), Caching & Batch Ingestion | Planned |
+| **Milestone 4 / Implementation 4** | Month 5 → 6 | Async Worker Architecture (BullMQ, Redis), Caching & Batch Ingestion, Domain Dossier | **COMPLETED** |
 | **Milestone 5** | Month 6 → 7 | Chrome Manifest V3 Browser Extension & Real-Time Threat Blocking | Planned |
 | **Milestone 6** | Month 7 → 8 | Threat Graph Engine, IOC Clustering & Analyst Intelligence Explorer | Planned |
 | **Milestone 7** | Month 8 → 9 | MLOps Lifecycle, Continuous Retraining, Model Registry & Adversarial Hardening | Planned |
@@ -20,22 +20,22 @@
 
 ---
 
-## Implementation 3 Deliverables Summary
-1. **SSRF Defense Architecture:** Multi-layer IP blocking (RFC 1918, RFC 1122, RFC 3927 cloud metadata `169.254.169.254`, IPv6 loopback), alternative notation decoding (hex, octal, decimal), and pre-flight DNS rebinding defense.
-2. **Isolated Browser Acquisition Pipeline:** Ephemeral Playwright Chromium browser contexts with route-level network interception, strict execution timeouts (10s), response size caps (5MB), and secure HTTPX fallback.
-3. **DOM & Structure Analyzer:** Node count, input depth, external script detection, and hidden iframe discovery.
-4. **Form & Credential Harvest Analyzer:** Identification of login, password, credit card, and OTP fields; cross-origin action detection; and raw IP form destinations.
-5. **Static JavaScript Heuristics:** Static inspection for `eval()`, `document.write()`, string decoding, and location manipulation.
-6. **Brand Impersonation & Consistency Engine:** 15-brand catalog with official domain verification, brand reference detection, and `BRAND_DOMAIN_MISMATCH` alerting.
-7. **Phishing Keywords & Urgency Scoring:** Domain-categorized keyword extraction (Auth, Security, Financial, Urgency) with normalized social engineering scores.
-8. **20-Dimensional Content Feature Vector & Model:** Standardized feature extraction and baseline content risk classifier.
-9. **8-Layer Composite Risk Engine:** Calibrated weight distribution across URL, DOMAIN, DNS, TLS, REPUTATION, ML, CONTENT, and BRAND layers, with automated human-readable summary generation.
-10. **Enhanced React SOC UI:** Real-time 4-step pipeline progress, 8-layer visual breakdown cards, deep page analysis inspection panels, and layer-filtered evidence tables.
-11. **Comprehensive Test Suite:** 44 Python tests (SSRF, DOM, Forms, JS, Brand, Features, API) and 30 Jest backend tests across 6 suites passing.
+## Implementation 4 Deliverables Summary
+1. **Async Worker & Queue Architecture (`AsyncAnalysisQueue.ts`):** High-throughput asynchronous worker pool supporting concurrency throttling (5 parallel workers), job status lifecycle (`QUEUED`, `RUNNING`, `COMPLETED`, `PARTIAL`, `FAILED`, `CANCELLED`), and event-driven progress broadcasting.
+2. **Persistent Multi-Tier Cache Layer (`services/cache/`):** Unified `ICacheService` abstraction with `MemoryCacheService` (LRU eviction + automatic TTL sweeps) and `RedisCacheService` with graceful offline fallback. Predefined TTLs for Domain RDAP (24h), DNS (1h), and Reputation (15m).
+3. **High-Capacity Batch Ingestion Engine (`BatchService.ts`):** Multi-format URL ingestion (arrays, multiline text, CSV/JSON file uploads) supporting up to 500 URLs per job with live completion counters, average risk calculations, cancellation endpoints, and CSV/JSON export.
+4. **Typosquatting, Homoglyph & Confusable Glyphs Engine (`typosquatting.ts`):** Cyrillic/Greek lookalike homoglyph detection, Damerau-Levenshtein edit distance against 17 top targeted enterprise brands, combosquatting detection, and simulated lookalike permutation generator.
+5. **Domain Intelligence & Dossier Hub (`DomainService.ts` / `/domains/:domain`):** Integrated domain dossiers aggregating RDAP age categories, nameserver lists, historical scans, and typosquatting threat matrices.
+6. **Community Threat Reports & Moderation Hub (`ReportService.ts` / `/reports`):** Crowdsourced threat submissions, false-positive remediation reporting, and SOC analyst moderation actions (`APPROVED`, `REJECTED`, `RESOLVED`).
+7. **Expanded React SOC Console:**
+   - **Batch Scanner Page (`/batch`):** Interactive bulk scan launcher, live progress tracking, summary cards, item-level verdicts, and export controls.
+   - **Domain Dossier Page (`/domains` & `/domains/:domain`):** Domain search, WHOIS timeline, DNS records, and typosquatting alert matrices.
+   - **Threat Reports Page (`/reports`):** Report submission modal, filter tabs, and analyst moderation actions.
+8. **Comprehensive Automated Verification:** 94 automated tests passing (50 Jest API tests across 11 suites + 44 Pytest ML tests).
 
 ---
 
-## Future Implementation 4 Preview (Not Yet Implemented)
-* **Distributed Async Queue:** Redis & BullMQ task orchestration for asynchronous bulk background crawling.
-* **Persistent Cache Layer:** In-memory caching for repeated domain lookups and intelligence feeds.
-* **Batch Ingestion Endpoints:** Multi-target scanning APIs with job polling and webhook notifications.
+## Future Milestone 5 Preview (Next Milestone)
+* **Chrome Manifest V3 Browser Extension:** Background service worker, tab URL interception, and badge risk indicator.
+* **Real-Time Threat Blocking:** Threat warning interstitial screen and one-click navigation to SOC investigation view.
+

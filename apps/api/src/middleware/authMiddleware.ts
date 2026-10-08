@@ -5,6 +5,7 @@ import { config } from '../config/env';
 export interface AuthenticatedUser {
   userId: string;
   role: string;
+  email?: string;
 }
 
 declare global {

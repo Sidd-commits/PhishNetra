@@ -8,6 +8,9 @@ import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { AnalyzePage } from './pages/AnalyzePage';
 import { AnalysisDetailPage } from './pages/AnalysisDetailPage';
+import { BatchPage } from './pages/BatchPage';
+import { DomainDossierPage } from './pages/DomainDossierPage';
+import { ReportsPage } from './pages/ReportsPage';
 
 export const App: React.FC = () => {
   return (
@@ -46,6 +49,38 @@ export const App: React.FC = () => {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/batch"
+                element={
+                  <ProtectedRoute>
+                    <BatchPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/domains"
+                element={
+                  <ProtectedRoute>
+                    <DomainDossierPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/domains/:domain"
+                element={
+                  <ProtectedRoute>
+                    <DomainDossierPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/reports"
+                element={
+                  <ProtectedRoute>
+                    <ReportsPage />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Fallback */}
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -57,10 +92,10 @@ export const App: React.FC = () => {
           <footer className="border-t border-slate-900 bg-slate-950/90 py-6 text-center text-xs text-slate-500 font-mono">
             <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
               <div>
-                PhishNetra Framework • Milestone 1 (Prototype v0.1.0)
+                PhishNetra Framework • Milestone 4 (Async Distributed Architecture)
               </div>
               <div className="text-slate-600">
-                Zero-Trust Real-Time Threat Mitigation
+                Zero-Trust Real-Time Threat Mitigation & Intelligent Caching
               </div>
             </div>
           </footer>
@@ -71,3 +106,4 @@ export const App: React.FC = () => {
 };
 
 export default App;
+

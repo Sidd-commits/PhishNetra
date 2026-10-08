@@ -5,6 +5,9 @@ import {
   ShieldAlert,
   LayoutDashboard,
   Search,
+  Layers,
+  Globe,
+  MessageSquare,
   LogOut,
   UserCheck,
   Radio
@@ -20,7 +23,11 @@ export const Navbar: React.FC = () => {
     navigate('/login');
   };
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    if (path === '/dashboard' && location.pathname === '/dashboard') return true;
+    if (path !== '/dashboard' && location.pathname.startsWith(path)) return true;
+    return false;
+  };
 
   return (
     <nav className="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
@@ -40,7 +47,7 @@ export const Navbar: React.FC = () => {
                     Phish<span className="text-cyan-400">Netra</span>
                   </span>
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
-                    M1 • Prototype
+                    M4 • Async Engine
                   </span>
                 </div>
                 <p className="text-[10px] text-slate-400 font-mono hidden sm:block">
@@ -52,32 +59,69 @@ export const Navbar: React.FC = () => {
 
           {/* Navigation Links */}
           {isAuthenticated && (
-            <div className="hidden md:flex items-center space-x-1">
+            <div className="hidden lg:flex items-center space-x-1">
               <Link
                 to="/dashboard"
-                className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   isActive('/dashboard')
                     ? 'bg-slate-800 text-cyan-400 shadow-inner'
                     : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                 }`}
               >
-                <LayoutDashboard className="w-4 h-4" />
+                <LayoutDashboard className="w-3.5 h-3.5" />
                 <span>Dashboard</span>
               </Link>
 
               <Link
                 to="/analyze"
-                className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   isActive('/analyze')
                     ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
                     : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                 }`}
               >
-                <Search className="w-4 h-4" />
-                <span>Live URL Scan</span>
+                <Search className="w-3.5 h-3.5" />
+                <span>Live Scan</span>
+              </Link>
+
+              <Link
+                to="/batch"
+                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  isActive('/batch')
+                    ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>Batch Scanner</span>
+              </Link>
+
+              <Link
+                to="/domains"
+                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  isActive('/domains')
+                    ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+                }`}
+              >
+                <Globe className="w-3.5 h-3.5" />
+                <span>Domain Dossier</span>
+              </Link>
+
+              <Link
+                to="/reports"
+                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  isActive('/reports')
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+                }`}
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>Threat Reports</span>
               </Link>
             </div>
           )}
+
 
           {/* User Profile / Auth State */}
           <div className="flex items-center space-x-4">

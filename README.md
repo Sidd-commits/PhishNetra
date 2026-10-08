@@ -7,15 +7,24 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111+-009688.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18.3+-61DAFB.svg)](https://react.dev/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.14+-2D3748.svg)](https://www.prisma.io/)
+[![Redis](https://img.shields.io/badge/Redis-Optional%20%2F%20In--Memory-DC382D.svg)](https://redis.io/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
 ## 1. Executive Summary
 
-PhishNetra is an end-to-end cybersecurity threat intelligence platform designed to replace legacy blacklists with real-time, explainable, multi-signal phishing detection. 
+PhishNetra is an end-to-end cybersecurity threat intelligence platform designed to replace legacy static blacklists with real-time, explainable, multi-signal phishing detection. 
 
-This repository contains the **Milestone 1 working prototype (Month 1 → Month 1.5)**, establishing the core monorepo architecture, deterministic URL feature extraction engine, baseline machine learning classifier, composite risk scoring engine, PostgreSQL persistence layer, and React SOC analyst dashboard.
+This repository contains **Milestone 4 (Month 5 → Month 6)**, implementing:
+- **Asynchronous Worker Queue Architecture:** High-capacity background worker pool with concurrency throttling (5 parallel workers), job status lifecycle (`QUEUED`, `RUNNING`, `COMPLETED`, `PARTIAL`, `FAILED`, `CANCELLED`), and event-driven progress tracking.
+- **Persistent Multi-Tier Cache Layer:** Dual-driver caching engine (`MemoryCacheService` with LRU eviction and automatic TTL sweeps + `RedisCacheService` with offline fallback) caching RDAP WHOIS, DNS queries, and reputation feeds.
+- **High-Capacity Batch Ingestion Engine:** Bulk URL scanning supporting up to 500 URLs per job with export to CSV/JSON.
+- **Typosquatting & Homoglyph Threat Matrix:** Cyrillic and Greek Unicode confusable character decoding, Damerau-Levenshtein edit distance calculations across top 17 enterprise brand catalogs, combosquatting detection, and automated lookalike variant generator.
+- **Domain Intelligence & Dossier Hub:** In-depth domain dossiers aggregating RDAP age categories, nameserver lists, historical scans, and typosquatting threat matrices.
+- **Community Threat Reports & Moderation Hub:** Crowdsourced threat submissions, false-positive remediation reporting, and SOC analyst moderation actions (`APPROVED`, `REJECTED`, `RESOLVED`).
+- **SOC Web Dashboard:** Real-time multi-page UI with Live URL Scan, Batch Scanner (`/batch`), Domain Dossier (`/domains`), and Community Threat Reports (`/reports`).
+
 
 ---
 

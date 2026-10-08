@@ -1,9 +1,6 @@
 import dns from 'dns/promises';
 import { DNSIntelligence, IPDetail, EvidenceItem } from '@phishnetra/shared';
-
-// In-memory DNS cache
-const dnsCache = new Map<string, { data: DNSIntelligence; evidence: EvidenceItem[]; expires: number }>();
-const DNS_CACHE_TTL = 1000 * 60 * 15; // 15 minutes
+import { cache, CacheManager } from '../cache/CacheManager';
 
 export interface IpIntelligenceProvider {
   lookup(ip: string): Promise<Partial<IPDetail>>;
@@ -83,11 +80,17 @@ export class DNSLayer {
       };
     }
 
-    // Cache check
-    const cached = dnsCache.get(hostname);
-    if (cached && cached.expires > Date.now()) {
-      return { data: cached.data, evidence: cached.evidence };
-    }
+    const cacheKey = `dns:${hostname}`;
+    return cache.wrap(cacheKey, async () => {
+      return this.resolveDnsRecords(hostname);
+    }, CacheManager.TTL.DNS_RECORDS);
+  }
+
+  private async resolveDnsRecords(hostname: string): Promise<{
+    data: DNSIntelligence;
+    evidence: EvidenceItem[];
+  }> {
+    const evidence: EvidenceItem[] = [];
 
     const resolvedIps: string[] = [];
     const nameservers: string[] = [];
@@ -220,8 +223,6 @@ export class DNSLayer {
       ipDetails,
       error: dnsError
     };
-
-    dnsCache.set(hostname, { data, evidence, expires: Date.now() + DNS_CACHE_TTL });
 
     return { data, evidence };
   }

@@ -503,3 +503,212 @@ export const RISK_THRESHOLDS = {
   SUSPICIOUS_MAX: 59.99,
   HIGH_MAX: 79.99
 } as const;
+
+// ============================================================================
+// Milestone 4: Batch Processing & Async Jobs
+// ============================================================================
+
+export const BatchJobStatusSchema = z.enum([
+  'QUEUED',
+  'RUNNING',
+  'COMPLETED',
+  'PARTIAL',
+  'FAILED',
+  'CANCELLED'
+]);
+export type BatchJobStatus = z.infer<typeof BatchJobStatusSchema>;
+
+export const BatchItemStatusSchema = z.enum([
+  'QUEUED',
+  'RUNNING',
+  'COMPLETED',
+  'FAILED'
+]);
+export type BatchItemStatus = z.infer<typeof BatchItemStatusSchema>;
+
+export const BatchJobRequestSchema = z.object({
+  urls: z.union([
+    z.array(z.string().min(1)),
+    z.string().min(1)
+  ]),
+  includePageAnalysis: z.boolean().optional(),
+  tags: z.array(z.string()).optional()
+});
+export type BatchJobRequest = z.infer<typeof BatchJobRequestSchema>;
+
+export const BatchItemResultSchema = z.object({
+  id: z.string(),
+  batchJobId: z.string(),
+  url: z.string(),
+  normalizedUrl: z.string().optional().nullable(),
+  status: BatchItemStatusSchema,
+  riskScore: z.number().optional().nullable(),
+  verdict: ThreatVerdictSchema.optional().nullable(),
+  riskLevel: RiskLevelSchema.optional().nullable(),
+  confidence: z.number().optional().nullable(),
+  errorMessage: z.string().optional().nullable(),
+  analysisId: z.string().optional().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string().optional()
+});
+export type BatchItemResult = z.infer<typeof BatchItemResultSchema>;
+
+export const BatchJobResponseSchema = z.object({
+  id: z.string(),
+  userId: z.string().optional().nullable(),
+  status: BatchJobStatusSchema,
+  totalUrls: z.number().int().min(0),
+  processedUrls: z.number().int().min(0),
+  safeCount: z.number().int().min(0),
+  suspiciousCount: z.number().int().min(0),
+  phishingCount: z.number().int().min(0),
+  failedCount: z.number().int().min(0),
+  avgRiskScore: z.number().min(0).max(100),
+  progressPercent: z.number().min(0).max(100),
+  includePageAnalysis: z.boolean().optional().default(false),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  completedAt: z.string().optional().nullable(),
+  items: z.array(BatchItemResultSchema).optional()
+});
+export type BatchJobResponse = z.infer<typeof BatchJobResponseSchema>;
+
+// ============================================================================
+// Milestone 4: Typosquatting & Homoglyph Engine
+// ============================================================================
+
+export const TyposquattingTypeSchema = z.enum([
+  'HOMOGLYPH',
+  'LEVENSHTEIN',
+  'BIT_FLIP',
+  'SUBDOMAIN',
+  'COMBOSQUAT',
+  'OMISSION',
+  'REPETITION'
+]);
+export type TyposquattingType = z.infer<typeof TyposquattingTypeSchema>;
+
+export const TyposquattingMatchSchema = z.object({
+  variant: z.string(),
+  targetBrand: z.string(),
+  officialDomain: z.string(),
+  type: TyposquattingTypeSchema,
+  distance: z.number().optional(),
+  similarityScore: z.number().min(0).max(100),
+  isResolving: z.boolean().optional(),
+  ipAddress: z.string().optional().nullable(),
+  riskLevel: RiskLevelSchema,
+  explanation: z.string()
+});
+export type TyposquattingMatch = z.infer<typeof TyposquattingMatchSchema>;
+
+export const TyposquattingScanResultSchema = z.object({
+  queryDomain: z.string(),
+  detectedTargetBrand: z.string().optional().nullable(),
+  isDirectImpersonation: z.boolean(),
+  totalVariantsGenerated: z.number(),
+  matches: z.array(TyposquattingMatchSchema)
+});
+export type TyposquattingScanResult = z.infer<typeof TyposquattingScanResultSchema>;
+
+// ============================================================================
+// Milestone 4: Domain Dossier Hub
+// ============================================================================
+
+export const DomainDossierSchema = z.object({
+  domain: z.string(),
+  registrableDomain: z.string(),
+  domainAgeDays: z.number().optional().nullable(),
+  ageCategory: z.string().optional().nullable(),
+  registrar: z.string().optional().nullable(),
+  nameservers: z.array(z.string()),
+  ipAddresses: z.array(z.string()),
+  totalScans: z.number().int().min(0),
+  phishingScans: z.number().int().min(0),
+  riskScore: z.number().min(0).max(100),
+  riskLevel: RiskLevelSchema,
+  reputationStatus: z.string(),
+  typosquattingAlerts: z.array(TyposquattingMatchSchema),
+  recentAnalyses: z.array(AnalysisSummarySchema),
+  communityReportsCount: z.number().int().min(0),
+  createdAt: z.string()
+});
+export type DomainDossier = z.infer<typeof DomainDossierSchema>;
+
+// ============================================================================
+// Milestone 4: Community Threat Reports & Moderation Hub
+// ============================================================================
+
+export const ReportTypeSchema = z.enum([
+  'PHISHING',
+  'MALWARE',
+  'SCAM',
+  'FALSE_POSITIVE',
+  'CREDENTIAL_HARVEST'
+]);
+export type ReportType = z.infer<typeof ReportTypeSchema>;
+
+export const ReportStatusSchema = z.enum([
+  'PENDING',
+  'APPROVED',
+  'REJECTED',
+  'RESOLVED'
+]);
+export type ReportStatus = z.infer<typeof ReportStatusSchema>;
+
+export const CreateReportRequestSchema = z.object({
+  url: z.string().min(3, 'URL is required'),
+  domain: z.string().optional(),
+  reportType: ReportTypeSchema,
+  description: z.string().min(5, 'Please provide detailed context for your report').max(2000),
+  evidenceDetails: z.string().max(5000).optional()
+});
+export type CreateReportRequest = z.infer<typeof CreateReportRequestSchema>;
+
+export const ReportModerationRequestSchema = z.object({
+  status: ReportStatusSchema,
+  moderatorNotes: z.string().max(2000).optional()
+});
+export type ReportModerationRequest = z.infer<typeof ReportModerationRequestSchema>;
+
+export const CommunityReportSchema = z.object({
+  id: z.string(),
+  userId: z.string().optional().nullable(),
+  userName: z.string().optional().nullable(),
+  domain: z.string(),
+  url: z.string(),
+  reportType: ReportTypeSchema,
+  description: z.string(),
+  evidenceDetails: z.string().optional().nullable(),
+  status: ReportStatusSchema,
+  moderatorNotes: z.string().optional().nullable(),
+  moderatedBy: z.string().optional().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string()
+});
+export type CommunityReport = z.infer<typeof CommunityReportSchema>;
+
+// ============================================================================
+// Milestone 4: Queue & Cache Observability Metrics
+// ============================================================================
+
+export const QueueMetricsSchema = z.object({
+  waiting: z.number().int().min(0),
+  active: z.number().int().min(0),
+  completed: z.number().int().min(0),
+  failed: z.number().int().min(0),
+  isPaused: z.boolean(),
+  workerConcurrency: z.number().int().min(1),
+  driver: z.string()
+});
+export type QueueMetrics = z.infer<typeof QueueMetricsSchema>;
+
+export const CacheStatsSchema = z.object({
+  hits: z.number().int().min(0),
+  misses: z.number().int().min(0),
+  keysCount: z.number().int().min(0),
+  memoryUsageMb: z.number().min(0),
+  hitRatio: z.number().min(0).max(1),
+  driver: z.string()
+});
+export type CacheStats = z.infer<typeof CacheStatsSchema>;
