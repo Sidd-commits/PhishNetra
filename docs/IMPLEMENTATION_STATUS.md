@@ -197,10 +197,28 @@
   - Threat Intelligence Fusion & Compliance Hub (`/intel-fusion`).
 - **Comprehensive Automated Test Coverage:** 210 automated tests passing across the monorepo (140 Jest API tests across 23 suites, 12 Jest Extension tests, 58 Pytest ML tests) and complete `docs/AITM_AND_INTEL_FUSION.md`.
 
+### Milestone 17: Multimodal Quishing Defense, Threat Actor Attribution & FAIR Cyber Risk (Completed)
+- **Multimodal Quishing (QR Code) Defense Engine (`QuishingDefenseService.ts` / `/api/quishing`):**
+  - Barcode & QR decoding, payload extraction, and dynamic tracking shortener unmasking (`qrco.de`, `bit.ly`).
+  - Visual lure OCR analysis with credential/MFA urgency heuristic scoring.
+  - Autonomous Passkey/FIDO2 step-up challenge generator and Snort/Suricata network signature generator.
+- **Threat Actor Attribution Matrix (`ThreatActorAttributionService.ts` / `/api/attribution`):**
+  - Pre-seeded profiles for Scattered Spider (UNC3944), APT28, APT29, Lazarus Group, and FIN7.
+  - Adversary Diamond Model synthesis (Adversary, Capability, Infrastructure, Victimology).
+  - MITRE ATT&CK TTP heatmap and confidence-rated correlation engine.
+- **Quantitative Cyber Risk (FAIR Model) Engine (`CyberRiskQuantificationService.ts` / `/api/risk-quantification`):**
+  - Factor Analysis of Information Risk (FAIR) mathematical engine.
+  - Calculates Expected Annual Loss (ALE), Loss Event Frequency (LEF), workforce vulnerability ratio, and defense ROI multiple.
+  - Probabilistic 10th, 50th, and 90th percentile loss distributions.
+- **Interactive React SOC UI Pages:**
+  - Multimodal Quishing Defense Studio (`/quishing`).
+  - Threat Actor Attribution & FAIR Cyber Risk Studio (`/threat-attribution`).
+- **Comprehensive Automated Test Coverage:** 221 automated tests passing across the monorepo (151 Jest API tests across 24 suites, 12 Jest Extension tests, 58 Pytest ML tests) and complete `docs/MULTIMODAL_QUISHING_AND_ATTRIBUTION.md`.
+
 ---
 
 ## Master Roadmap Status: 100% Complete & Production Ready
-All 16 milestones of the PhishNetra Platform have been completely implemented, verified with 210 automated tests, and documented.
+All 17 milestones of the PhishNetra Platform have been completely implemented, verified with 221 automated tests, and documented.
 
 
 

@@ -34,6 +34,8 @@ import { RBISandboxPage } from './pages/RBISandboxPage';
 import { PhishingTarpitPage } from './pages/PhishingTarpitPage';
 import { AiTMDefensePage } from './pages/AiTMDefensePage';
 import { ThreatFusionPage } from './pages/ThreatFusionPage';
+import { QuishingDefensePage } from './pages/QuishingDefensePage';
+import { ThreatAttributionPage } from './pages/ThreatAttributionPage';
 
 export const App: React.FC = () => {
   return (
@@ -302,6 +304,26 @@ export const App: React.FC = () => {
                   element={
                     <ProtectedRoute>
                       <ThreatFusionPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Multimodal Quishing (QR Code) Defense */}
+                <Route
+                  path="/quishing"
+                  element={
+                    <ProtectedRoute>
+                      <QuishingDefensePage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Threat Actor Attribution & FAIR Cyber Risk Studio */}
+                <Route
+                  path="/threat-attribution"
+                  element={
+                    <ProtectedRoute>
+                      <ThreatAttributionPage />
                     </ProtectedRoute>
                   }
                 />

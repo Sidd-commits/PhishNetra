@@ -25,27 +25,28 @@
 | **Milestone 14** | AI Co-Pilot, Deception & EASM | AI SOC Co-Pilot Assistant, Active Canary Deception Tripwires & CT Logs Radar | **COMPLETED** |
 | **Milestone 15** | Active Defense & Threat Sharing | Remote Browser Isolation (RBI) Sandbox, Phishing Tarpit Flooder & STIX/TAXII 2.1 Server | **COMPLETED** |
 | **Milestone 16** | Advanced Active Defense & Governance | Adversary-in-the-Middle (AiTM) Reverse Proxy Defense, Threat Intel Bayesian Fusion & Enterprise Compliance Studio | **COMPLETED** |
+| **Milestone 17** | Multimodal Defense & Cyber Risk | Multimodal Quishing (QR Code) Defense, Threat Actor Attribution Matrix & FAIR Cyber Risk Modeling | **COMPLETED** |
 
 ---
 
-## Implementation 16 Deliverables Summary
-1. **Adversary-in-the-Middle (AiTM) Reverse Proxy Defense (`AiTMDefenseService.ts` / `/api/aitm`):**
-   - Real-time Evilginx, Modlishka, and Muraena reverse proxy signature detection.
-   - Header anomaly inspection (`X-Forwarded-Host`, `X-Forwarded-For`, `X-Original-URL`, `CF-Connecting-IP`).
-   - Session cookie interception detection (`ESTSAUTH`, `session_token`) and autonomous Passkey/FIDO2 step-up challenges.
-   - Dynamic Snort/Suricata and ModSecurity rule generation.
-2. **Threat Intelligence Fusion with Bayesian Temporal Half-Life Decay (`ThreatFusionService.ts` / `/api/intel-fusion`):**
-   - Multi-source feed normalization, cross-feed deduplication, and corroborating source weight boost.
-   - Exponential Bayesian half-life temporal decay formula: $Score(t) = \max(Floor, Base \times 2^{-\Delta t / \tau_{1/2}})$.
-   - Configurable half-life parameters across domains (168h), IPs (72h), hashes (720h), and headers (48h).
-3. **Enterprise Compliance Studio (`ComplianceAuditService.ts` / `/api/compliance`):**
-   - Continuous posture assessment across NIST CSF 2.0, CIS Controls v8, SOC 2 Type II, and ISO/IEC 27001:2022.
-   - Automated control evaluation, compliance gap analysis, and corrective remediation roadmap.
+## Implementation 17 Deliverables Summary
+1. **Multimodal Quishing (QR Code) Defense Engine (`QuishingDefenseService.ts` / `/api/quishing`):**
+   - Barcode/QR decoding, payload extraction, and dynamic tracking shortener unmasking.
+   - OCR visual lure extraction with credential/MFA urgency heuristic scoring.
+   - Autonomous Passkey/FIDO2 step-up challenges and Snort/Suricata network signature emission.
+2. **Threat Actor Attribution Matrix (`ThreatActorAttributionService.ts` / `/api/attribution`):**
+   - Pre-seeded profiles for Scattered Spider (UNC3944), APT28, APT29, Lazarus Group, and FIN7.
+   - Dynamic adversary Diamond Model generation (Adversary, Capability, Infrastructure, Victimology).
+   - MITRE ATT&CK TTP heatmap and confidence-rated correlation engine.
+3. **Quantitative Cyber Risk (FAIR Model) Engine (`CyberRiskQuantificationService.ts` / `/api/risk-quantification`):**
+   - Factor Analysis of Information Risk (FAIR) mathematical engine.
+   - Calculates Expected Annual Loss (ALE), Loss Event Frequency (LEF), workforce vulnerability ratio, and defense ROI multiple.
+   - Probabilistic 10th, 50th, and 90th percentile loss distributions.
 4. **Interactive React SOC UI Pages:**
-   - AiTM Reverse Proxy Defense Studio (`/aitm-defense`).
-   - Threat Intelligence Fusion & Compliance Hub (`/intel-fusion`).
-5. **210 Automated Tests Passing Monorepo-Wide (100%):**
-   - 140 Jest API tests across 23 suites (100% pass)
+   - Multimodal Quishing Defense Studio (`/quishing`).
+   - Threat Actor Attribution & FAIR Cyber Risk Studio (`/threat-attribution`).
+5. **221 Automated Tests Passing Monorepo-Wide (100%):**
+   - 151 Jest API tests across 24 suites (100% pass)
    - 58 Pytest ML tests (100% pass)
    - 12 Jest Extension tests (100% pass)
    - Clean Vite & TypeScript production builds
@@ -53,7 +54,7 @@
 ---
 
 ## Complete Enterprise Master Plan Verified
-All 16 implementation milestones of the PhishNetra Platform are fully operational, tested, and documented.
+All 17 implementation milestones of the PhishNetra Platform are fully operational, tested, and documented.
 
 
 

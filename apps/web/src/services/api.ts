@@ -80,7 +80,13 @@ import {
   ThreatFusionScoreRequest,
   BayesianDecayConfig,
   ComplianceFramework,
-  ComplianceAuditResult
+  ComplianceAuditResult,
+  QuishingScanRequest,
+  QuishingScanResult,
+  ThreatActorProfile,
+  AttributionMatchResult,
+  FAIRRiskParams,
+  FAIRRiskAssessmentResult
 } from '@phishnetra/shared';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -680,6 +686,42 @@ class ApiService {
     const res = await this.client.get<{ success: boolean; data: ComplianceAuditResult }>(
       `/compliance/audit?framework=${framework || 'NIST_CSF_2'}`
     );
+    return res.data.data;
+  }
+
+  // --- Milestone 17: Quishing Defense, Threat Attribution & FAIR Risk ---
+  public async scanQuishing(req: QuishingScanRequest): Promise<QuishingScanResult> {
+    const res = await this.client.post<{ success: boolean; data: QuishingScanResult }>('/quishing/scan', req);
+    return res.data.data;
+  }
+
+  public async getQuishingSamples(): Promise<Array<{ title: string; imageUrl: string; rawText: string; targetedBrand: string }>> {
+    const res = await this.client.get<{ success: boolean; data: any[] }>('/quishing/samples');
+    return res.data.data;
+  }
+
+  public async listThreatActors(): Promise<ThreatActorProfile[]> {
+    const res = await this.client.get<{ success: boolean; data: ThreatActorProfile[] }>('/attribution/actors');
+    return res.data.data;
+  }
+
+  public async getThreatActor(actorId: string): Promise<ThreatActorProfile> {
+    const res = await this.client.get<{ success: boolean; data: ThreatActorProfile }>(`/attribution/actors/${actorId}`);
+    return res.data.data;
+  }
+
+  public async matchThreatActor(params: { targetDomain: string; ttps?: string[]; asn?: string }): Promise<AttributionMatchResult> {
+    const res = await this.client.post<{ success: boolean; data: AttributionMatchResult }>('/attribution/match', params);
+    return res.data.data;
+  }
+
+  public async getFAIRRiskDefaults(): Promise<FAIRRiskParams> {
+    const res = await this.client.get<{ success: boolean; data: FAIRRiskParams }>('/risk-quantification/defaults');
+    return res.data.data;
+  }
+
+  public async calculateFAIRRisk(params: FAIRRiskParams): Promise<FAIRRiskAssessmentResult> {
+    const res = await this.client.post<{ success: boolean; data: FAIRRiskAssessmentResult }>('/risk-quantification/calculate', params);
     return res.data.data;
   }
 

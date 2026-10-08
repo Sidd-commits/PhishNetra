@@ -40,6 +40,9 @@ import taxiiServerRoutes from './routes/taxiiServerRoutes';
 import { aitmRouter } from './routes/aitmRoutes';
 import { intelFusionRouter } from './routes/intelFusionRoutes';
 import { complianceRouter } from './routes/complianceRoutes';
+import { quishingRouter } from './routes/quishingRoutes';
+import { attributionRouter } from './routes/attributionRoutes';
+import { riskQuantificationRouter } from './routes/riskQuantificationRoutes';
 import { metricsService } from './services/metrics/PrometheusMetricsService';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -126,6 +129,9 @@ export const createApp = (): express.Application => {
   app.use('/api/aitm', aitmRouter);
   app.use('/api/intel-fusion', intelFusionRouter);
   app.use('/api/compliance', complianceRouter);
+  app.use('/api/quishing', quishingRouter);
+  app.use('/api/attribution', attributionRouter);
+  app.use('/api/risk-quantification', riskQuantificationRouter);
 
   // Fallback 404 for unknown endpoints
   app.use((req, res) => {

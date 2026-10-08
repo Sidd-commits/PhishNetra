@@ -2116,3 +2116,137 @@ export const ComplianceAuditResultSchema = z.object({
 });
 export type ComplianceAuditResult = z.infer<typeof ComplianceAuditResultSchema>;
 
+// ============================================================================
+// Milestone 17: Multimodal Quishing Defense, Threat Actor Attribution & FAIR Cyber Risk
+// ============================================================================
+
+// 1. Quishing (QR Code Phishing) & Multimodal Defense
+export const QRCodeMetadataSchema = z.object({
+  detected: z.boolean(),
+  format: z.string().default('QR_CODE'),
+  payloadUrl: z.string(),
+  errorCorrectionLevel: z.enum(['L', 'M', 'Q', 'H']).default('M'),
+  isDynamicOrTracking: z.boolean().default(false)
+});
+export type QRCodeMetadata = z.infer<typeof QRCodeMetadataSchema>;
+
+export const VisualLureItemSchema = z.object({
+  text: z.string(),
+  confidence: z.number().min(0).max(1),
+  brandTargeted: z.string().optional(),
+  urgencyCategory: z.enum([
+    'CREDENTIAL_EXPIRY',
+    'MFA_RESET',
+    'ACCOUNT_SUSPENSION',
+    'PAYMENT_FAIL',
+    'GENERAL_LURE'
+  ])
+});
+export type VisualLureItem = z.infer<typeof VisualLureItemSchema>;
+
+export const QuishingScanRequestSchema = z.object({
+  imageUrl: z.string().optional(),
+  imageBase64: z.string().optional(),
+  rawText: z.string().optional(),
+  ocrExtract: z.boolean().default(true),
+  deepScanPayload: z.boolean().default(true)
+});
+export type QuishingScanRequest = z.infer<typeof QuishingScanRequestSchema>;
+
+export const QuishingScanResultSchema = z.object({
+  scanId: z.string(),
+  scannedAt: z.string(),
+  qrDetected: z.boolean(),
+  qrMetadata: QRCodeMetadataSchema.optional(),
+  extractedUrls: z.array(z.string()),
+  visualLures: z.array(VisualLureItemSchema),
+  isQuishingAttack: z.boolean(),
+  riskScore: z.number().min(0).max(100),
+  verdict: z.enum(['SAFE', 'SUSPICIOUS', 'PHISHING']),
+  recommendedAction: z.string(),
+  mitigationPayload: z.object({
+    fido2Enforced: z.boolean(),
+    qrBlockedAtGateway: z.boolean(),
+    snortRule: z.string().optional()
+  }).optional()
+});
+export type QuishingScanResult = z.infer<typeof QuishingScanResultSchema>;
+
+// 2. Adversary & Threat Actor Attribution Matrix
+export const ThreatActorProfileSchema = z.object({
+  actorId: z.string(),
+  actorName: z.string(),
+  aliases: z.array(z.string()),
+  originCountry: z.string(),
+  primaryTargets: z.array(z.string()),
+  mitreAttckTTPs: z.array(z.string()),
+  infrastructurePatterns: z.object({
+    asns: z.array(z.string()),
+    tlds: z.array(z.string()),
+    registries: z.array(z.string())
+  }),
+  knownSignatures: z.array(z.string())
+});
+export type ThreatActorProfile = z.infer<typeof ThreatActorProfileSchema>;
+
+export const AttributionMatchItemSchema = z.object({
+  actorId: z.string(),
+  actorName: z.string(),
+  attributionConfidence: z.number().min(0).max(100),
+  matchedTTPs: z.array(z.string()),
+  matchedInfrastructure: z.array(z.string()),
+  adversaryDiamondModel: z.object({
+    adversary: z.string(),
+    capability: z.string(),
+    infrastructure: z.string(),
+    victimology: z.string()
+  })
+});
+export type AttributionMatchItem = z.infer<typeof AttributionMatchItemSchema>;
+
+export const AttributionMatchResultSchema = z.object({
+  queryId: z.string(),
+  analyzedAt: z.string(),
+  targetDomain: z.string(),
+  topMatches: z.array(AttributionMatchItemSchema),
+  attributionVerdict: z.string(),
+  mitreHeatmap: z.record(z.string(), z.number())
+});
+export type AttributionMatchResult = z.infer<typeof AttributionMatchResultSchema>;
+
+// 3. Quantitative Cyber Risk Quantification (FAIR Model)
+export const FAIRRiskParamsSchema = z.object({
+  annualPhishingAttempts: z.number().min(1).default(5000),
+  susceptibilityRate: z.number().min(0).max(1).default(0.12),
+  controlEffectiveness: z.number().min(0).max(1).default(0.85),
+  averageEmployeeCount: z.number().min(1).default(500),
+  costPerCompromisedCredential: z.number().min(100).default(4200),
+  secondaryRegulatoryFineLikelihood: z.number().min(0).max(1).default(0.15),
+  maxRegulatoryFine: z.number().min(0).default(2500000)
+});
+export type FAIRRiskParams = z.infer<typeof FAIRRiskParamsSchema>;
+
+export const LossDistributionSchema = z.object({
+  tenthPercentile: z.number(),
+  fiftiethPercentile: z.number(),
+  ninetiethPercentile: z.number(),
+  expectedAnnualLoss: z.number()
+});
+export type LossDistribution = z.infer<typeof LossDistributionSchema>;
+
+export const FAIRRiskAssessmentResultSchema = z.object({
+  assessmentId: z.string(),
+  calculatedAt: z.string(),
+  lossEventFrequency: z.number(),
+  vulnerabilityRatio: z.number(),
+  primaryLossExpected: z.number(),
+  secondaryLossExpected: z.number(),
+  totalExpectedAnnualLoss: z.number(),
+  annualLossMitigatedByPhishNetra: z.number(),
+  defenseRoiMultiple: z.number(),
+  lossDistribution: LossDistributionSchema,
+  riskTier: z.enum(['CRITICAL', 'HIGH', 'ELEVATED', 'MODERATE', 'LOW'])
+});
+export type FAIRRiskAssessmentResult = z.infer<typeof FAIRRiskAssessmentResultSchema>;
+
+
