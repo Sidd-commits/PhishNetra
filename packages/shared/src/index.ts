@@ -1883,3 +1883,128 @@ export const CreateAttackSurfaceAssetRequestSchema = z.object({
   associatedBrands: z.array(z.string()).optional().default([])
 });
 export type CreateAttackSurfaceAssetRequest = z.infer<typeof CreateAttackSurfaceAssetRequestSchema>;
+
+// ============================================================================
+// Milestone 15: Remote Browser Isolation (RBI), Tarpit & TAXII 2.1 Server
+// ============================================================================
+
+// 1. Remote Browser Isolation (RBI) Schemas
+export const RBISessionStatusSchema = z.enum(['STARTING', 'RUNNING', 'TERMINATED', 'BLOCKED']);
+export type RBISessionStatus = z.infer<typeof RBISessionStatusSchema>;
+
+export const RBISecurityPolicySchema = z.object({
+  blockWebSockets: z.boolean().default(true),
+  blockWebRTC: z.boolean().default(true),
+  blockClipboardWrite: z.boolean().default(true),
+  blockFormSubmit: z.boolean().default(true),
+  canvasRandomization: z.boolean().default(true),
+  stripMaliciousScripts: z.boolean().default(true),
+  enforceZeroTrustCSP: z.boolean().default(true)
+});
+export type RBISecurityPolicy = z.infer<typeof RBISecurityPolicySchema>;
+
+export const RBIBrowserEventTypeSchema = z.enum([
+  'NAVIGATE',
+  'EVAL_BLOCKED',
+  'KEYLOGGER_INTERCEPTED',
+  'FORM_SUBMIT_BLOCKED',
+  'CANVAS_PROBE_CLOAKED',
+  'WEBSOCKET_BLOCKED',
+  'CLIPBOARD_HIJACK_BLOCKED',
+  'REDIRECT'
+]);
+export type RBIBrowserEventType = z.infer<typeof RBIBrowserEventTypeSchema>;
+
+export const RBIBrowserEventSchema = z.object({
+  id: z.string(),
+  timestamp: z.string(),
+  eventType: RBIBrowserEventTypeSchema,
+  severity: EvidenceSeveritySchema,
+  details: z.string(),
+  sourceSnippet: z.string().optional()
+});
+export type RBIBrowserEvent = z.infer<typeof RBIBrowserEventSchema>;
+
+export const RBISessionSchema = z.object({
+  id: z.string(),
+  targetUrl: z.string(),
+  domain: z.string(),
+  status: RBISessionStatusSchema,
+  securityPolicy: RBISecurityPolicySchema,
+  containerId: z.string(),
+  sandboxResolution: z.string().default('1280x800'),
+  liveEvents: z.array(RBIBrowserEventSchema),
+  deWeaponizedHtml: z.string(),
+  activeTabTitle: z.string(),
+  startedAt: z.string(),
+  terminatedAt: z.string().optional().nullable()
+});
+export type RBISession = z.infer<typeof RBISessionSchema>;
+
+export const CreateRBISessionRequestSchema = z.object({
+  targetUrl: z.string().min(3),
+  securityPolicy: RBISecurityPolicySchema.partial().optional()
+});
+export type CreateRBISessionRequest = z.infer<typeof CreateRBISessionRequestSchema>;
+
+// 2. Phishing Tarpit & Synthetic Credential Flooder Schemas
+export const TarpitTaskStatusSchema = z.enum(['QUEUED', 'ACTIVE', 'PAUSED', 'COMPLETED', 'STOPPED']);
+export type TarpitTaskStatus = z.infer<typeof TarpitTaskStatusSchema>;
+
+export const PoisonedCredentialSchema = z.object({
+  id: z.string(),
+  username: z.string(),
+  password: z.string(),
+  otpCode: z.string(),
+  canaryTag: z.string(),
+  injectedAt: z.string(),
+  submissionStatus: z.enum(['SENT', 'FAILED', 'RATE_LIMITED']),
+  responseLatencyMs: z.number()
+});
+export type PoisonedCredential = z.infer<typeof PoisonedCredentialSchema>;
+
+export const TarpitTaskSchema = z.object({
+  id: z.string(),
+  targetUrl: z.string(),
+  targetFormAction: z.string(),
+  status: TarpitTaskStatusSchema,
+  concurrency: z.number().int().min(1).max(20).default(5),
+  totalCredentialsInjected: z.number().int().default(0),
+  targetExhaustionRate: z.number().min(0).max(100).default(0),
+  meanAdversaryLatencyMs: z.number().default(0),
+  adversaryStatusCode: z.number().int().default(200),
+  poisonedCredentials: z.array(PoisonedCredentialSchema),
+  startedAt: z.string(),
+  stoppedAt: z.string().optional().nullable()
+});
+export type TarpitTask = z.infer<typeof TarpitTaskSchema>;
+
+export const LaunchTarpitTaskRequestSchema = z.object({
+  targetUrl: z.string().min(3),
+  targetFormAction: z.string().min(1),
+  concurrency: z.number().int().min(1).max(20).optional().default(5),
+  credentialsCount: z.number().int().min(10).max(5000).optional().default(100),
+  targetBrand: z.string().optional()
+});
+export type LaunchTarpitTaskRequest = z.infer<typeof LaunchTarpitTaskRequestSchema>;
+
+// 3. STIX 2.1 & TAXII 2.1 Server Schemas
+export const TAXIICollectionSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  canRead: z.boolean(),
+  canWrite: z.boolean(),
+  mediaTypes: z.array(z.string()),
+  objectsCount: z.number().int()
+});
+export type TAXIICollection = z.infer<typeof TAXIICollectionSchema>;
+
+export const TAXIIDiscoverySchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  contact: z.string(),
+  defaultApiRoot: z.string(),
+  apiRoots: z.array(z.string())
+});
+export type TAXIIDiscovery = z.infer<typeof TAXIIDiscoverySchema>;

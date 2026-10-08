@@ -67,7 +67,13 @@ import {
   CreateCanaryTokenRequest,
   AttackSurfaceAsset,
   CTLogEntry,
-  CreateAttackSurfaceAssetRequest
+  CreateAttackSurfaceAssetRequest,
+  RBISession,
+  CreateRBISessionRequest,
+  TarpitTask,
+  LaunchTarpitTaskRequest,
+  TAXIICollection,
+  TAXIIDiscovery
 } from '@phishnetra/shared';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -582,6 +588,59 @@ class ApiService {
   public async triggerPerimeterScan(): Promise<{ totalAssets: number; scannedAt: string; newlyDiscoveredCount: number }> {
     const res = await this.client.post<{ success: boolean; data: { totalAssets: number; scannedAt: string; newlyDiscoveredCount: number } }>('/attack-surface/scan');
     return res.data.data;
+  }
+
+  // --- Milestone 15: Remote Browser Isolation (RBI) Sandbox ---
+  public async listRBISessions(): Promise<RBISession[]> {
+    const res = await this.client.get<{ success: boolean; data: RBISession[] }>('/rbi');
+    return res.data.data;
+  }
+
+  public async getRBISession(id: string): Promise<RBISession> {
+    const res = await this.client.get<{ success: boolean; data: RBISession }>(`/rbi/${id}`);
+    return res.data.data;
+  }
+
+  public async createRBISession(req: CreateRBISessionRequest): Promise<RBISession> {
+    const res = await this.client.post<{ success: boolean; data: RBISession }>('/rbi', req);
+    return res.data.data;
+  }
+
+  public async terminateRBISession(id: string): Promise<RBISession> {
+    const res = await this.client.post<{ success: boolean; data: RBISession }>(`/rbi/${id}/terminate`);
+    return res.data.data;
+  }
+
+  // --- Milestone 15: Phishing Tarpit & Credential Poisoner ---
+  public async listTarpitTasks(): Promise<TarpitTask[]> {
+    const res = await this.client.get<{ success: boolean; data: TarpitTask[] }>('/tarpit');
+    return res.data.data;
+  }
+
+  public async getTarpitTask(id: string): Promise<TarpitTask> {
+    const res = await this.client.get<{ success: boolean; data: TarpitTask }>(`/tarpit/${id}`);
+    return res.data.data;
+  }
+
+  public async launchTarpitTask(req: LaunchTarpitTaskRequest): Promise<TarpitTask> {
+    const res = await this.client.post<{ success: boolean; data: TarpitTask }>('/tarpit/launch', req);
+    return res.data.data;
+  }
+
+  public async stopTarpitTask(id: string): Promise<TarpitTask> {
+    const res = await this.client.post<{ success: boolean; data: TarpitTask }>(`/tarpit/${id}/stop`);
+    return res.data.data;
+  }
+
+  // --- Milestone 15: STIX 2.1 / TAXII 2.1 Threat Intel Server ---
+  public async getTaxiiDiscovery(): Promise<TAXIIDiscovery> {
+    const res = await this.client.get<TAXIIDiscovery>('/taxii21/taxii2/');
+    return res.data;
+  }
+
+  public async listTaxiiCollections(): Promise<{ collections: TAXIICollection[] }> {
+    const res = await this.client.get<{ collections: TAXIICollection[] }>('/taxii21/taxii2/api1/collections/');
+    return res.data;
   }
 
   // --- Health Check ---

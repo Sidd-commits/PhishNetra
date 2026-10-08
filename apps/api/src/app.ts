@@ -34,6 +34,9 @@ import connectorRoutes from './routes/connectorRoutes';
 import copilotRoutes from './routes/copilotRoutes';
 import deceptionRoutes from './routes/deceptionRoutes';
 import easmRoutes from './routes/easmRoutes';
+import rbiRoutes from './routes/rbiRoutes';
+import tarpitRoutes from './routes/tarpitRoutes';
+import taxiiServerRoutes from './routes/taxiiServerRoutes';
 import { metricsService } from './services/metrics/PrometheusMetricsService';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -114,6 +117,9 @@ export const createApp = (): express.Application => {
   app.use('/api/copilot', copilotRoutes);
   app.use('/api/deception', deceptionRoutes);
   app.use('/api/attack-surface', easmRoutes);
+  app.use('/api/rbi', rbiRoutes);
+  app.use('/api/tarpit', tarpitRoutes);
+  app.use('/api/taxii21', taxiiServerRoutes);
 
   // Fallback 404 for unknown endpoints
   app.use((req, res) => {

@@ -30,6 +30,8 @@ import { ThreatHuntingPage } from './pages/ThreatHuntingPage';
 import { ThreatCopilotPage } from './pages/ThreatCopilotPage';
 import { CanaryDeceptionPage } from './pages/CanaryDeceptionPage';
 import { AttackSurfacePage } from './pages/AttackSurfacePage';
+import { RBISandboxPage } from './pages/RBISandboxPage';
+import { PhishingTarpitPage } from './pages/PhishingTarpitPage';
 
 export const App: React.FC = () => {
   return (
@@ -258,6 +260,26 @@ export const App: React.FC = () => {
                   element={
                     <ProtectedRoute>
                       <AttackSurfacePage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Zero-Trust Remote Browser Isolation (RBI) Sandbox */}
+                <Route
+                  path="/rbi-sandbox"
+                  element={
+                    <ProtectedRoute>
+                      <RBISandboxPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Phishing Tarpit & Credential Poisoner */}
+                <Route
+                  path="/tarpit"
+                  element={
+                    <ProtectedRoute>
+                      <PhishingTarpitPage />
                     </ProtectedRoute>
                   }
                 />

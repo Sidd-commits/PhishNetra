@@ -283,7 +283,7 @@ export class ThreatGraphEngine {
   /**
    * Retrieves a k-hop sub-graph centered around a specific domain
    */
-  public static async getDomainSubGraph(domain: string, depth = 2, maxNodes = 60): Promise<GraphData> {
+  public static async getDomainSubGraph(domain: string, depth = 2, maxNodes = 100): Promise<GraphData> {
     const cleanDomain = domain.toLowerCase().trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
     const rootNodeId = `domain:${cleanDomain}`;
 
@@ -314,7 +314,7 @@ export class ThreatGraphEngine {
           sourceNode: true,
           targetNode: true
         },
-        take: maxNodes
+        take: Math.max(maxNodes * 4, 300)
       });
 
       const nextLevelIds: string[] = [];

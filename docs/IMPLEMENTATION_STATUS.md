@@ -164,12 +164,25 @@
   - AI SOC Co-Pilot (`/copilot`)
   - Canary Deception Hub (`/deception`)
   - External Attack Surface Management (`/attack-surface`)
-- **Comprehensive Automated Test Coverage:** 191 automated tests passing across the monorepo (121 Jest API tests across 21 suites, 12 Jest Extension tests, 58 Pytest ML tests) and complete `docs/AI_COPILOT_AND_DECEPTION.md`.
+### Milestone 15: Remote Browser Isolation (RBI), Phishing Tarpit & TAXII 2.1 Threat Intel Server (Completed)
+- **Zero-Trust Remote Browser Isolation (RBI) Sandbox (`RemoteBrowserIsolationService.ts` / `/api/rbi`):**
+  - Ephemeral virtual container sandbox manager rendering untrusted URLs safely.
+  - Air-gapped DOM de-weaponizer: stripping script tags, neutralizing `eval()` and `Function()` constructors, disabling exfiltration forms, and cloaking HTML5 canvas/WebGL fingerprinting.
+  - Live security event telemetry streaming (`KEYLOGGER_INTERCEPTED`, `EVAL_BLOCKED`, `FORM_SUBMIT_BLOCKED`, `CANVAS_PROBE_CLOAKED`) and forensic artifact export.
+- **Phishing Tarpit & Synthetic Credential Flooder Engine (`PhishingTarpitService.ts` / `/api/tarpit`):**
+  - High-concurrency synthetic credential floods (RFC 4226/6238 TOTP, plausible usernames/passwords, canary tracking markers).
+  - Adversary server resource drain calculator (CPU exhaust rate %, response latency degradation in ms, HTTP error metrics).
+- **OASIS STIX 2.1 / TAXII 2.1 Threat Intel Server (`TaxiiServerService.ts` / `/api/taxii21`):**
+  - TAXII 2.1 discovery root and collections API serving verified STIX 2.1 threat intelligence bundles to enterprise SIEM/SOAR platforms.
+- **Interactive React SOC UI Pages:**
+  - Remote Browser Isolation Sandbox (`/rbi-sandbox`)
+  - Phishing Tarpit & Credential Poisoner (`/tarpit`)
+- **Comprehensive Automated Test Coverage:** 202 automated tests passing across the monorepo (132 Jest API tests across 22 suites, 12 Jest Extension tests, 58 Pytest ML tests) and complete `docs/RBI_SANDBOX_AND_TARPIT.md`.
 
 ---
 
 ## Master Roadmap Status: 100% Complete & Production Ready
-All 14 milestones of the PhishNetra Platform have been completely implemented, verified with 191 automated tests, and documented.
+All 15 milestones of the PhishNetra Platform have been completely implemented, verified with 202 automated tests, and documented.
 
 
 
