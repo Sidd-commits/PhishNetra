@@ -37,7 +37,10 @@ import {
   ShieldCheck,
   Fingerprint,
   QrCode,
-  Target
+  Target,
+  Bot,
+  PhoneCall,
+  FileCode2
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -128,7 +131,7 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={() => toggleDropdown('detection')}
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    isGroupActive(['/analyze', '/batch', '/email-scanner', '/domains', '/quishing']) || openDropdown === 'detection'
+                    isGroupActive(['/analyze', '/batch', '/email-scanner', '/domains', '/quishing', '/genai-defense', '/telecom-threat']) || openDropdown === 'detection'
                       ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30'
                       : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                   }`}
@@ -139,7 +142,27 @@ export const Navbar: React.FC = () => {
                 </button>
 
                 {openDropdown === 'detection' && (
-                  <div className="absolute left-0 mt-2 w-56 rounded-2xl bg-slate-900/95 border border-slate-800 p-2 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-top-2">
+                  <div className="absolute left-0 mt-2 w-60 rounded-2xl bg-slate-900/95 border border-slate-800 p-2 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-top-2">
+                    <Link
+                      to="/genai-defense"
+                      className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
+                    >
+                      <Bot className="w-4 h-4 text-purple-400 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-white">GenAI Prompt Defense</div>
+                        <div className="text-[10px] text-slate-400">Indirect injection & stego lures</div>
+                      </div>
+                    </Link>
+                    <Link
+                      to="/telecom-threat"
+                      className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
+                    >
+                      <PhoneCall className="w-4 h-4 text-orange-400 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-white">Telecom Threat Fusion</div>
+                        <div className="text-[10px] text-slate-400">Vishing, smishing & STIR/SHAKEN</div>
+                      </div>
+                    </Link>
                     <Link
                       to="/analyze"
                       className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
@@ -330,7 +353,7 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={() => toggleDropdown('soc')}
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    isGroupActive(['/cases', '/playbooks', '/takedowns', '/siem', '/audit-logs', '/integrations', '/copilot', '/deception', '/tarpit', '/aitm-defense', '/client-defense', '/session-anomaly']) || openDropdown === 'soc'
+                    isGroupActive(['/cases', '/playbooks', '/takedowns', '/siem', '/audit-logs', '/integrations', '/copilot', '/deception', '/tarpit', '/aitm-defense', '/client-defense', '/session-anomaly', '/digital-forensics']) || openDropdown === 'soc'
                       ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
                       : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                   }`}
@@ -342,6 +365,16 @@ export const Navbar: React.FC = () => {
 
                 {openDropdown === 'soc' && (
                   <div className="absolute left-0 mt-2 w-60 rounded-2xl bg-slate-900/95 border border-slate-800 p-2 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-top-2">
+                    <Link
+                      to="/digital-forensics"
+                      className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
+                    >
+                      <FileCode2 className="w-4 h-4 text-teal-400 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-white">Digital Forensics & DPI</div>
+                        <div className="text-[10px] text-slate-400">HAR packet inspection & SHA-256</div>
+                      </div>
+                    </Link>
                     <Link
                       to="/client-defense"
                       className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
@@ -580,6 +613,8 @@ export const Navbar: React.FC = () => {
 
           <div className="space-y-1">
             <span className="text-[10px] font-mono uppercase text-slate-500 px-3">Detection & Ingestion</span>
+            <Link to="/genai-defense" className="block px-3 py-1.5 rounded-lg text-xs text-purple-300 hover:bg-slate-800">GenAI Prompt Defense</Link>
+            <Link to="/telecom-threat" className="block px-3 py-1.5 rounded-lg text-xs text-orange-300 hover:bg-slate-800">Telecom Threat Fusion</Link>
             <Link to="/analyze" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Live Scan</Link>
             <Link to="/batch" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Batch Queue</Link>
             <Link to="/email-scanner" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Email Scanner</Link>
@@ -604,6 +639,7 @@ export const Navbar: React.FC = () => {
 
           <div className="space-y-1">
             <span className="text-[10px] font-mono uppercase text-slate-500 px-3">SOC Operations</span>
+            <Link to="/digital-forensics" className="block px-3 py-1.5 rounded-lg text-xs text-teal-300 hover:bg-slate-800">Digital Forensics & DPI</Link>
             <Link to="/client-defense" className="block px-3 py-1.5 rounded-lg text-xs text-emerald-300 hover:bg-slate-800">Client Anti-Tamper SDK</Link>
             <Link to="/session-anomaly" className="block px-3 py-1.5 rounded-lg text-xs text-rose-300 hover:bg-slate-800">Continuous Session Trust</Link>
             <Link to="/aitm-defense" className="block px-3 py-1.5 rounded-lg text-xs text-rose-300 hover:bg-slate-800">AiTM Proxy Defense</Link>

@@ -2354,5 +2354,120 @@ export const D3FENDMatrixCoverageSchema = z.object({
 });
 export type D3FENDMatrixCoverage = z.infer<typeof D3FENDMatrixCoverageSchema>;
 
+// ============================================================================
+// Milestone 19: GenAI Adversarial Defense, Telecom Fusion & Digital Forensics
+// ============================================================================
+
+// 1. GenAI Phishing & Prompt Injection Defense
+export const GenAIAnalysisRequestSchema = z.object({
+  content: z.string().min(1),
+  sourceChannel: z.enum(['EMAIL_BODY', 'WEB_PAGE_DOM', 'CHAT_PAYLOAD', 'SMS_TEXT']).default('EMAIL_BODY'),
+  sanitizeContent: z.boolean().default(true),
+  scanHiddenDom: z.boolean().default(true)
+});
+export type GenAIAnalysisRequest = z.infer<typeof GenAIAnalysisRequestSchema>;
+
+export const GenAIAnalysisResultSchema = z.object({
+  scanId: z.string(),
+  scannedAt: z.string(),
+  promptInjectionDetected: z.boolean(),
+  injectionTechnique: z.enum([
+    'INDIRECT_PROMPT_INJECTION',
+    'JAILBREAK_ATTEMPT',
+    'ZERO_WIDTH_STEGANOGRAPHY',
+    'HIDDEN_CSS_PAYLOAD',
+    'NONE'
+  ]),
+  syntheticLureLikelihood: z.number().min(0).max(100),
+  perplexityScore: z.number(),
+  detectedSignatures: z.array(z.string()),
+  riskLevel: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'SAFE']),
+  neutralizedContent: z.string(),
+  defenseAction: z.enum(['QUARANTINE', 'SANITIZE', 'ALLOW'])
+});
+export type GenAIAnalysisResult = z.infer<typeof GenAIAnalysisResultSchema>;
+
+// 2. Telecom Multi-Vector Fusion (Smishing, Vishing & STIR/SHAKEN)
+export const TelecomThreatProbeSchema = z.object({
+  channel: z.enum(['SMS_SMISHING', 'VOIP_VISHING', 'MMS', 'CROSS_CHANNEL']),
+  callerOrSenderId: z.string().min(3),
+  messageOrTranscript: z.string(),
+  stirShakenAttestation: z.enum(['A', 'B', 'C', 'UNATTESTED']).default('UNATTESTED'),
+  originCarrier: z.string().optional(),
+  originCountry: z.string().optional(),
+  extractedUrls: z.array(z.string()).default([]),
+  audioDurationSeconds: z.number().optional()
+});
+export type TelecomThreatProbe = z.infer<typeof TelecomThreatProbeSchema>;
+
+export const TelecomThreatAssessmentSchema = z.object({
+  assessmentId: z.string(),
+  evaluatedAt: z.string(),
+  channel: z.enum(['SMS_SMISHING', 'VOIP_VISHING', 'MMS', 'CROSS_CHANNEL']),
+  callerOrSenderId: z.string(),
+  stirShakenAttestation: z.enum(['A', 'B', 'C', 'UNATTESTED']),
+  syntheticVoiceLikelihood: z.number().min(0).max(100),
+  urgencySocialEngineeringScore: z.number().min(0).max(100),
+  multiVectorConvergenceIndex: z.number().min(0).max(100),
+  correlatedCampaignId: z.string().optional(),
+  anomaliesDetected: z.array(z.string()),
+  verdict: z.enum(['CRITICAL_CONVERGENCE', 'SUSPICIOUS', 'LEGITIMATE']),
+  recommendedTelecomAction: z.enum(['CARRIER_BLOCK_DISPATCH', 'FLAG_SUSPICIOUS', 'ALLOW'])
+});
+export type TelecomThreatAssessment = z.infer<typeof TelecomThreatAssessmentSchema>;
+
+// 3. Automated Digital Forensics & HAR Deep Packet Inspection (ADFA)
+export const HAREntrySchema = z.object({
+  id: z.string(),
+  startedDateTime: z.string(),
+  request: z.object({
+    method: z.string(),
+    url: z.string(),
+    headers: z.array(z.object({ name: z.string(), value: z.string() })).default([]),
+    queryString: z.array(z.object({ name: z.string(), value: z.string() })).default([]),
+    postData: z.object({ mimeType: z.string(), text: z.string().optional() }).optional()
+  }),
+  response: z.object({
+    status: z.number(),
+    statusText: z.string(),
+    headers: z.array(z.object({ name: z.string(), value: z.string() })).default([]),
+    content: z.object({ size: z.number(), mimeType: z.string(), text: z.string().optional() }).optional()
+  }),
+  time: z.number().default(0)
+});
+export type HAREntry = z.infer<typeof HAREntrySchema>;
+
+export const HARForensicIngestSchema = z.object({
+  targetUrl: z.string(),
+  capturedBy: z.string().default('PhishNetra Automated DPI Agent'),
+  entries: z.array(HAREntrySchema),
+  environmentDetails: z.record(z.string(), z.any()).optional().default({})
+});
+export type HARForensicIngest = z.infer<typeof HARForensicIngestSchema>;
+
+export const HARForensicArtifactSchema = z.object({
+  artifactId: z.string(),
+  targetUrl: z.string(),
+  analyzedAt: z.string(),
+  totalEntriesAnalyzed: z.number(),
+  exfiltrationDestinations: z.array(z.string()),
+  covertWebSocketStreams: z.number(),
+  dnsTunnelingIndicators: z.array(z.string()),
+  suspiciousPayloadsCount: z.number(),
+  chainOfCustodySha256: z.string(),
+  forensicIntegrityVerified: z.boolean(),
+  forensicFindings: z.array(z.object({
+    entryId: z.string(),
+    url: z.string(),
+    method: z.string(),
+    threatCategory: z.string(),
+    severity: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']),
+    evidenceSnippet: z.string()
+  })),
+  legalAdmissibilityScore: z.number().min(0).max(100)
+});
+export type HARForensicArtifact = z.infer<typeof HARForensicArtifactSchema>;
+
+
 
 

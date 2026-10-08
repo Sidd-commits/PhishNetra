@@ -39,6 +39,9 @@ import { ThreatAttributionPage } from './pages/ThreatAttributionPage';
 import { ClientDefensePage } from './pages/ClientDefensePage';
 import { SessionAnomalyPage } from './pages/SessionAnomalyPage';
 import { D3FENDMatrixPage } from './pages/D3FENDMatrixPage';
+import { GenAIDefensePage } from './pages/GenAIDefensePage';
+import { TelecomFusionPage } from './pages/TelecomFusionPage';
+import { DigitalForensicsPage } from './pages/DigitalForensicsPage';
 
 export const App: React.FC = () => {
   return (
@@ -357,6 +360,36 @@ export const App: React.FC = () => {
                   element={
                     <ProtectedRoute>
                       <D3FENDMatrixPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* GenAI Adversarial & Prompt Injection Defense */}
+                <Route
+                  path="/genai-defense"
+                  element={
+                    <ProtectedRoute>
+                      <GenAIDefensePage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Telecom Multi-Vector Threat Fusion */}
+                <Route
+                  path="/telecom-threat"
+                  element={
+                    <ProtectedRoute>
+                      <TelecomFusionPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Automated Digital Forensics & HAR Packet Inspection */}
+                <Route
+                  path="/digital-forensics"
+                  element={
+                    <ProtectedRoute>
+                      <DigitalForensicsPage />
                     </ProtectedRoute>
                   }
                 />

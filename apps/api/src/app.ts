@@ -46,6 +46,9 @@ import { riskQuantificationRouter } from './routes/riskQuantificationRoutes';
 import { clientDefenseRouter } from './routes/clientDefenseRoutes';
 import { sessionAnomalyRouter } from './routes/sessionAnomalyRoutes';
 import { d3fendRouter } from './routes/d3fendRoutes';
+import { genAIDefenseRouter } from './routes/genAIDefenseRoutes';
+import { telecomThreatRouter } from './routes/telecomThreatRoutes';
+import { digitalForensicsRouter } from './routes/digitalForensicsRoutes';
 import { metricsService } from './services/metrics/PrometheusMetricsService';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -138,6 +141,9 @@ export const createApp = (): express.Application => {
   app.use('/api/client-defense', clientDefenseRouter);
   app.use('/api/session-anomaly', sessionAnomalyRouter);
   app.use('/api/d3fend', d3fendRouter);
+  app.use('/api/genai-defense', genAIDefenseRouter);
+  app.use('/api/telecom-threat', telecomThreatRouter);
+  app.use('/api/digital-forensics', digitalForensicsRouter);
 
   // Fallback 404 for unknown endpoints
   app.use((req, res) => {

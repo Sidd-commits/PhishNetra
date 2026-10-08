@@ -92,7 +92,13 @@ import {
   ClientTamperEvent,
   SessionTelemetryProbe,
   ContinuousRiskAssessment,
-  D3FENDMatrixCoverage
+  D3FENDMatrixCoverage,
+  GenAIAnalysisRequest,
+  GenAIAnalysisResult,
+  TelecomThreatProbe,
+  TelecomThreatAssessment,
+  HARForensicIngest,
+  HARForensicArtifact
 } from '@phishnetra/shared';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -754,6 +760,37 @@ class ApiService {
 
   public async getD3FENDMatrix(): Promise<D3FENDMatrixCoverage> {
     const res = await this.client.get<{ success: boolean; data: D3FENDMatrixCoverage }>('/d3fend/matrix');
+    return res.data.data;
+  }
+
+  // --- Milestone 19: GenAI Defense, Telecom Fusion & Digital Forensics ---
+  public async analyzeGenAIContent(req: GenAIAnalysisRequest): Promise<GenAIAnalysisResult> {
+    const res = await this.client.post<{ success: boolean; data: GenAIAnalysisResult }>('/genai-defense/analyze', req);
+    return res.data.data;
+  }
+
+  public async assessTelecomThreat(probe: TelecomThreatProbe): Promise<TelecomThreatAssessment> {
+    const res = await this.client.post<{ success: boolean; data: TelecomThreatAssessment }>('/telecom-threat/assess', probe);
+    return res.data.data;
+  }
+
+  public async getTelecomThreatHistory(): Promise<TelecomThreatAssessment[]> {
+    const res = await this.client.get<{ success: boolean; data: TelecomThreatAssessment[] }>('/telecom-threat/history');
+    return res.data.data;
+  }
+
+  public async ingestHARForensics(ingest: HARForensicIngest): Promise<HARForensicArtifact> {
+    const res = await this.client.post<{ success: boolean; data: HARForensicArtifact }>('/digital-forensics/ingest-har', ingest);
+    return res.data.data;
+  }
+
+  public async listForensicArtifacts(): Promise<HARForensicArtifact[]> {
+    const res = await this.client.get<{ success: boolean; data: HARForensicArtifact[] }>('/digital-forensics/artifacts');
+    return res.data.data;
+  }
+
+  public async getHARForensicArtifact(id: string): Promise<HARForensicArtifact> {
+    const res = await this.client.get<{ success: boolean; data: HARForensicArtifact }>(`/digital-forensics/artifacts/${id}`);
     return res.data.data;
   }
 
