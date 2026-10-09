@@ -15,7 +15,16 @@ import {
   AlertCircle,
   Clock,
   Globe,
-  Info
+  Info,
+  Copy,
+  Check,
+  Download,
+  ShieldAlert,
+  Zap,
+  ExternalLink,
+  Shield,
+  FileCode,
+  Crosshair
 } from 'lucide-react';
 
 export const AnalysisDetailPage: React.FC = () => {
@@ -23,6 +32,9 @@ export const AnalysisDetailPage: React.FC = () => {
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [copiedUrl, setCopiedUrl] = useState<boolean>(false);
+  const [showRpzModal, setShowRpzModal] = useState<boolean>(false);
+  const [copiedRpz, setCopiedRpz] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
@@ -41,6 +53,49 @@ export const AnalysisDetailPage: React.FC = () => {
 
     fetchAnalysis();
   }, [id]);
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedUrl(true);
+    setTimeout(() => setCopiedUrl(false), 2000);
+  };
+
+  const copyRpzRule = (rule: string) => {
+    navigator.clipboard.writeText(rule);
+    setCopiedRpz(true);
+    setTimeout(() => setCopiedRpz(false), 2000);
+  };
+
+  const downloadJsonTelemetry = () => {
+    if (!analysis) return;
+    const blob = new Blob([JSON.stringify(analysis, null, 2)], { type: 'application/json' });
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = `phishnetra-forensics-${analysis.analysisId.slice(0, 8)}.json`;
+    link.click();
+    URL.revokeObjectURL(blobUrl);
+  };
+
+  // Derive domain from canonical URL
+  const extractedDomain = (() => {
+    if (!analysis) return '';
+    try {
+      const parsed = new URL(analysis.normalizedUrl);
+      return parsed.hostname;
+    } catch {
+      return 'target-domain.internal';
+    }
+  })();
+
+  const rpzRuleText = `; PhishNetra Zero-Trust Threat Mitigation Response Policy Zone (RPZ)
+; Target Domain: ${extractedDomain}
+; Triggered Verdict: ${analysis?.verdict || 'MALICIOUS'} | Risk Score: ${analysis?.riskScore || 0}/100
+; Generated: ${new Date().toISOString()}
+
+${extractedDomain}       CNAME .
+*.${extractedDomain}     CNAME .
+`;
 
   if (isLoading) {
     return (
@@ -69,7 +124,7 @@ export const AnalysisDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fadeIn">
       {/* Top Navigation & Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <button
@@ -80,12 +135,21 @@ export const AnalysisDetailPage: React.FC = () => {
           <span>Back to Feed</span>
         </button>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          <button
+            type="button"
+            onClick={downloadJsonTelemetry}
+            className="inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white text-xs font-mono transition-colors"
+          >
+            <Download className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Export JSON</span>
+          </button>
+
           <Link
             to="/analyze"
-            className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors"
+            className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 text-xs font-bold shadow-md shadow-cyan-500/20 transition-all"
           >
-            <Search className="w-3.5 h-3.5 text-cyan-400" />
+            <Search className="w-3.5 h-3.5" />
             <span>Scan Another URL</span>
           </Link>
         </div>
@@ -111,11 +175,11 @@ export const AnalysisDetailPage: React.FC = () => {
       )}
 
       {/* Target URL Inspection Card */}
-      <div className="glass-panel p-6 sm:p-8 rounded-2xl border-slate-800 space-y-4">
+      <div className="glass-panel p-6 sm:p-8 rounded-2xl border-slate-800 space-y-4 shadow-xl">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-4">
           <div className="flex items-center space-x-2 text-xs font-mono text-cyan-400">
             <Globe className="w-4 h-4" />
-            <span>MULTI-LAYER ANALYSIS REPORT #{analysis.analysisId}</span>
+            <span>MULTI-LAYER FORENSIC DOSSIER #{analysis.analysisId}</span>
           </div>
           <div className="flex items-center space-x-2 text-xs font-mono text-slate-400">
             <Clock className="w-3.5 h-3.5" />
@@ -123,15 +187,106 @@ export const AnalysisDetailPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">
             Canonical Target URL
           </span>
-          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/90 font-mono text-sm sm:text-base text-slate-100 break-all select-all">
-            {analysis.normalizedUrl}
+          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/90 font-mono text-sm sm:text-base text-slate-100 break-all flex items-center justify-between gap-3">
+            <span className="select-all">{analysis.normalizedUrl}</span>
+            <button
+              type="button"
+              onClick={() => copyToClipboard(analysis.normalizedUrl)}
+              className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors flex-shrink-0"
+              title="Copy URL"
+            >
+              {copiedUrl ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+
+        {/* SOAR Remediation Action Trigger Bar */}
+        <div className="pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center space-x-1.5 text-xs font-mono text-slate-400">
+            <Zap className="w-3.5 h-3.5 text-cyan-400" />
+            <span>SOAR Actions:</span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowRpzModal(true)}
+              className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-cyan-300 text-xs font-mono transition-colors flex items-center space-x-1.5"
+            >
+              <FileCode className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Generate RPZ Rule</span>
+            </button>
+
+            <Link
+              to={`/cases`}
+              className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-amber-300 text-xs font-mono transition-colors flex items-center space-x-1.5"
+            >
+              <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+              <span>Escalate Case</span>
+            </Link>
+
+            <Link
+              to={`/takedowns`}
+              className="px-3 py-1.5 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-mono transition-colors flex items-center space-x-1.5 font-bold"
+            >
+              <Crosshair className="w-3.5 h-3.5 text-rose-400" />
+              <span>Dispatch Abuse Takedown</span>
+            </Link>
+
+            <Link
+              to={`/rbi`}
+              className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-purple-300 text-xs font-mono transition-colors flex items-center space-x-1.5"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-purple-400" />
+              <span>Sandbox DOM</span>
+            </Link>
           </div>
         </div>
       </div>
+
+      {/* RPZ Modal Overlay */}
+      {showRpzModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+          <div className="glass-panel p-6 rounded-2xl border-cyan-500/30 max-w-xl w-full space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 text-cyan-400 font-mono text-sm font-bold">
+                <FileCode className="w-4 h-4" />
+                <span>DNS Response Policy Zone (RPZ) Sinkhole Rule</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowRpzModal(false)}
+                className="text-slate-400 hover:text-white text-xs font-mono px-2 py-1 rounded bg-slate-900"
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-300">
+              Apply this policy rule to your recursive resolvers (BIND9, PowerDNS, Unbound, or Infoblox) to immediately sinkhole client queries for this host:
+            </p>
+
+            <pre className="p-4 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs text-emerald-400 overflow-x-auto select-all">
+              {rpzRuleText}
+            </pre>
+
+            <div className="flex justify-end space-x-2">
+              <button
+                type="button"
+                onClick={() => copyRpzRule(rpzRuleText)}
+                className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center space-x-1.5 transition-colors"
+              >
+                {copiedRpz ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copiedRpz ? 'Copied to Clipboard' : 'Copy RPZ Syntax'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Score & Signal Synthesis Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -237,3 +392,4 @@ export const AnalysisDetailPage: React.FC = () => {
     </div>
   );
 };
+

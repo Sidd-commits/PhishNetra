@@ -3,15 +3,37 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    color-scheme: dark;
+  }
+  
   body {
     @apply bg-slate-950 text-slate-100 font-sans antialiased selection:bg-cyan-500/20 selection:text-cyan-300 min-h-screen;
     background-image: 
       radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.08) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.05) 0px, transparent 50%);
+      radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.05) 0px, transparent 50%),
+      radial-gradient(at 50% 50%, rgba(99, 102, 241, 0.03) 0px, transparent 60%);
     background-attachment: fixed;
+  }
+
+  /* Custom Slim Dark Scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #020617;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #334155;
   }
 }
 
+/* Glassmorphism & UI Accents */
 .glass-panel {
   @apply bg-slate-900/80 backdrop-blur-md border border-slate-800/80 shadow-xl;
 }
@@ -20,10 +42,62 @@
   @apply bg-slate-900/90 backdrop-blur-md border border-slate-700/60 shadow-2xl shadow-cyan-950/20;
 }
 
+.glass-card-hover {
+  @apply transition-all duration-200 hover:border-slate-700 hover:shadow-lg hover:shadow-cyan-950/10 hover:-translate-y-0.5;
+}
+
+.cyber-border {
+  @apply border border-slate-800/90 hover:border-cyan-500/40 transition-colors duration-200;
+}
+
 .cyber-gradient-text {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400;
 }
 
 .threat-gradient-text {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-rose-400 via-red-500 to-amber-400;
+}
+
+/* Animated Radar Sweep */
+@keyframes radar-sweep {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-radar {
+  animation: radar-sweep 4s linear infinite;
+}
+
+/* Shimmer animation for loading states */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shimmer::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.04) 20%,
+    rgba(255, 255, 255, 0.08) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 2s infinite;
+  content: '';
 }
