@@ -86,25 +86,32 @@ export const Navbar: React.FC = () => {
 
   return (
     <nav ref={navRef} className="border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-xl sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Brand Logo */}
-          <div className="flex items-center space-x-3">
-            <Link to="/dashboard" className="flex items-center space-x-2.5 group">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 p-[1px] shadow-md shadow-cyan-500/20 group-hover:shadow-cyan-500/40 transition-all">
-                <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-                  <ShieldAlert className="w-5 h-5 text-cyan-400 group-hover:scale-105 transition-transform" />
+          {/* Left: Brand Logo + Desktop Categorized Navigation */}
+          <div className="flex items-center space-x-6 xl:space-x-8">
+            {/* Brand Logo */}
+            <div className="flex items-center">
+              <Link to="/dashboard" className="flex items-center space-x-2.5 group shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 p-[1px] shadow-md shadow-cyan-500/20 group-hover:shadow-cyan-500/40 transition-all">
+                  <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+                    <ShieldAlert className="w-5 h-5 text-cyan-400 group-hover:scale-105 transition-transform" />
+                  </div>
                 </div>
-              </div>
-              <span className="text-lg font-bold tracking-tight text-white">
-                Phish<span className="text-cyan-400">Netra</span>
-              </span>
-            </Link>
-          </div>
+                <span className="text-lg font-bold tracking-tight text-white">
+                  Phish<span className="text-cyan-400">Netra</span>
+                </span>
+              </Link>
+            </div>
 
-          {/* Desktop Categorized Navigation */}
-          {isAuthenticated && (
-            <div className="hidden lg:flex items-center space-x-1.5">
+            {/* Visual Divider between Brand and Nav */}
+            {isAuthenticated && (
+              <div className="hidden lg:block h-5 w-px bg-slate-800 shrink-0" />
+            )}
+
+            {/* Desktop Categorized Navigation */}
+            {isAuthenticated && (
+              <div className="hidden lg:flex items-center space-x-1 xl:space-x-1.5">
               {/* Dashboard */}
               <Link
                 to="/dashboard"
@@ -224,7 +231,7 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={() => toggleDropdown('intel')}
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    isGroupActive(['/graph', '/campaigns', '/feeds', '/reports', '/executive-briefing', '/hunting', '/attack-surface', '/rbi-sandbox', '/intel-fusion', '/threat-attribution', '/d3fend', '/cti-exchange', '/bgp-integrity']) || openDropdown === 'intel'
+                    isGroupActive(['/graph', '/threat-graph', '/campaigns', '/feeds', '/reports', '/executive-briefing', '/hunting', '/attack-surface', '/rbi-sandbox', '/rbi', '/intel-fusion', '/threat-attribution', '/d3fend', '/cti-exchange', '/bgp-integrity']) || openDropdown === 'intel'
                       ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30'
                       : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                   }`}
@@ -567,6 +574,7 @@ export const Navbar: React.FC = () => {
               </Link>
             </div>
           )}
+          </div>
 
           {/* Right Action Section: User Info & Mobile Hamburger */}
           <div className="flex items-center space-x-3">

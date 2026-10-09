@@ -10,6 +10,7 @@ import {
   BatchJobResponse,
   DomainDossier,
   TyposquattingScanResult,
+  GraphData,
   CreateReportRequest,
   ReportModerationRequest,
   CommunityReport,
@@ -848,6 +849,27 @@ class ApiService {
   public async getFIDO2GuardHistory(limit: number = 20): Promise<FIDO2AssessmentResult[]> {
     const res = await this.client.get<{ success: boolean; data: FIDO2AssessmentResult[] }>('/fido2-guard/history', { params: { limit } });
     return res.data.data;
+  }
+
+  // --- Threat Graph Methods ---
+  public async getGraphOverview(limit: number = 70): Promise<GraphData> {
+    const res = await this.client.get<{ success: boolean; data: GraphData }>('/graph/overview', { params: { limit } });
+    return res.data.data;
+  }
+
+  public async getDomainSubGraph(domain: string, depth: number = 2): Promise<GraphData> {
+    const res = await this.client.get<{ success: boolean; data: GraphData }>(`/graph/domain/${encodeURIComponent(domain)}`, { params: { depth } });
+    return res.data.data;
+  }
+
+  public async getNodeNeighbors(nodeId: string, limit: number = 30): Promise<GraphData> {
+    const res = await this.client.get<{ success: boolean; data: GraphData }>(`/graph/nodes/${encodeURIComponent(nodeId)}/neighbors`, { params: { limit } });
+    return res.data.data;
+  }
+
+  public async clusterCampaigns(distanceThreshold: number = 0.75): Promise<any> {
+    const res = await this.client.post('/campaigns/cluster', { distanceThreshold });
+    return res.data;
   }
 
   // --- Health Check ---

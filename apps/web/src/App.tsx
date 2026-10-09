@@ -127,6 +127,14 @@ export const App: React.FC = () => {
                   }
                 />
                 <Route
+                  path="/threat-graph"
+                  element={
+                    <ProtectedRoute>
+                      <ThreatGraphPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/campaigns"
                   element={
                     <ProtectedRoute>
@@ -280,6 +288,14 @@ export const App: React.FC = () => {
                 {/* Zero-Trust Remote Browser Isolation (RBI) Sandbox */}
                 <Route
                   path="/rbi-sandbox"
+                  element={
+                    <ProtectedRoute>
+                      <RBISandboxPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/rbi"
                   element={
                     <ProtectedRoute>
                       <RBISandboxPage />

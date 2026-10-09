@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Network,
   Search,
@@ -20,9 +21,7 @@ import {
   Sliders
 } from 'lucide-react';
 import { GraphData, GraphNode, GraphEdge, GraphNodeType } from '@phishnetra/shared';
-import axios from 'axios';
-
-const API_BASE = 'http://localhost:5000/api';
+import { api } from '../services/api';
 
 interface VisualNode extends GraphNode {
   x: number;
@@ -35,6 +34,7 @@ interface VisualNode extends GraphNode {
 }
 
 export const ThreatGraphPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [graphData, setGraphData] = useState<GraphData>({ nodes: [], edges: [] });
   const [loading, setLoading] = useState<boolean>(true);
   const [searchDomain, setSearchDomain] = useState<string>('');
@@ -67,9 +67,9 @@ export const ThreatGraphPage: React.FC = () => {
   const fetchOverviewGraph = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_BASE}/graph/overview?limit=70`);
-      if (res.data.success) {
-        setGraphData(res.data.data);
+      const data = await api.getGraphOverview(80);
+      if (data && data.nodes) {
+        setGraphData(data);
       }
     } catch (err) {
       console.error('Failed to load overview graph:', err);
@@ -82,9 +82,9 @@ export const ThreatGraphPage: React.FC = () => {
     if (!domain.trim()) return;
     setLoading(true);
     try {
-      const res = await axios.get(`${API_BASE}/graph/domain/${encodeURIComponent(domain.trim())}?depth=${depth}`);
-      if (res.data.success) {
-        setGraphData(res.data.data);
+      const data = await api.getDomainSubGraph(domain.trim(), depth);
+      if (data && data.nodes) {
+        setGraphData(data);
       }
     } catch (err) {
       console.error('Failed to load domain subgraph:', err);
@@ -95,10 +95,10 @@ export const ThreatGraphPage: React.FC = () => {
 
   const handleExpandNeighbors = async (nodeId: string) => {
     try {
-      const res = await axios.get(`${API_BASE}/graph/nodes/${encodeURIComponent(nodeId)}/neighbors`);
-      if (res.data.success && res.data.data.nodes.length > 0) {
-        const newNodes = res.data.data.nodes;
-        const newEdges = res.data.data.edges;
+      const res = await api.getNodeNeighbors(nodeId);
+      if (res && res.nodes && res.nodes.length > 0) {
+        const newNodes = res.nodes;
+        const newEdges = res.edges;
 
         setGraphData((prev) => {
           const existingNodeIds = new Set(prev.nodes.map((n) => n.id));
@@ -139,10 +139,10 @@ export const ThreatGraphPage: React.FC = () => {
     setClustering(true);
     setClusterNotice(null);
     try {
-      const res = await axios.post(`${API_BASE}/campaigns/cluster`);
-      if (res.data.success) {
-        const result = res.data.data;
-        setClusterNotice(`Discovered & clustered ${result.newCampaignsCreated} Threat Campaign(s) across ${result.domainsClustered} domains.`);
+      const res = await api.clusterCampaigns();
+      if (res && res.success) {
+        const result = res.data;
+        setClusterNotice(`Discovered & clustered ${result?.newCampaignsCreated ?? 0} Threat Campaign(s) across ${result?.domainsClustered ?? 0} domains.`);
         await fetchOverviewGraph();
       }
     } catch (err: any) {
@@ -153,15 +153,22 @@ export const ThreatGraphPage: React.FC = () => {
   };
 
   const handleExportSTIX = () => {
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
     const url = searchDomain
-      ? `${API_BASE}/graph/export/stix?domain=${encodeURIComponent(searchDomain)}`
-      : `${API_BASE}/graph/export/stix`;
+      ? `${baseUrl}/graph/export/stix?domain=${encodeURIComponent(searchDomain)}`
+      : `${baseUrl}/graph/export/stix`;
     window.open(url, '_blank');
   };
 
   useEffect(() => {
-    fetchOverviewGraph();
-  }, []);
+    const domainParam = searchParams.get('domain');
+    if (domainParam) {
+      setSearchDomain(domainParam);
+      fetchDomainSubGraph(domainParam);
+    } else {
+      fetchOverviewGraph();
+    }
+  }, [searchParams]);
 
   // Initialize and run Force-Directed Simulation Layout
   useEffect(() => {
@@ -374,9 +381,6 @@ export const ThreatGraphPage: React.FC = () => {
               <Network className="w-6 h-6 text-cyan-400" />
               <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
                 Threat Intelligence Graph Explorer
-                <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
-                  M6 • Graph Engine
-                </span>
               </h1>
             </div>
             <p className="text-xs text-slate-400 font-mono mt-0.5">
@@ -483,7 +487,34 @@ export const ThreatGraphPage: React.FC = () => {
       </div>
 
       {/* Main Graph Canvas Area */}
-      <div className="flex-1 relative overflow-hidden bg-[#070b14]">
+      <div className="h-[calc(100vh-14rem)] min-h-[580px] w-full relative overflow-hidden bg-[#070b14]">
+        {/* Loading Overlay */}
+        {loading && (
+          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-slate-950/70 backdrop-blur-xs">
+            <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-2xl flex flex-col items-center space-y-3">
+              <RefreshCw className="w-7 h-7 text-cyan-400 animate-spin" />
+              <span className="text-xs font-mono text-slate-300">Rendering Threat Topology Graph...</span>
+            </div>
+          </div>
+        )}
+
+        {/* Empty State Overlay */}
+        {!loading && visualNodes.length === 0 && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none">
+            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 text-center max-w-md pointer-events-auto">
+              <Network className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+              <h3 className="text-sm font-bold text-white mb-1">No Threat Entities Found</h3>
+              <p className="text-xs text-slate-400 mb-4">No nodes match the selected filters or search query.</p>
+              <button
+                onClick={fetchOverviewGraph}
+                className="px-3 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold rounded-lg transition-colors"
+              >
+                Reload Fleet Overview
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Zoom & Viewport Controls Overlay */}
         <div className="absolute top-4 left-4 z-20 flex flex-col space-y-1.5 bg-slate-900/90 border border-slate-800 p-1 rounded-lg backdrop-blur-md shadow-xl">
           <button
@@ -520,6 +551,8 @@ export const ThreatGraphPage: React.FC = () => {
 
         {/* SVG Interactive Canvas */}
         <svg
+          viewBox="0 0 1000 650"
+          preserveAspectRatio="xMidYMid meet"
           className="w-full h-full cursor-grab active:cursor-grabbing"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
