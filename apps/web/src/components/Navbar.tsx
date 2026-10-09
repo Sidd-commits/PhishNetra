@@ -88,27 +88,17 @@ export const Navbar: React.FC = () => {
     <nav ref={navRef} className="border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-xl sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Brand Logo & Milestone Badge */}
+          {/* Brand Logo */}
           <div className="flex items-center space-x-3">
-            <Link to="/dashboard" className="flex items-center space-x-3 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 p-[1px] shadow-lg shadow-cyan-500/20 group-hover:shadow-cyan-500/40 transition-all">
-                <div className="w-full h-full bg-slate-950 rounded-[11px] flex items-center justify-center">
-                  <ShieldAlert className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
+            <Link to="/dashboard" className="flex items-center space-x-2.5 group">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 p-[1px] shadow-md shadow-cyan-500/20 group-hover:shadow-cyan-500/40 transition-all">
+                <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+                  <ShieldAlert className="w-5 h-5 text-cyan-400 group-hover:scale-105 transition-transform" />
                 </div>
               </div>
-              <div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-lg font-bold tracking-tight text-white">
-                    Phish<span className="text-cyan-400">Netra</span>
-                  </span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
-                    Enterprise SOC
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-400 font-mono hidden sm:block">
-                  AI-Driven Zero-Trust Phishing Detection
-                </p>
-              </div>
+              <span className="text-lg font-bold tracking-tight text-white">
+                Phish<span className="text-cyan-400">Netra</span>
+              </span>
             </Link>
           </div>
 
@@ -578,24 +568,23 @@ export const Navbar: React.FC = () => {
             </div>
           )}
 
-          {/* Right Action Section: User Info, Health Pulse, and Mobile Hamburger */}
+          {/* Right Action Section: User Info & Mobile Hamburger */}
           <div className="flex items-center space-x-3">
             {isAuthenticated && user ? (
               <div className="flex items-center space-x-3">
                 <div className="hidden md:flex flex-col text-right">
-                  <span className="text-xs font-semibold text-slate-200">{user.name}</span>
-                  <span className="text-[10px] font-mono text-cyan-400 flex items-center justify-end space-x-1">
-                    <Radio className="w-2.5 h-2.5 text-emerald-400 animate-pulse" />
-                    <span>{user.role}</span>
+                  <span className="text-xs font-medium text-slate-200">{user.name}</span>
+                  <span className="text-[11px] text-slate-400">
+                    {user.role === 'ADMIN' ? 'Administrator' : 'Analyst'}
                   </span>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-cyan-300 text-xs font-bold">
+                <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700/80 flex items-center justify-center text-slate-200 text-xs font-semibold">
                   {user.name.charAt(0).toUpperCase()}
                 </div>
                 <button
                   onClick={handleLogout}
                   title="Sign out"
-                  className="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
+                  className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>

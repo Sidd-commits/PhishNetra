@@ -147,10 +147,10 @@ ${extractedDomain}       CNAME .
 
           <Link
             to="/analyze"
-            className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 text-xs font-bold shadow-md shadow-cyan-500/20 transition-all"
+            className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-semibold shadow-md transition-all active:scale-[0.98]"
           >
             <Search className="w-3.5 h-3.5" />
-            <span>Scan Another URL</span>
+            <span>Analyze Another URL</span>
           </Link>
         </div>
       </div>
@@ -164,9 +164,9 @@ ${extractedDomain}       CNAME .
       {/* Synthesized Analysis Summary Banner */}
       {analysis.summary && (
         <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-700/80 shadow-md">
-          <div className="flex items-center space-x-2 text-xs font-mono text-cyan-400 font-bold uppercase tracking-wider mb-1.5">
+          <div className="flex items-center space-x-2 text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-1.5">
             <Info className="w-3.5 h-3.5" />
-            <span>Executive Threat Intelligence Summary</span>
+            <span>Threat Summary</span>
           </div>
           <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
             {analysis.summary}
@@ -177,18 +177,18 @@ ${extractedDomain}       CNAME .
       {/* Target URL Inspection Card */}
       <div className="glass-panel p-6 sm:p-8 rounded-2xl border-slate-800 space-y-4 shadow-xl">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-4">
-          <div className="flex items-center space-x-2 text-xs font-mono text-cyan-400">
-            <Globe className="w-4 h-4" />
-            <span>MULTI-LAYER FORENSIC DOSSIER #{analysis.analysisId}</span>
+          <div className="flex items-center space-x-2 text-xs text-slate-300">
+            <Globe className="w-4 h-4 text-cyan-400" />
+            <span className="font-medium">Investigation Report #{analysis.analysisId.slice(0, 8)}</span>
           </div>
-          <div className="flex items-center space-x-2 text-xs font-mono text-slate-400">
+          <div className="flex items-center space-x-2 text-xs text-slate-400">
             <Clock className="w-3.5 h-3.5" />
             <span>{new Date(analysis.createdAt).toLocaleString()}</span>
           </div>
         </div>
 
         <div className="space-y-1.5">
-          <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">
+          <span className="text-xs text-slate-400 font-medium">
             Canonical Target URL
           </span>
           <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/90 font-mono text-sm sm:text-base text-slate-100 break-all flex items-center justify-between gap-3">
@@ -204,11 +204,11 @@ ${extractedDomain}       CNAME .
           </div>
         </div>
 
-        {/* SOAR Remediation Action Trigger Bar */}
+        {/* Remediation Action Trigger Bar */}
         <div className="pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center space-x-1.5 text-xs font-mono text-slate-400">
+          <div className="flex items-center space-x-1.5 text-xs text-slate-400 font-medium">
             <Zap className="w-3.5 h-3.5 text-cyan-400" />
-            <span>SOAR Actions:</span>
+            <span>Remediation Actions:</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">

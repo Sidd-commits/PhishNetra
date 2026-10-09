@@ -98,15 +98,11 @@ export const AnalyzePage: React.FC = () => {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fadeIn">
       {/* Title Header */}
       <div className="text-center space-y-2 max-w-2xl mx-auto">
-        <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-300 text-xs font-mono mb-1">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Multi-Layer & Isolated Content Threat Scanner</span>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-          Inspect & Analyze Target URL & Content
+        <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+          URL Threat Analysis
         </h1>
         <p className="text-xs sm:text-sm text-slate-400">
-          Enter any candidate URL to evaluate lexical features, DNS/TLS intelligence, reputation feeds, and isolated browser page inspection.
+          Scan candidate URLs for phishing indicators, deceptive domains, and malicious web content.
         </p>
       </div>
 
@@ -123,12 +119,12 @@ export const AnalyzePage: React.FC = () => {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://example.com/login or http://192.168.1.1/secure-update"
-              className="block w-full pl-12 pr-32 py-4 bg-slate-950/90 border border-slate-700/80 rounded-xl text-sm sm:text-base font-mono text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 transition-all shadow-inner"
+              className="block w-full pl-12 pr-32 py-4 bg-slate-950/90 border border-slate-700/80 rounded-xl text-sm sm:text-base font-mono text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all shadow-inner"
             />
             <button
               type="submit"
               disabled={isLoading || !url.trim()}
-              className="absolute right-2 top-2 bottom-2 px-5 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-bold text-xs sm:text-sm rounded-lg shadow-md shadow-cyan-500/25 transition-all flex items-center space-x-2 disabled:opacity-50 active:scale-[0.98]"
+              className="absolute right-2 top-2 bottom-2 px-5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs sm:text-sm rounded-lg shadow-md transition-all flex items-center space-x-2 disabled:opacity-50 active:scale-[0.98]"
             >
               {isLoading ? (
                 <>
@@ -153,48 +149,44 @@ export const AnalyzePage: React.FC = () => {
                 onChange={(e) => setAnalyzePage(e.target.checked)}
                 className="w-4 h-4 rounded bg-slate-950 border-slate-700 text-cyan-500 focus:ring-cyan-500/20 focus:ring-offset-0"
               />
-              <span className="font-medium">Perform Secure Isolated Webpage Inspection (DOM, Forms, Brand Heuristics)</span>
+              <span className="font-medium">Perform isolated webpage inspection (DOM, forms, brand heuristics)</span>
             </label>
-            <span className="text-[11px] font-mono text-cyan-400/90 inline-flex items-center space-x-1">
-              <ShieldAlert className="w-3.5 h-3.5" />
-              <span>Multi-Layer SSRF & IP Sandbox Guard</span>
+            <span className="text-xs text-slate-400">
+              Isolated network sandbox enabled
             </span>
           </div>
         </form>
 
         {/* Quick Sample Presets */}
         <div className="pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
-          <span className="text-[11px] font-mono text-slate-400 mr-1 flex items-center space-x-1">
-            <Terminal className="w-3 h-3 text-cyan-400" />
-            <span>Threat Archetypes:</span>
-          </span>
+          <span className="text-xs text-slate-400 mr-1">Quick examples:</span>
           <button
             type="button"
             onClick={() => setSampleUrl('https://wikipedia.org/wiki/Phishing')}
-            className="px-2.5 py-1 rounded-lg bg-slate-950/80 hover:bg-slate-850 border border-slate-800 text-[11px] font-mono text-emerald-400 hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all"
+            className="px-2.5 py-1 rounded-lg bg-slate-950/80 hover:bg-slate-850 border border-slate-800 text-xs text-slate-300 hover:text-white hover:border-slate-700 transition-colors"
           >
-            [Safe] Wikipedia HTTPS
+            Wikipedia (Safe)
           </button>
           <button
             type="button"
             onClick={() => setSampleUrl('http://192.168.1.50/paypal-login-verify-account/signin.php')}
-            className="px-2.5 py-1 rounded-lg bg-slate-950/80 hover:bg-slate-850 border border-slate-800 text-[11px] font-mono text-rose-400 hover:border-rose-500/40 hover:bg-rose-500/5 transition-all"
+            className="px-2.5 py-1 rounded-lg bg-slate-950/80 hover:bg-slate-850 border border-slate-800 text-xs text-rose-300 hover:border-rose-500/40 transition-colors"
           >
-            [Phishing] IP + Brand Masquerade
+            IP Host (Phishing)
           </button>
           <button
             type="button"
             onClick={() => setSampleUrl('http://paypal-verification-center.login-verify.top/index.php')}
-            className="px-2.5 py-1 rounded-lg bg-slate-950/80 hover:bg-slate-850 border border-slate-800 text-[11px] font-mono text-amber-400 hover:border-amber-500/40 hover:bg-amber-500/5 transition-all"
+            className="px-2.5 py-1 rounded-lg bg-slate-950/80 hover:bg-slate-850 border border-slate-800 text-xs text-amber-300 hover:border-amber-500/40 transition-colors"
           >
-            [Suspicious] Subdomain Masquerade
+            Subdomain Spoof (Suspicious)
           </button>
           <button
             type="button"
             onClick={() => setSampleUrl('http://xn--gogle-pqa.com/auth/login')}
-            className="px-2.5 py-1 rounded-lg bg-slate-950/80 hover:bg-slate-850 border border-slate-800 text-[11px] font-mono text-purple-400 hover:border-purple-500/40 hover:bg-purple-500/5 transition-all"
+            className="px-2.5 py-1 rounded-lg bg-slate-950/80 hover:bg-slate-850 border border-slate-800 text-xs text-purple-300 hover:border-purple-500/40 transition-colors"
           >
-            [Homoglyph] Punycode IDN Spoof
+            Homoglyph (IDN Spoof)
           </button>
         </div>
       </div>
@@ -214,11 +206,11 @@ export const AnalyzePage: React.FC = () => {
       {isLoading && (
         <div className="glass-panel p-6 rounded-2xl border-slate-800 space-y-4 animate-fadeIn">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-mono uppercase tracking-wider text-slate-300 flex items-center space-x-2">
+            <h3 className="text-xs font-medium text-slate-300 flex items-center space-x-2">
               <Cpu className="w-4 h-4 text-cyan-400 animate-spin" />
-              <span>Execution Pipeline Progress</span>
+              <span>Analysis Pipeline Progress</span>
             </h3>
-            <span className="text-[11px] font-mono text-cyan-400 animate-pulse">Running SOC Heuristics...</span>
+            <span className="text-xs text-cyan-400">Processing...</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div className={`p-3 rounded-xl border transition-all ${analysisStep >= 1 ? 'bg-cyan-500/10 border-cyan-500/40 text-cyan-300' : 'bg-slate-950 border-slate-800 text-slate-500'}`}>
