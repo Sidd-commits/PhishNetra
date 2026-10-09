@@ -40,7 +40,9 @@ import {
   Target,
   Bot,
   PhoneCall,
-  FileCode2
+  FileCode2,
+  KeyRound,
+  Database
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -131,7 +133,7 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={() => toggleDropdown('detection')}
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    isGroupActive(['/analyze', '/batch', '/email-scanner', '/domains', '/quishing', '/genai-defense', '/telecom-threat']) || openDropdown === 'detection'
+                    isGroupActive(['/analyze', '/batch', '/email-scanner', '/domains', '/quishing', '/genai-defense', '/telecom-threat', '/fido2-guard']) || openDropdown === 'detection'
                       ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30'
                       : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                   }`}
@@ -213,6 +215,16 @@ export const Navbar: React.FC = () => {
                         <div className="text-[10px] text-slate-400">QR barcode & visual OCR inspection</div>
                       </div>
                     </Link>
+                    <Link
+                      to="/fido2-guard"
+                      className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
+                    >
+                      <KeyRound className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-white">FIDO2 Credential Guard</div>
+                        <div className="text-[10px] text-slate-400">Passkey origin binding & AiTM immunity</div>
+                      </div>
+                    </Link>
                   </div>
                 )}
               </div>
@@ -222,7 +234,7 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={() => toggleDropdown('intel')}
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    isGroupActive(['/graph', '/campaigns', '/feeds', '/reports', '/executive-briefing', '/hunting', '/attack-surface', '/rbi-sandbox', '/intel-fusion', '/threat-attribution', '/d3fend']) || openDropdown === 'intel'
+                    isGroupActive(['/graph', '/campaigns', '/feeds', '/reports', '/executive-briefing', '/hunting', '/attack-surface', '/rbi-sandbox', '/intel-fusion', '/threat-attribution', '/d3fend', '/cti-exchange', '/bgp-integrity']) || openDropdown === 'intel'
                       ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30'
                       : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                   }`}
@@ -234,6 +246,26 @@ export const Navbar: React.FC = () => {
 
                 {openDropdown === 'intel' && (
                   <div className="absolute left-0 mt-2 w-60 rounded-2xl bg-slate-900/95 border border-slate-800 p-2 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-top-2">
+                    <Link
+                      to="/cti-exchange"
+                      className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
+                    >
+                      <Database className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-white">CTI TAXII Exchange</div>
+                        <div className="text-[10px] text-slate-400">STIX 2.1 feeds & CISA sharing</div>
+                      </div>
+                    </Link>
+                    <Link
+                      to="/bgp-integrity"
+                      className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
+                    >
+                      <Globe className="w-4 h-4 text-rose-400 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-white">BGP & DNS Radar</div>
+                        <div className="text-[10px] text-slate-400">Route hijack & DNS poisoning</div>
+                      </div>
+                    </Link>
                     <Link
                       to="/d3fend"
                       className="flex items-start space-x-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-colors"
@@ -620,10 +652,13 @@ export const Navbar: React.FC = () => {
             <Link to="/email-scanner" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Email Scanner</Link>
             <Link to="/domains" className="block px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800">Domain Dossier</Link>
             <Link to="/quishing" className="block px-3 py-1.5 rounded-lg text-xs text-emerald-300 hover:bg-slate-800">Quishing Defense</Link>
+            <Link to="/fido2-guard" className="block px-3 py-1.5 rounded-lg text-xs text-cyan-300 hover:bg-slate-800">FIDO2 Credential Guard</Link>
           </div>
 
           <div className="space-y-1">
             <span className="text-[10px] font-mono uppercase text-slate-500 px-3">Threat Intelligence</span>
+            <Link to="/cti-exchange" className="block px-3 py-1.5 rounded-lg text-xs text-indigo-300 hover:bg-slate-800">CTI TAXII Exchange</Link>
+            <Link to="/bgp-integrity" className="block px-3 py-1.5 rounded-lg text-xs text-rose-300 hover:bg-slate-800">BGP & DNS Radar</Link>
             <Link to="/d3fend" className="block px-3 py-1.5 rounded-lg text-xs text-cyan-300 hover:bg-slate-800">MITRE D3FEND Matrix</Link>
             <Link to="/threat-attribution" className="block px-3 py-1.5 rounded-lg text-xs text-rose-300 hover:bg-slate-800">Threat Actor Matrix & FAIR</Link>
             <Link to="/intel-fusion" className="block px-3 py-1.5 rounded-lg text-xs text-purple-300 hover:bg-slate-800">Threat Fusion & Compliance</Link>

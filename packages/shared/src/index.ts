@@ -2468,6 +2468,153 @@ export const HARForensicArtifactSchema = z.object({
 });
 export type HARForensicArtifact = z.infer<typeof HARForensicArtifactSchema>;
 
+// ============================================================================
+// Milestone 20: CTI TAXII Ingestion, BGP Route Integrity & FIDO2 Guard
+// ============================================================================
+
+// 1. Decentralized CTI TAXII 2.1 Threat Exchange
+export const TAXIIFeedConfigSchema = z.object({
+  id: z.string(),
+  name: z.string().min(2),
+  description: z.string().optional().default(''),
+  apiRootUrl: z.string().url(),
+  collectionId: z.string(),
+  authType: z.enum(['NONE', 'BASIC', 'API_KEY', 'BEARER']).default('NONE'),
+  apiKey: z.string().optional(),
+  tlpMarking: z.enum(['TLP:WHITE', 'TLP:GREEN', 'TLP:AMBER', 'TLP:AMBER+STRICT', 'TLP:RED']).default('TLP:GREEN'),
+  syncIntervalMinutes: z.number().int().min(5).max(1440).default(60),
+  isActive: z.boolean().default(true),
+  autoBlockIndicators: z.boolean().default(true),
+  lastSyncedAt: z.string().optional(),
+  totalIndicatorsIngested: z.number().default(0)
+});
+export type TAXIIFeedConfig = z.infer<typeof TAXIIFeedConfigSchema>;
+
+export const CTIIndicatorSchema = z.object({
+  id: z.string(),
+  feedId: z.string(),
+  indicatorType: z.enum(['URL', 'DOMAIN', 'IPV4', 'IPV6', 'FILE_HASH', 'ATTACK_PATTERN']),
+  indicatorValue: z.string(),
+  threatType: z.string().default('phishing'),
+  confidence: z.number().min(0).max(100),
+  tlp: z.enum(['TLP:WHITE', 'TLP:GREEN', 'TLP:AMBER', 'TLP:AMBER+STRICT', 'TLP:RED']),
+  stixId: z.string(),
+  sourceFeedName: z.string(),
+  description: z.string().optional().default(''),
+  validFrom: z.string(),
+  validUntil: z.string().optional(),
+  killChainPhases: z.array(z.string()).default([]),
+  tags: z.array(z.string()).default([])
+});
+export type CTIIndicator = z.infer<typeof CTIIndicatorSchema>;
+
+export const TAXIISyncResultSchema = z.object({
+  syncId: z.string(),
+  feedId: z.string(),
+  feedName: z.string(),
+  syncedAt: z.string(),
+  indicatorsIngested: z.number(),
+  duplicatesSkipped: z.number(),
+  highConfidenceThreats: z.number(),
+  status: z.enum(['SUCCESS', 'PARTIAL', 'FAILED']),
+  errorDetails: z.string().optional(),
+  sampleIndicators: z.array(CTIIndicatorSchema).default([])
+});
+export type TAXIISyncResult = z.infer<typeof TAXIISyncResultSchema>;
+
+export const CTIExchangeStatsSchema = z.object({
+  totalFeeds: z.number(),
+  activeFeeds: z.number(),
+  totalIndicators: z.number(),
+  lastSyncTimestamp: z.string().optional(),
+  indicatorsByType: z.record(z.string(), z.number()),
+  indicatorsByTlp: z.record(z.string(), z.number())
+});
+export type CTIExchangeStats = z.infer<typeof CTIExchangeStatsSchema>;
+
+// 2. Infrastructure Integrity Radar: BGP Route Hijacking & DNS Cache Poisoning
+export const BGPProbeRequestSchema = z.object({
+  target: z.string().min(2),
+  expectedAsn: z.number().optional(),
+  expectedPrefix: z.string().optional(),
+  checkDnssec: z.boolean().optional(),
+  resolvers: z.array(z.string()).optional()
+});
+export type BGPProbeRequest = z.infer<typeof BGPProbeRequestSchema>;
+
+export const MultiResolverRecordSchema = z.object({
+  resolver: z.string(),
+  resolverName: z.string(),
+  resolvedIps: z.array(z.string()),
+  ttlSeconds: z.number(),
+  latencyMs: z.number(),
+  dnssecStatus: z.enum(['SECURE', 'INSECURE', 'BOGUS', 'INDETERMINATE']),
+  divergentFromConsensus: z.boolean()
+});
+export type MultiResolverRecord = z.infer<typeof MultiResolverRecordSchema>;
+
+export const BGPIntegrityAssessmentSchema = z.object({
+  assessmentId: z.string(),
+  target: z.string(),
+  resolvedIp: z.string(),
+  originAsn: z.number(),
+  asOrgName: z.string(),
+  asCountry: z.string(),
+  announcedPrefix: z.string(),
+  rpkiStatus: z.enum(['VALID', 'INVALID', 'NOT_FOUND']),
+  isHijackSuspicious: z.boolean(),
+  asPathHops: z.array(z.number()),
+  asPathAnomalyDetected: z.boolean(),
+  dnssecStatus: z.enum(['SECURE', 'INSECURE', 'BOGUS', 'INDETERMINATE']),
+  resolverResponses: z.array(MultiResolverRecordSchema),
+  dnsPoisoningDetected: z.boolean(),
+  routeResolutionIntegrityScore: z.number().min(0).max(100),
+  alertSeverity: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'CLEAN']),
+  forensicSummary: z.string(),
+  evaluatedAt: z.string()
+});
+export type BGPIntegrityAssessment = z.infer<typeof BGPIntegrityAssessmentSchema>;
+
+// 3. FIDO2 / WebAuthn Phishing-Resistant MFA Guard & Origin Binding Simulator
+export const FIDO2ProbeRequestSchema = z.object({
+  targetUrl: z.string().min(3),
+  claimedBrand: z.string().optional(),
+  authProtocol: z.enum([
+    'WEBAUTHN_FIDO2',
+    'SMS_OTP',
+    'EMAIL_OTP',
+    'PUSH_NOTIFICATION',
+    'TOTP_APP',
+    'PASSWORD_ONLY'
+  ]).optional(),
+  challengeOrigin: z.string().optional(),
+  relyingPartyId: z.string().optional()
+});
+export type FIDO2ProbeRequest = z.infer<typeof FIDO2ProbeRequestSchema>;
+
+export const FIDO2AssessmentResultSchema = z.object({
+  evaluationId: z.string(),
+  targetUrl: z.string(),
+  claimedBrand: z.string(),
+  relyingPartyId: z.string(),
+  effectiveOrigin: z.string(),
+  originBindingMismatch: z.boolean(),
+  passkeyImmunityConfirmed: z.boolean(),
+  mfaStrengthTier: z.enum([
+    'PHISHING_RESISTANT_FIDO2',
+    'PHISHING_SUSCEPTIBLE_TOTP',
+    'VULNERABLE_LEGACY_SMS',
+    'UNPROTECTED_PASSWORD'
+  ]),
+  mitmProxyVulnerabilityScore: z.number().min(0).max(100),
+  proxyEvasionDetected: z.boolean(),
+  recommendedSecurityActions: z.array(z.string()),
+  webauthnPolicyEnforcementSnippet: z.string(),
+  evaluatedAt: z.string()
+});
+export type FIDO2AssessmentResult = z.infer<typeof FIDO2AssessmentResultSchema>;
+
+
 
 
 

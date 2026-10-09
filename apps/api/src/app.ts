@@ -49,6 +49,9 @@ import { d3fendRouter } from './routes/d3fendRoutes';
 import { genAIDefenseRouter } from './routes/genAIDefenseRoutes';
 import { telecomThreatRouter } from './routes/telecomThreatRoutes';
 import { digitalForensicsRouter } from './routes/digitalForensicsRoutes';
+import ctiExchangeRouter from './routes/ctiExchange';
+import bgpIntegrityRouter from './routes/bgpIntegrity';
+import fido2GuardRouter from './routes/fido2Guard';
 import { metricsService } from './services/metrics/PrometheusMetricsService';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -144,6 +147,9 @@ export const createApp = (): express.Application => {
   app.use('/api/genai-defense', genAIDefenseRouter);
   app.use('/api/telecom-threat', telecomThreatRouter);
   app.use('/api/digital-forensics', digitalForensicsRouter);
+  app.use('/api/cti-exchange', ctiExchangeRouter);
+  app.use('/api/bgp-integrity', bgpIntegrityRouter);
+  app.use('/api/fido2-guard', fido2GuardRouter);
 
   // Fallback 404 for unknown endpoints
   app.use((req, res) => {

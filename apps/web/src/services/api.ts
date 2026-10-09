@@ -98,7 +98,15 @@ import {
   TelecomThreatProbe,
   TelecomThreatAssessment,
   HARForensicIngest,
-  HARForensicArtifact
+  HARForensicArtifact,
+  TAXIIFeedConfig,
+  TAXIISyncResult,
+  CTIIndicator,
+  CTIExchangeStats,
+  BGPProbeRequest,
+  BGPIntegrityAssessment,
+  FIDO2ProbeRequest,
+  FIDO2AssessmentResult
 } from '@phishnetra/shared';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -791,6 +799,54 @@ class ApiService {
 
   public async getHARForensicArtifact(id: string): Promise<HARForensicArtifact> {
     const res = await this.client.get<{ success: boolean; data: HARForensicArtifact }>(`/digital-forensics/artifacts/${id}`);
+    return res.data.data;
+  }
+
+  // --- Milestone 20: Decentralized CTI TAXII Exchange ---
+  public async listCTIFeeds(): Promise<TAXIIFeedConfig[]> {
+    const res = await this.client.get<{ success: boolean; data: TAXIIFeedConfig[] }>('/cti-exchange/feeds');
+    return res.data.data;
+  }
+
+  public async createCTIFeed(feed: Omit<TAXIIFeedConfig, 'id' | 'totalIndicatorsIngested'>): Promise<TAXIIFeedConfig> {
+    const res = await this.client.post<{ success: boolean; data: TAXIIFeedConfig }>('/cti-exchange/feeds', feed);
+    return res.data.data;
+  }
+
+  public async syncCTIFeed(feedId: string): Promise<TAXIISyncResult> {
+    const res = await this.client.post<{ success: boolean; data: TAXIISyncResult }>(`/cti-exchange/feeds/${feedId}/sync`);
+    return res.data.data;
+  }
+
+  public async listCTIIndicators(params?: { indicatorType?: string; tlp?: string; feedId?: string; limit?: number }): Promise<CTIIndicator[]> {
+    const res = await this.client.get<{ success: boolean; data: CTIIndicator[] }>('/cti-exchange/indicators', { params });
+    return res.data.data;
+  }
+
+  public async getCTIExchangeStats(): Promise<CTIExchangeStats> {
+    const res = await this.client.get<{ success: boolean; data: CTIExchangeStats }>('/cti-exchange/stats');
+    return res.data.data;
+  }
+
+  // --- Milestone 20: BGP Route & DNS Poisoning Radar ---
+  public async probeBGPIntegrity(probe: BGPProbeRequest): Promise<BGPIntegrityAssessment> {
+    const res = await this.client.post<{ success: boolean; data: BGPIntegrityAssessment }>('/bgp-integrity/probe', probe);
+    return res.data.data;
+  }
+
+  public async getBGPIntegrityHistory(limit: number = 20): Promise<BGPIntegrityAssessment[]> {
+    const res = await this.client.get<{ success: boolean; data: BGPIntegrityAssessment[] }>('/bgp-integrity/history', { params: { limit } });
+    return res.data.data;
+  }
+
+  // --- Milestone 20: FIDO2 / WebAuthn MFA Credential Guard ---
+  public async evaluateFIDO2Guard(probe: FIDO2ProbeRequest): Promise<FIDO2AssessmentResult> {
+    const res = await this.client.post<{ success: boolean; data: FIDO2AssessmentResult }>('/fido2-guard/probe', probe);
+    return res.data.data;
+  }
+
+  public async getFIDO2GuardHistory(limit: number = 20): Promise<FIDO2AssessmentResult[]> {
+    const res = await this.client.get<{ success: boolean; data: FIDO2AssessmentResult[] }>('/fido2-guard/history', { params: { limit } });
     return res.data.data;
   }
 

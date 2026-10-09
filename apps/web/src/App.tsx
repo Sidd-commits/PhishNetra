@@ -42,6 +42,9 @@ import { D3FENDMatrixPage } from './pages/D3FENDMatrixPage';
 import { GenAIDefensePage } from './pages/GenAIDefensePage';
 import { TelecomFusionPage } from './pages/TelecomFusionPage';
 import { DigitalForensicsPage } from './pages/DigitalForensicsPage';
+import { CTIExchangePage } from './pages/CTIExchangePage';
+import { BGPIntegrityPage } from './pages/BGPIntegrityPage';
+import { FIDO2GuardPage } from './pages/FIDO2GuardPage';
 
 export const App: React.FC = () => {
   return (
@@ -390,6 +393,36 @@ export const App: React.FC = () => {
                   element={
                     <ProtectedRoute>
                       <DigitalForensicsPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Milestone 20: Decentralized CTI TAXII Exchange */}
+                <Route
+                  path="/cti-exchange"
+                  element={
+                    <ProtectedRoute>
+                      <CTIExchangePage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Milestone 20: BGP Route & DNS Poisoning Radar */}
+                <Route
+                  path="/bgp-integrity"
+                  element={
+                    <ProtectedRoute>
+                      <BGPIntegrityPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Milestone 20: FIDO2 / WebAuthn MFA Credential Guard */}
+                <Route
+                  path="/fido2-guard"
+                  element={
+                    <ProtectedRoute>
+                      <FIDO2GuardPage />
                     </ProtectedRoute>
                   }
                 />

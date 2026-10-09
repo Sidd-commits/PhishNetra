@@ -258,10 +258,31 @@
   - Automated Digital Forensics & HAR Packet Inspector (`/digital-forensics`).
 - **Comprehensive Automated Test Coverage:** 239 automated tests passing across the monorepo (169 Jest API tests across 26 suites, 12 Jest Extension tests, 58 Pytest ML tests) and complete `docs/GENAI_DEFENSE_AND_DIGITAL_FORENSICS.md`.
 
+### Milestone 20: Decentralized CTI, BGP Radar & FIDO2 Guard (Completed)
+- **Decentralized CTI TAXII 2.1 Threat Exchange (`TAXIIClientService.ts` / `/api/cti-exchange`):**
+  - Ingestion and dissemination of OASIS STIX 2.1 indicator bundles across CISA AIS, AlienVault OTX, and sector ISACs.
+  - Normalizes indicators (`URL`, `DOMAIN`, `IPV4`, `IPV6`, `FILE_HASH`, `ATTACK_PATTERN`).
+  - Strict Traffic Light Protocol (TLP) evaluation (`TLP:WHITE`, `TLP:GREEN`, `TLP:AMBER`, `TLP:RED`).
+  - Automated edge blocklist propagation into Threat Graph and edge cache.
+- **Infrastructure Integrity Radar: BGP Route & DNS Poisoning Radar (`BGPRouteIntegrityService.ts` / `/api/bgp-integrity`):**
+  - Real-time RPKI Route Origin Authorization (ROA) validation detecting prefix hijacking (`RPKI INVALID`).
+  - Autonomous System (AS) path hop traversal and anomalous transit peering detection.
+  - Multi-Resolver recursive DNS consensus matrix (Cloudflare, Google, Quad9, OpenDNS) detecting cache poisoning and depleted TTL injection.
+  - Computes Route & Resolution Integrity Score (RRIS: 0-100) with forensic audit narratives.
+- **FIDO2 / WebAuthn Phishing-Resistant MFA Credential Guard (`FIDO2CredentialGuardService.ts` / `/api/fido2-guard`):**
+  - Deconstructs clientDataJSON origin binding to mathematically prove Passkey cryptographic immunity against AiTM reverse proxies (Evilginx2, Modlishka).
+  - Evaluates authentication protocol tiers according to NIST SP 800-63B / CISA standards.
+  - Generates downloadable enterprise FIDO2 Conditional Access policies (`webauthn-policy.json`).
+- **Interactive React SOC UI Pages:**
+  - Decentralized CTI TAXII 2.1 Threat Exchange Console (`/cti-exchange`).
+  - Real-Time BGP Route Hijacking & DNS Cache Poisoning Radar (`/bgp-integrity`).
+  - FIDO2 / WebAuthn Phishing-Resistant MFA Credential Guard (`/fido2-guard`).
+- **Comprehensive Automated Test Coverage:** 251 automated tests passing across the monorepo (181 Jest API tests across 27 suites, 12 Jest Extension tests, 58 Pytest ML tests) and complete `docs/CTI_BGP_AND_FIDO2_GUARD.md`.
+
 ---
 
 ## Master Roadmap Status: 100% Complete & Production Ready
-All 19 milestones of the PhishNetra Platform have been completely implemented, verified with 239 automated tests, and documented.
+All 20 milestones of the PhishNetra Platform have been completely implemented, verified with 251 automated tests, and documented.
 
 
 
