@@ -243,19 +243,19 @@ export type MLIntelligence = z.infer<typeof MLIntelligenceSchema>;
 
 export const RedirectHopSchema = z.object({
   url: z.string(),
-  status: z.number().optional(),
-  ip: z.string().optional(),
-  headers: z.record(z.string(), z.string()).optional()
+  status: z.number().nullable().optional(),
+  ip: z.string().nullable().optional(),
+  headers: z.record(z.string(), z.string()).nullable().optional()
 });
 export type RedirectHop = z.infer<typeof RedirectHopSchema>;
 
 export const FormFindingSchema = z.object({
-  id: z.string().optional(),
-  name: z.string().optional(),
+  id: z.string().nullable().optional(),
+  name: z.string().nullable().optional(),
   action: z.string(),
   actionResolved: z.string(),
   method: z.string().default('GET'),
-  target: z.string().optional(),
+  target: z.string().nullable().optional(),
   isCrossOrigin: z.boolean(),
   isIpAction: z.boolean(),
   hasPasswordField: z.boolean(),
@@ -264,7 +264,7 @@ export const FormFindingSchema = z.object({
   hasOtpField: z.boolean(),
   passwordFieldCount: z.number().default(0),
   inputCount: z.number().default(0),
-  description: z.string().optional()
+  description: z.string().nullable().optional()
 });
 export type FormFinding = z.infer<typeof FormFindingSchema>;
 
