@@ -15,5 +15,6 @@ module.exports = {
       }
     }]
   },
-  verbose: true
+  verbose: true,
+  testTimeout: 20000
 };

@@ -269,8 +269,8 @@ export const FormFindingSchema = z.object({
 export type FormFinding = z.infer<typeof FormFindingSchema>;
 
 export const IFrameFindingSchema = z.object({
-  src: z.string(),
-  srcResolved: z.string().optional(),
+  src: z.string().nullable().optional(),
+  srcResolved: z.string().nullable().optional(),
   isCrossOrigin: z.boolean(),
   isHidden: z.boolean(),
   width: z.string().optional(),
@@ -279,7 +279,7 @@ export const IFrameFindingSchema = z.object({
 export type IFrameFinding = z.infer<typeof IFrameFindingSchema>;
 
 export const ScriptFindingSchema = z.object({
-  src: z.string().optional(),
+  src: z.string().nullable().optional(),
   isExternal: z.boolean(),
   hasObfuscation: z.boolean(),
   hasEval: z.boolean(),
