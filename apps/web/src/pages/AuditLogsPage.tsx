@@ -60,7 +60,8 @@ export const AuditLogsPage: React.FC = () => {
   };
 
   const handleExportCsv = () => {
-    const csvUrl = `http://localhost:5000/api/audit-logs/export${
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const csvUrl = `${baseUrl}/audit-logs/export${
       selectedCategory !== 'ALL' ? `?category=${selectedCategory}` : ''
     }`;
     window.open(csvUrl, '_blank');

@@ -18,10 +18,8 @@ import {
   Network
 } from 'lucide-react';
 import { ThreatCampaign } from '@phishnetra/shared';
-import axios from 'axios';
+import { api } from '../services/api';
 import { Link } from 'react-router-dom';
-
-const API_BASE = 'http://localhost:5000/api';
 
 export const CampaignsPage: React.FC = () => {
   const [campaigns, setCampaigns] = useState<ThreatCampaign[]>([]);
@@ -34,9 +32,9 @@ export const CampaignsPage: React.FC = () => {
   const fetchCampaigns = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_BASE}/campaigns?status=${statusFilter}`);
-      if (res.data.success) {
-        setCampaigns(res.data.data);
+      const data = await api.getCampaigns(statusFilter);
+      if (data) {
+        setCampaigns(data);
       }
     } catch (err) {
       console.error('Failed to fetch threat campaigns:', err);
@@ -49,10 +47,10 @@ export const CampaignsPage: React.FC = () => {
     setClustering(true);
     setClusterNotice(null);
     try {
-      const res = await axios.post(`${API_BASE}/campaigns/cluster`);
-      if (res.data.success) {
-        const result = res.data.data;
-        setClusterNotice(`Successfully analyzed infrastructure. Formed ${result.newCampaignsCreated} new threat campaign cluster(s).`);
+      const res = await api.clusterCampaigns();
+      if (res && res.success) {
+        const result = res.data;
+        setClusterNotice(`Successfully analyzed infrastructure. Formed ${result?.newCampaignsCreated ?? 0} new threat campaign cluster(s).`);
         await fetchCampaigns();
       }
     } catch (err: any) {
@@ -63,7 +61,8 @@ export const CampaignsPage: React.FC = () => {
   };
 
   const handleDownloadStix = (campaignId: string) => {
-    window.open(`${API_BASE}/campaigns/${campaignId}/stix`, '_blank');
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    window.open(`${baseUrl}/campaigns/${encodeURIComponent(campaignId)}/stix`, '_blank');
   };
 
   useEffect(() => {
@@ -102,9 +101,6 @@ export const CampaignsPage: React.FC = () => {
               <div>
                 <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
                   Threat Campaign & Intrusion Set Hub
-                  <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full bg-rose-500/10 text-rose-300 border border-rose-500/20">
-                    M6 • Campaign Engine
-                  </span>
                 </h1>
                 <p className="text-xs text-slate-400 font-mono mt-0.5">
                   Autonomous threat ring correlation, brand impersonation aggregation, and STIX 2.1 intelligence sharing

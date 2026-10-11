@@ -105,7 +105,8 @@ export const SIEMIntegrationPage: React.FC = () => {
   };
 
   const handleCopyFeedUrl = () => {
-    const feedUrl = `http://localhost:5000/api/siem/feed?format=${selectedFormat}`;
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const feedUrl = `${baseUrl}/siem/feed?format=${selectedFormat}`;
     navigator.clipboard.writeText(feedUrl);
     setCopiedFeedUrl(true);
     setTimeout(() => setCopiedFeedUrl(false), 2000);

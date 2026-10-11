@@ -11,6 +11,7 @@ import {
   DomainDossier,
   TyposquattingScanResult,
   GraphData,
+  ThreatCampaign,
   CreateReportRequest,
   ReportModerationRequest,
   CommunityReport,
@@ -870,6 +871,19 @@ class ApiService {
   public async clusterCampaigns(distanceThreshold: number = 0.75): Promise<any> {
     const res = await this.client.post('/campaigns/cluster', { distanceThreshold });
     return res.data;
+  }
+
+  public async getCampaigns(status?: string, brand?: string, limit: number = 50): Promise<ThreatCampaign[]> {
+    const params: any = { limit };
+    if (status && status !== 'ALL') params.status = status;
+    if (brand) params.brand = brand;
+    const res = await this.client.get<{ success: boolean; data: ThreatCampaign[] }>('/campaigns', { params });
+    return res.data.data;
+  }
+
+  public async getCampaignById(id: string): Promise<ThreatCampaign> {
+    const res = await this.client.get<{ success: boolean; data: ThreatCampaign }>(`/campaigns/${encodeURIComponent(id)}`);
+    return res.data.data;
   }
 
   // --- Health Check ---

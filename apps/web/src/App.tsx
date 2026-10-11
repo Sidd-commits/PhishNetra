@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Navbar } from './components/Navbar';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
@@ -54,7 +55,8 @@ export const App: React.FC = () => {
           <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 font-sans selection:bg-cyan-500/20 selection:text-cyan-300">
             <Navbar />
             <main className="flex-1">
-              <Routes>
+              <ErrorBoundary>
+                <Routes>
                 {/* Public Routes */}
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
@@ -70,6 +72,14 @@ export const App: React.FC = () => {
                 />
                 <Route
                   path="/analyze"
+                  element={
+                    <ProtectedRoute>
+                      <AnalyzePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/analysis"
                   element={
                     <ProtectedRoute>
                       <AnalyzePage />
@@ -457,6 +467,7 @@ export const App: React.FC = () => {
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
               </Routes>
+              </ErrorBoundary>
             </main>
 
             {/* Footer */}

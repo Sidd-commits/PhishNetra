@@ -133,12 +133,22 @@ class URLFeatureExtractor:
         Extracts all dictionary features from a raw URL.
         """
         canonical_url = normalize_url(raw_url)
-        parsed = urlparse(canonical_url)
-        
-        hostname = parsed.hostname or ""
-        path = parsed.path or ""
-        query = parsed.query or ""
-        scheme = parsed.scheme.lower()
+        try:
+            parsed = urlparse(canonical_url)
+            hostname = (parsed.hostname or "").lower()
+            path = parsed.path or ""
+            query = parsed.query or ""
+            scheme = parsed.scheme.lower()
+            try:
+                port_in_url = 1 if parsed.port is not None else 0
+            except (ValueError, TypeError):
+                port_in_url = 1
+        except Exception:
+            hostname = ""
+            path = ""
+            query = ""
+            scheme = "http"
+            port_in_url = 0
         
         # 1. Length features
         url_length = len(canonical_url)
@@ -147,7 +157,7 @@ class URLFeatureExtractor:
         query_length = len(query)
         
         # 2. Hostname / Domain features
-        host_parts = hostname.split(".")
+        host_parts = hostname.split(".") if hostname else []
         if len(host_parts) > 2:
             # e.g., sub1.sub2.example.com -> subdomain_count = 2
             subdomain_count = len(host_parts) - 2
@@ -166,9 +176,8 @@ class URLFeatureExtractor:
                     tld_in_sub = 1
                     break
 
-        has_ip = is_ip_address(hostname)
+        has_ip = is_ip_address(hostname) if hostname else 0
         has_https = 1 if scheme == "https" else 0
-        port_in_url = 1 if parsed.port is not None else 0
         
         # 3. Lexical / Character features
         special_chars = set("@-_=?%&*!~+")

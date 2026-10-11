@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../services/api';
 import { AnalysisResponse } from '@phishnetra/shared';
 import { ScoreGauge } from '../components/ScoreGauge';
@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 
 export const AnalyzePage: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [url, setUrl] = useState('');
   const [analyzePage, setAnalyzePage] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,9 +39,8 @@ export const AnalyzePage: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const handleAnalyze = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!url.trim()) return;
+  const executeAnalysis = async (targetUrl: string, shouldAnalyzePage: boolean) => {
+    if (!targetUrl.trim()) return;
 
     setError(null);
     setResult(null);
@@ -53,7 +53,7 @@ export const AnalyzePage: React.FC = () => {
     const t3 = setTimeout(() => setAnalysisStep(4), 850);
 
     try {
-      const data = await api.analyzeUrl(url.trim(), analyzePage);
+      const data = await api.analyzeUrl(targetUrl.trim(), shouldAnalyzePage);
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
@@ -70,6 +70,20 @@ export const AnalyzePage: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  const handleAnalyze = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await executeAnalysis(url, analyzePage);
+  };
+
+  useEffect(() => {
+    const urlQuery = searchParams.get('url');
+    if (urlQuery && urlQuery.trim()) {
+      const decoded = urlQuery.trim();
+      setUrl(decoded);
+      executeAnalysis(decoded, analyzePage);
+    }
+  }, [searchParams]);
 
   const setSampleUrl = (sample: string) => {
     setUrl(sample);
