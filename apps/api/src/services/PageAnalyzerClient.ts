@@ -9,6 +9,7 @@ import {
   PageAnalysisResult,
   PageAnalysisResultSchema
 } from '@phishnetra/shared';
+import { isPrivateOrReservedIp } from './analysis/ipUtils';
 
 export class PageAnalyzerClient {
   private client: AxiosInstance;
@@ -42,11 +43,15 @@ export class PageAnalyzerClient {
     }
   }
 
-  /**
-   * Fallback for test environments or microservice unavailability.
-   */
   private localFallback(rawUrl: string, reason: string): PageAnalysisResult {
-    const isPrivate = /(^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|169\.254\.))/i.test(rawUrl);
+    let isPrivate = false;
+    try {
+      const urlObj = new URL(rawUrl.startsWith('http') ? rawUrl : `http://${rawUrl}`);
+      const hostname = urlObj.hostname.toLowerCase();
+      isPrivate = hostname === 'localhost' || hostname.endsWith('.localhost') || isPrivateOrReservedIp(hostname);
+    } catch {
+      isPrivate = /(^https?:\/\/(localhost|127\.|0\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|169\.254\.|100\.(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-7])\.))/i.test(rawUrl);
+    }
 
     if (isPrivate) {
       return {

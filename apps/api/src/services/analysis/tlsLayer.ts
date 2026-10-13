@@ -1,4 +1,5 @@
 import tls from 'tls';
+import net from 'net';
 import { TLSIntelligence, EvidenceItem } from '@phishnetra/shared';
 
 // In-memory TLS cache
@@ -197,11 +198,12 @@ export class TLSLayer {
 
   private fetchCertificate(hostname: string, port: number): Promise<any> {
     return new Promise((resolve, reject) => {
+      const isIp = net.isIP(hostname) !== 0;
       const socket = tls.connect(
         {
           host: hostname,
           port,
-          servername: hostname,
+          ...(isIp ? {} : { servername: hostname }),
           rejectUnauthorized: false,
           timeout: 3000
         },

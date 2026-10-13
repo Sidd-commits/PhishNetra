@@ -21,7 +21,11 @@ export class AiTMDefenseService {
     try {
       parsedUrl = new URL(targetUrl);
     } catch {
-      parsedUrl = new URL(`https://${targetUrl}`);
+      try {
+        parsedUrl = new URL(`https://${targetUrl}`);
+      } catch {
+        parsedUrl = new URL('https://unknown-target.internal');
+      }
     }
 
     const currentHost = parsedUrl.hostname.toLowerCase();

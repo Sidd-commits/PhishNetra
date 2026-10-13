@@ -4,7 +4,7 @@ Module: services.ml.app.api.endpoints
 Milestone: 3
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, status
 from app.core.schemas import (
     PredictionRequest,
@@ -417,7 +417,7 @@ async def run_adversarial_tests(payload: AdversarialTestRequest):
             rob_score = round((1.0 - rate) * 100.0, 2)
             status_str = "ROBUST" if rate <= 0.15 else ("VULNERABLE" if rate <= 0.40 else "CRITICAL_DEFICIT")
             return AdversarialEvaluationResponse(
-                testedAt=datetime.utcnow().isoformat() + "Z",
+                testedAt=datetime.now(timezone.utc).isoformat(),
                 totalTests=len(results),
                 evasionRate=rate,
                 overallRobustnessScore=rob_score,

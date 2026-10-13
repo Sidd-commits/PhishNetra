@@ -1,6 +1,7 @@
 import dns from 'dns/promises';
 import { DNSIntelligence, IPDetail, EvidenceItem } from '@phishnetra/shared';
 import { cache, CacheManager } from '../cache/CacheManager';
+import { isPrivateOrReservedIp } from './ipUtils';
 
 export interface IpIntelligenceProvider {
   lookup(ip: string): Promise<Partial<IPDetail>>;
@@ -9,8 +10,8 @@ export interface IpIntelligenceProvider {
 export class DefaultIpIntelligenceProvider implements IpIntelligenceProvider {
   public async lookup(ip: string): Promise<Partial<IPDetail>> {
     // Basic IP range heuristics without external network dependencies
-    if (ip.startsWith('10.') || ip.startsWith('192.168.') || ip.startsWith('172.16.') || ip === '127.0.0.1') {
-      return { asn: 'RFC1918-PRIVATE', org: 'Private Network Range', country: 'INTERNAL' };
+    if (isPrivateOrReservedIp(ip)) {
+      return { asn: 'RFC1918-PRIVATE', org: 'Private / Link-Local / Metadata Network Range', country: 'INTERNAL' };
     }
     if (ip.startsWith('104.') || ip.startsWith('172.67.') || ip.startsWith('188.114.')) {
       return { asn: 'AS13335', org: 'Cloudflare, Inc.', country: 'US' };
@@ -50,13 +51,13 @@ export class DNSLayer {
         ...(await this.ipProvider.lookup(hostname))
       }];
 
-      if (hostname === '127.0.0.1' || hostname.startsWith('10.') || hostname.startsWith('192.168.')) {
+      if (isPrivateOrReservedIp(hostname)) {
         evidence.push({
           layer: 'DNS',
           featureKey: 'private_ip_resolution',
           featureValue: hostname,
           severity: 'CRITICAL',
-          description: `Target resolves directly to a private/internal IP address (${hostname}), posing high SSRF and intranet exposure risk.`,
+          description: `Target resolves directly to a private/internal/cloud metadata IP address (${hostname}), posing high SSRF and intranet exposure risk.`,
           contribution: 0.50,
           source: 'DNS_Layer',
           confidence: 1.0
@@ -177,13 +178,13 @@ export class DNSLayer {
 
       // Private IP resolution check
       for (const ip of resolvedIps) {
-        if (ip === '127.0.0.1' || ip.startsWith('10.') || ip.startsWith('192.168.')) {
+        if (isPrivateOrReservedIp(ip)) {
           evidence.push({
             layer: 'DNS',
             featureKey: 'private_ip_resolution',
             featureValue: ip,
             severity: 'CRITICAL',
-            description: `Domain resolved to private RFC1918 address (${ip}), posing SSRF / internal scanning risk.`,
+            description: `Domain resolved to private RFC1918 / cloud metadata address (${ip}), posing SSRF / internal scanning risk.`,
             contribution: 0.50,
             source: 'DNS_Layer',
             confidence: 1.0

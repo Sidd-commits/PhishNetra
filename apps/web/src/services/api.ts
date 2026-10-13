@@ -160,7 +160,11 @@ class ApiService {
 
   // --- Threat Analysis ---
   public async analyzeUrl(url: string, analyzePage: boolean = true): Promise<AnalysisResponse> {
-    const res = await this.client.post<AnalysisResponse>('/analyze', { url, analyzePage });
+    let cleanUrl = url.trim();
+    if (cleanUrl && !/^https?:\/\//i.test(cleanUrl)) {
+      cleanUrl = `http://${cleanUrl}`;
+    }
+    const res = await this.client.post<AnalysisResponse>('/analyze', { url: cleanUrl, analyzePage });
     return res.data;
   }
 

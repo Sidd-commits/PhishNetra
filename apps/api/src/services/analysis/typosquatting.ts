@@ -120,7 +120,7 @@ export class TyposquattingEngine {
    * Inspects a query domain against high-value brand catalogs to identify typosquatting attacks.
    */
   public static inspectDomain(domain: string): TyposquattingScanResult {
-    const cleanDomain = domain.toLowerCase().trim();
+    const cleanDomain = domain.toLowerCase().trim().replace(/:\d+$/, '');
     const domainWithoutTld = cleanDomain.split('.')[0];
     const { normalized: homoglyphNormalized, hasHomoglyphs } = this.normalizeHomoglyphs(cleanDomain);
     const normalizedWithoutTld = homoglyphNormalized.split('.')[0];

@@ -20,6 +20,7 @@ import {
 } from '@phishnetra/shared';
 
 import { settingsService } from './settings/SettingsService';
+import { isPrivateOrReservedIp } from './analysis/ipUtils';
 
 export interface MultiLayerEvaluationInput {
   urlLayer: URLIntelligence;
@@ -117,9 +118,7 @@ export class RiskEngine {
 
     // 3. DNS Layer Scoring (0 to 100)
     let dnsScoreAcc = 0;
-    const hasPrivateIp = dnsLayer.resolvedIps.some(
-      ip => ip === '127.0.0.1' || ip.startsWith('10.') || ip.startsWith('192.168.') || ip.startsWith('172.16.')
-    );
+    const hasPrivateIp = dnsLayer.resolvedIps.some(ip => isPrivateOrReservedIp(ip));
     if (hasPrivateIp) {
       dnsScoreAcc = 100; // Critical SSRF indicator
     } else if (dnsLayer.error && dnsLayer.error.includes('NXDOMAIN')) {

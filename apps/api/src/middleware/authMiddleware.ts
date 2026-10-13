@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/env';
+import { settingsService } from '../services/settings/SettingsService';
 
 export interface AuthenticatedUser {
   userId: string;
@@ -17,11 +18,25 @@ declare global {
 }
 
 export const requireAuth = (req: Request, res: Response, next: NextFunction): void => {
-  let token: string | undefined;
+  // 1. API Key Header Authentication (X-API-Key / X-API-Token)
+  const apiKeyHeader = (req.headers['x-api-key'] || req.headers['x-api-token']) as string | undefined;
+  if (apiKeyHeader) {
+    const validKey = settingsService.validateApiKey(apiKeyHeader);
+    if (validKey) {
+      req.user = {
+        userId: validKey.id,
+        role: validKey.role,
+        email: `apikey-${validKey.keyPrefix}@phishnetra.internal`
+      };
+      return next();
+    }
+  }
 
+  // 2. JWT Bearer or Cookie Token
+  let token: string | undefined;
   const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    token = authHeader.split(' ')[1];
+  if (authHeader && /^bearer\s+/i.test(authHeader)) {
+    token = authHeader.replace(/^bearer\s+/i, '').trim();
   } else if (req.cookies && req.cookies.token) {
     token = req.cookies.token;
   }
@@ -47,11 +62,23 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction): vo
 };
 
 export const optionalAuth = (req: Request, res: Response, next: NextFunction): void => {
-  let token: string | undefined;
+  const apiKeyHeader = (req.headers['x-api-key'] || req.headers['x-api-token']) as string | undefined;
+  if (apiKeyHeader) {
+    const validKey = settingsService.validateApiKey(apiKeyHeader);
+    if (validKey) {
+      req.user = {
+        userId: validKey.id,
+        role: validKey.role,
+        email: `apikey-${validKey.keyPrefix}@phishnetra.internal`
+      };
+      return next();
+    }
+  }
 
+  let token: string | undefined;
   const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    token = authHeader.split(' ')[1];
+  if (authHeader && /^bearer\s+/i.test(authHeader)) {
+    token = authHeader.replace(/^bearer\s+/i, '').trim();
   } else if (req.cookies && req.cookies.token) {
     token = req.cookies.token;
   }

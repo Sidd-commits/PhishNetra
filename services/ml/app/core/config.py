@@ -17,7 +17,7 @@ class Settings(BaseModel):
     API_V1_STR: str = "/api/v1"
     
     HOST: str = os.getenv("HOST", "0.0.0.0")
-    PORT: int = int(os.getenv("PORT", "8000"))
+    PORT: int = int(os.getenv("PORT", "8000")) if os.getenv("PORT", "8000").isdigit() and 1 <= int(os.getenv("PORT", "8000")) <= 65535 else 8000
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "info")
     
     ARTIFACTS_DIR: Path = ML_ROOT / "artifacts"
