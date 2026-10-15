@@ -285,4 +285,111 @@ describe('Multi-Layer Risk Engine Unit Tests', () => {
     expect(result.riskScore).toBeGreaterThanOrEqual(80);
     expect(result.summary).toContain('Microsoft');
   });
+
+  it('should fail-safe and handle corrupted/NaN layer scores gracefully', () => {
+    const urlLayer: URLIntelligence = {
+      status: 'SUCCESS',
+      canonicalUrl: 'http://test-corrupted.com',
+      hostname: 'test-corrupted.com',
+      path: '',
+      query: '',
+      isShortener: false,
+      shortenerProvider: null,
+      isPunycode: false,
+      unicodeHostname: null,
+      hasUserInfo: false,
+      hasCustomPort: false,
+      customPort: null,
+      obfuscatedEncodings: [],
+      digitRatio: 0,
+      specialCharRatio: 0.05,
+      hyphenRatio: 0,
+      entropy: 3.0,
+      features: dummyUrlFeatures
+    };
+
+    const domainLayer: DomainIntelligence = {
+      status: 'SUCCESS',
+      domain: 'test-corrupted.com',
+      registrableDomain: 'test-corrupted.com',
+      tld: 'com',
+      subdomain: '',
+      registrar: 'TestRegistrar',
+      creationDate: null,
+      expirationDate: null,
+      domainAgeDays: null,
+      domainAgeCategory: 'unknown',
+      isPrivacyProtected: false
+    };
+
+    const dnsLayer: DNSIntelligence = {
+      status: 'SUCCESS',
+      resolvedIps: ['93.184.216.34'],
+      ipv4Count: 1,
+      ipv6Count: 0,
+      nameservers: ['ns1.example.com'],
+      mxRecords: [],
+      cnameRecords: [],
+      txtRecords: [],
+      hasMx: false,
+      ipDetails: [{ ip: '93.184.216.34', version: 'IPv4' }]
+    };
+
+    const tlsLayer: TLSIntelligence = {
+      status: 'SUCCESS',
+      hasTls: true,
+      certificateValid: true,
+      certificateExpired: false,
+      hostnameMatches: true,
+      issuer: 'Test',
+      subject: 'Test',
+      validFrom: '2025-01-01T00:00:00Z',
+      validTo: '2026-01-01T00:00:00Z',
+      daysUntilExpiry: 180,
+      sans: ['test-corrupted.com'],
+      zeroTrustWarning: 'OK'
+    };
+
+    // Inject NaN values into reputation and ML layers
+    const reputationLayer: ReputationIntelligence = {
+      status: 'SUCCESS',
+      reputationScore: NaN,
+      isListedMalicious: false,
+      providers: [
+        {
+          providerName: 'MockProvider',
+          status: 'SUCCESS',
+          isConfigured: true,
+          malicious: false,
+          suspicious: false,
+          harmless: true,
+          confidence: NaN
+        }
+      ]
+    };
+
+    const mlLayer: MLIntelligence = {
+      status: 'SUCCESS',
+      phishingProbability: NaN,
+      confidence: NaN,
+      predictedLabel: 0,
+      modelVersion: 'v0.1.0-baseline',
+      inferenceTimeMs: 1.0
+    };
+
+    const result = riskEngine.evaluateMultiLayer({
+      urlLayer,
+      domainLayer,
+      dnsLayer,
+      tlsLayer,
+      reputationLayer,
+      mlLayer,
+      layerEvidences: []
+    });
+
+    expect(Number.isFinite(result.riskScore)).toBe(true);
+    expect(Number.isFinite(result.confidence)).toBe(true);
+    expect(result.verdict).toBeDefined();
+    expect(result.riskLevel).toBeDefined();
+  });
 });

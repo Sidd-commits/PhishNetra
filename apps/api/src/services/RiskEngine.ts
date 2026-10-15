@@ -145,10 +145,14 @@ export class RiskEngine {
     layerScores.TLS = Math.min(100, tlsScoreAcc);
 
     // 5. Reputation Layer Scoring (0 to 100)
-    layerScores.REPUTATION = reputationLayer.reputationScore;
+    layerScores.REPUTATION = Number.isFinite(reputationLayer.reputationScore)
+      ? reputationLayer.reputationScore
+      : 0;
 
     // 6. ML Layer Scoring (0 to 100)
-    layerScores.ML = Math.round(mlLayer.phishingProbability * 100 * 10) / 10;
+    layerScores.ML = Number.isFinite(mlLayer.phishingProbability)
+      ? Math.round(mlLayer.phishingProbability * 100 * 10) / 10
+      : 0;
 
     // 7 & 8. Web Content & Brand Consistency Scoring (Milestone 3)
     let hasBrandMismatch = false;
@@ -162,14 +166,17 @@ export class RiskEngine {
         layerScores.BRAND = 50;
       } else if (pageLayer.status === 'COMPLETED') {
         // Content Score (DOM, Forms, Scripts, Urgency)
-        layerScores.CONTENT = pageLayer.contentRiskScore || 0;
+        layerScores.CONTENT = Number.isFinite(pageLayer.contentRiskScore)
+          ? pageLayer.contentRiskScore
+          : 0;
 
         // Brand Consistency Score
         const brandFindings = pageLayer.brandFindings || [];
         const mismatchItem = brandFindings.find(b => b.isMismatch);
         if (mismatchItem) {
           hasBrandMismatch = true;
-          layerScores.BRAND = Math.round(mismatchItem.confidence * 95);
+          const brandConf = Number.isFinite(mismatchItem.confidence) ? mismatchItem.confidence : 0.8;
+          layerScores.BRAND = Math.round(brandConf * 95);
         } else if (brandFindings.length > 0) {
           layerScores.BRAND = 0; // Verified authentic match
         } else {
@@ -207,7 +214,8 @@ export class RiskEngine {
     let compositeScore = 0;
     for (const [layer, weight] of Object.entries(weightsToApply)) {
       const normalizedWeight = weight / (activeWeightsSum || 1);
-      compositeScore += (layerScores[layer] || 0) * normalizedWeight;
+      const score = Number.isFinite(layerScores[layer]) ? layerScores[layer] : 0;
+      compositeScore += score * normalizedWeight;
     }
 
     // --- Critical Override Rules ---
@@ -226,6 +234,11 @@ export class RiskEngine {
     // 4. SSRF Defense / Private IP Destination
     if (hasPrivateIp || isSsrfBlocked) {
       compositeScore = Math.max(compositeScore, 95);
+    }
+
+    // Fail-safe protection against NaN or non-finite values (never fail open)
+    if (!Number.isFinite(compositeScore)) {
+      compositeScore = 50.0;
     }
 
     const finalRiskScore = Math.round(Math.min(100, Math.max(0, compositeScore)) * 10) / 10;
@@ -252,14 +265,20 @@ export class RiskEngine {
     }
 
     // Confidence Synthesis across active layers
-    let confidenceScore = (mlLayer.confidence * 0.3) +
+    const mlConfidence = Number.isFinite(mlLayer.confidence) ? mlLayer.confidence : 0.5;
+    let confidenceScore = (mlConfidence * 0.3) +
       (urlLayer.status === 'SUCCESS' ? 0.12 : 0.05) +
       (domainLayer.status === 'SUCCESS' ? 0.12 : 0.05) +
       (dnsLayer.status === 'SUCCESS' ? 0.12 : 0.05) +
       (tlsLayer.status === 'SUCCESS' ? 0.12 : 0.05);
 
     if (pageLayer && pageLayer.status === 'COMPLETED') {
-      confidenceScore += (pageLayer.confidence || 0.8) * 0.22;
+      const pageConfidence = Number.isFinite(pageLayer.confidence) ? pageLayer.confidence : 0.8;
+      confidenceScore += pageConfidence * 0.22;
+    }
+
+    if (!Number.isFinite(confidenceScore)) {
+      confidenceScore = 0.5;
     }
 
     const confidence = Math.min(1.0, Math.max(0.1, Math.round(confidenceScore * 100) / 100));
