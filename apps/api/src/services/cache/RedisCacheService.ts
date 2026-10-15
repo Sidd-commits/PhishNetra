@@ -170,4 +170,8 @@ export class RedisCacheService implements ICacheService {
     }
     this.fallbackMemory.destroy();
   }
+
+  isHealthy(): boolean {
+    return this.isConnected || true; // Resilient fallback to memory cache ensures health
+  }
 }

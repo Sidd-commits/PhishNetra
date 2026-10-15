@@ -36,7 +36,8 @@ export class HealthController {
       isDbReady = false;
     }
 
-    const isMlReady = await mlClient.checkHealth();
+    const mlHealth = await mlClient.checkHealth();
+    const isMlReady = mlHealth.status === 'connected';
     const isCacheReady = typeof (cacheService as any).isHealthy === 'function' ? (cacheService as any).isHealthy() : true;
 
     const isReady = isDbReady;

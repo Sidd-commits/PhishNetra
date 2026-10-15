@@ -16,4 +16,5 @@ export interface ICacheService {
   getStats(): Promise<CacheStats>;
   clear(): Promise<void>;
   wrap<T>(key: string, fn: () => Promise<T>, ttlSeconds?: number): Promise<T>;
+  isHealthy?(): boolean;
 }

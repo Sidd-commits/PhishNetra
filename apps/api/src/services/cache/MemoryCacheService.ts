@@ -122,4 +122,8 @@ export class MemoryCacheService implements ICacheService {
     }
     this.cache.clear();
   }
+
+  isHealthy(): boolean {
+    return true;
+  }
 }

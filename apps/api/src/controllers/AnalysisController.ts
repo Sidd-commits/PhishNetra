@@ -17,15 +17,13 @@ export class AnalysisController {
 
   public async getHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      if (!req.user?.userId) {
-        res.status(401).json({ error: 'Unauthorized', message: 'Authentication required' });
-        return;
-      }
+      const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string || '20', 10)));
+      const offset = Math.max(0, parseInt(req.query.offset as string || '0', 10));
 
-      const limit = parseInt(req.query.limit as string || '20', 10);
-      const offset = parseInt(req.query.offset as string || '0', 10);
+      // If user is Admin, Analyst, or unauthenticated visitor on overview, show recent telemetry; otherwise show user's own
+      const userId = req.user?.role === 'ADMIN' || req.user?.role === 'ANALYST' || !req.user ? undefined : req.user.userId;
 
-      const history = await analysisService.getHistory(req.user.userId, limit, offset);
+      const history = await analysisService.getHistory(userId, limit, offset);
       res.status(200).json(history);
     } catch (error) {
       next(error);

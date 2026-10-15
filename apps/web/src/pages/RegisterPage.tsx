@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Shield, Lock, Mail, User, ArrowRight, AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 
@@ -13,6 +13,11 @@ export const RegisterPage: React.FC = () => {
 
   const { register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const fromState = (location.state as any)?.from;
+  const from = fromState
+    ? `${typeof fromState === 'string' ? fromState : (fromState.pathname || '/dashboard')}${fromState.search || ''}${fromState.hash || ''}`
+    : '/dashboard';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +31,7 @@ export const RegisterPage: React.FC = () => {
     setIsSubmitting(true);
     try {
       await register({ name, email, password });
-      navigate('/dashboard', { replace: true });
+      navigate(from, { replace: true });
     } catch (err: any) {
       setError(
         err.response?.data?.message || err.message || 'Failed to register. Please try again.'

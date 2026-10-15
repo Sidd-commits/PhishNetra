@@ -54,7 +54,8 @@ export function showInterstitial(payload: InterstitialPayload): void {
     overflow-y: auto !important;
   `;
 
-  const dashboardLink = `${payload.dashboardUrl || 'http://localhost:5173'}/analysis?url=${encodeURIComponent(payload.url)}`;
+  const dashboardBase = (payload.dashboardUrl || 'http://localhost:5173').replace(/\/$/, '');
+  const dashboardLink = `${dashboardBase}/analysis?url=${encodeURIComponent(payload.url)}`;
 
   const indicatorsListHtml = (payload.criticalIndicators || [])
     .slice(0, 4)

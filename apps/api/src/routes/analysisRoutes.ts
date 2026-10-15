@@ -15,7 +15,7 @@ router.post(
 
 router.get(
   '/history',
-  requireAuth,
+  optionalAuth,
   (req, res, next) => analysisController.getHistory(req, res, next)
 );
 

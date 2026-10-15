@@ -37,7 +37,8 @@ export function showBanner(payload: BannerPayload): void {
     box-sizing: border-box !important;
   `;
 
-  const dashboardLink = `${payload.dashboardUrl || 'http://localhost:5173'}/analysis?url=${encodeURIComponent(payload.url)}`;
+  const dashboardBase = (payload.dashboardUrl || 'http://localhost:5173').replace(/\/$/, '');
+  const dashboardLink = `${dashboardBase}/analysis?url=${encodeURIComponent(payload.url)}`;
 
   banner.innerHTML = `
     <div style="display: flex; align-items: center; gap: 12px;">

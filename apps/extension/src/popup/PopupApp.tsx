@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { AnalysisResponse, ThreatVerdict } from '@phishnetra/shared';
 import { LocalHeuristicResult } from '../background/localHeuristics';
+import { StorageService } from '../utils/storage';
 
 interface TabStatusResponse {
   success: boolean;
@@ -90,10 +91,12 @@ export const PopupApp: React.FC = () => {
     }
   };
 
-  const handleOpenDashboard = () => {
+  const handleOpenDashboard = async () => {
     const targetUrl = tabData?.state?.url || tabData?.url;
     if (!targetUrl) return;
-    const dashboardUrl = `http://localhost:5173/analysis?url=${encodeURIComponent(targetUrl)}`;
+    const settings = await StorageService.getSettings();
+    const dashboardBase = (settings.dashboardUrl || 'http://localhost:5173').replace(/\/$/, '');
+    const dashboardUrl = `${dashboardBase}/analysis?url=${encodeURIComponent(targetUrl)}`;
     if (typeof chrome !== 'undefined' && chrome.tabs) {
       chrome.tabs.create({ url: dashboardUrl });
     } else {
