@@ -28,6 +28,8 @@ import { contentLayer } from './analysis/contentLayer';
 import { ThreatGraphEngine } from './graph/ThreatGraphEngine';
 
 export class AnalysisService {
+  private inMemoryCache = new Map<string, AnalysisResponse>();
+
   /**
    * Performs full Multi-Layer threat analysis on a target URL including isolated page inspection.
    */
@@ -299,6 +301,13 @@ export class AnalysisService {
       createdAt: createdAtIso
     };
 
+    // Cache in-memory for immediate, zero-latency retrieval and demo resilience
+    this.inMemoryCache.set(finalResponse.analysisId, finalResponse);
+    if (this.inMemoryCache.size > 200) {
+      const oldestKey = this.inMemoryCache.keys().next().value;
+      if (oldestKey) this.inMemoryCache.delete(oldestKey);
+    }
+
     // Auto-ingest into Threat Intelligence Graph in background
     ThreatGraphEngine.ingestAnalysis(finalResponse).catch((err: any) => {
       console.warn(`[AnalysisService] Threat Graph auto-ingest warning: ${err.message}`);
@@ -334,7 +343,7 @@ export class AnalysisService {
         })
       ]);
 
-      const items: AnalysisSummary[] = records.map(r => ({
+      let items: AnalysisSummary[] = records.map(r => ({
         id: r.id,
         url: r.url,
         verdict: r.verdict as ThreatVerdict,
@@ -345,9 +354,41 @@ export class AnalysisService {
         createdAt: r.createdAt.toISOString()
       }));
 
+      // Backfill with in-memory records if database returned empty
+      if (items.length === 0 && this.inMemoryCache.size > 0) {
+        items = Array.from(this.inMemoryCache.values())
+          .slice(-limit)
+          .reverse()
+          .map(r => ({
+            id: r.analysisId,
+            url: r.url,
+            verdict: r.verdict,
+            riskScore: r.riskScore,
+            riskLevel: r.riskLevel,
+            confidence: r.confidence,
+            pageStatus: (r.pageAnalysis?.status || 'NOT_REQUESTED') as any,
+            createdAt: r.createdAt
+          }));
+        return { items, total: Math.max(total, items.length) };
+      }
+
       return { items, total };
     } catch {
-      return { items: [], total: 0 };
+      // Graceful fallback to recent in-memory analyses if DB is unreachable
+      const items: AnalysisSummary[] = Array.from(this.inMemoryCache.values())
+        .slice(-limit)
+        .reverse()
+        .map(r => ({
+          id: r.analysisId,
+          url: r.url,
+          verdict: r.verdict,
+          riskScore: r.riskScore,
+          riskLevel: r.riskLevel,
+          confidence: r.confidence,
+          pageStatus: (r.pageAnalysis?.status || 'NOT_REQUESTED') as any,
+          createdAt: r.createdAt
+        }));
+      return { items, total: items.length };
     }
   }
 
@@ -355,6 +396,12 @@ export class AnalysisService {
    * Retrieves full analysis report by ID including all layers, page analysis & evidence.
    */
   public async getById(id: string): Promise<AnalysisResponse | null> {
+    // 1. Check in-memory cache first for instant retrieval
+    const cached = this.inMemoryCache.get(id);
+    if (cached) {
+      return cached;
+    }
+
     try {
       const record = await prisma.analysis.findUnique({
         where: { id },
@@ -385,7 +432,7 @@ export class AnalysisService {
         } catch {}
       }
 
-      return {
+      const response: AnalysisResponse = {
         analysisId: record.id,
         url: record.url,
         normalizedUrl: record.normalizedUrl,
@@ -410,9 +457,27 @@ export class AnalysisService {
         })),
         createdAt: record.createdAt.toISOString()
       };
+
+      this.inMemoryCache.set(record.id, response);
+      return response;
     } catch {
       return null;
     }
+  }
+
+  /**
+   * Returns recent analyses in-memory matching a given target domain.
+   */
+  public getRecentByDomain(domain: string): AnalysisResponse[] {
+    const clean = domain.toLowerCase();
+    return Array.from(this.inMemoryCache.values()).filter(a => {
+      try {
+        const u = new URL(a.normalizedUrl);
+        return u.hostname.toLowerCase().includes(clean);
+      } catch {
+        return a.url.toLowerCase().includes(clean);
+      }
+    });
   }
 }
 

@@ -41,21 +41,57 @@ export class MLClientService {
   private localHeuristicFallback(rawUrl: string): MLPredictionResponse {
     const url = rawUrl.trim();
     let hasHttps = 0;
+    let hostname = '';
+    let pathname = '';
+    let search = '';
+    let subdomains = 0;
+    let tldLength = 3;
+
     try {
-      const parsed = new URL(url);
+      const parsed = new URL(url.startsWith('http') ? url : `http://${url}`);
       hasHttps = parsed.protocol === 'https:' ? 1 : 0;
+      hostname = parsed.hostname;
+      pathname = parsed.pathname;
+      search = parsed.search;
+
+      const hostParts = hostname.split('.');
+      if (hostParts.length > 2) {
+        subdomains = hostParts.length - 2;
+      }
+      if (hostParts.length > 1) {
+        tldLength = hostParts[hostParts.length - 1].length;
+      }
     } catch {
-      // ignore
+      hostname = url.split('/')[0] || '';
     }
 
     const hasIp = /(\d{1,3}\.){3}\d{1,3}/.test(url) ? 1 : 0;
     const suspiciousKeywords = ['login', 'signin', 'verify', 'update', 'secure', 'account', 'bank', 'paypal', 'wallet'];
     const keywordMatches = suspiciousKeywords.filter(kw => url.toLowerCase().includes(kw)).length;
 
+    // Accurate Shannon entropy calculation
+    const charFrequencies: Record<string, number> = {};
+    for (let i = 0; i < url.length; i++) {
+      const c = url[i];
+      charFrequencies[c] = (charFrequencies[c] || 0) + 1;
+    }
+    let calculatedEntropy = 0;
+    for (const count of Object.values(charFrequencies)) {
+      const p = count / url.length;
+      calculatedEntropy -= p * Math.log2(p);
+    }
+    const entropy = Math.round(calculatedEntropy * 100) / 100;
+
+    const specialChars = (url.match(/[^a-zA-Z0-9]/g) || []).length;
+    const digits = (url.match(/\d/g) || []).length;
+    const hyphens = (url.match(/-/g) || []).length;
+
     let prob = 0.05;
     if (hasIp) prob += 0.45;
     if (keywordMatches > 0) prob += Math.min(0.40, keywordMatches * 0.15);
     if (!hasHttps) prob += 0.15;
+    if (entropy > 4.5) prob += 0.15;
+    if (subdomains >= 2) prob += 0.10;
 
     const finalProb = Math.min(0.99, Math.max(0.01, prob));
 
@@ -64,23 +100,23 @@ export class MLClientService {
       normalized_url: rawUrl,
       features: {
         url_length: url.length,
-        hostname_length: 20,
-        path_length: 10,
-        query_length: 0,
-        subdomain_count: 1,
+        hostname_length: hostname.length,
+        path_length: pathname.length,
+        query_length: search.length,
+        subdomain_count: subdomains,
         has_ip_address: hasIp,
         has_https: hasHttps,
-        special_char_count: 3,
-        digit_count: 2,
-        hyphen_count: 1,
+        special_char_count: specialChars,
+        digit_count: digits,
+        hyphen_count: hyphens,
         at_symbol_count: url.includes('@') ? 1 : 0,
-        double_slash_in_path: 0,
-        encoded_char_count: 0,
+        double_slash_in_path: pathname.includes('//') ? 1 : 0,
+        encoded_char_count: (url.match(/%[0-9a-fA-F]{2}/g) || []).length,
         suspicious_keyword_count: keywordMatches,
-        entropy: 3.5,
+        entropy,
         tld_in_subdomain: 0,
-        port_in_url: 0,
-        tld_length: 3
+        port_in_url: (url.match(/:\d{2,5}/) ? 1 : 0),
+        tld_length: tldLength
       },
       phishing_probability: Math.round(finalProb * 1000) / 1000,
       confidence: Math.round(Math.abs(finalProb - 0.5) * 2 * 1000) / 1000,

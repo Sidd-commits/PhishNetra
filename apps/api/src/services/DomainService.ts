@@ -4,6 +4,7 @@ import { DomainLayer } from './analysis/domainLayer';
 import { DNSLayer } from './analysis/dnsLayer';
 import { TyposquattingEngine } from './analysis/typosquatting';
 import { cache, CacheManager } from './cache/CacheManager';
+import { analysisService } from './AnalysisService';
 
 export class DomainService {
   private domainLayer = new DomainLayer();
@@ -57,6 +58,21 @@ export class DomainService {
       });
     } catch (err: any) {
       console.warn(`[DomainService] DB query failed (${err.message}). Continuing with empty history.`);
+    }
+
+    // Merge recent in-memory analyses for this domain if not already in DB records
+    const inMemMatching = analysisService.getRecentByDomain(cleanDomain);
+    for (const mem of inMemMatching) {
+      if (!pastAnalyses.some(p => p.id === mem.analysisId)) {
+        pastAnalyses.unshift({
+          id: mem.analysisId,
+          url: mem.url,
+          verdict: mem.verdict,
+          riskScore: mem.riskScore,
+          confidence: mem.confidence,
+          createdAt: new Date(mem.createdAt)
+        });
+      }
     }
 
     const totalScans = pastAnalyses.length;
