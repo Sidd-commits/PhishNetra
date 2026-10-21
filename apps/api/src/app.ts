@@ -90,7 +90,9 @@ export const createApp = (): express.Application => {
       message: 'Rate limit exceeded. Please try again later.'
     }
   });
-  app.use('/api', limiter);
+  if (config.env !== 'test') {
+    app.use('/api', limiter);
+  }
 
   // Body and Cookie Parsers
   app.use(express.json({ limit: '5mb' }));
