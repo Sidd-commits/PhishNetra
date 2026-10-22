@@ -35,6 +35,8 @@ import {
   EmailAnalysisRequest,
   EmailAnalysisResult,
   RawIOCExtractionResult,
+  AttachmentAnalysisRequest,
+  AttachmentAnalysisResult,
   SystemConfig,
   UpdateSystemConfigRequest,
   ApiKeyItem,
@@ -368,6 +370,11 @@ class ApiService {
   // --- Milestone 8: Email & Raw IOC Ingestion ---
   public async analyzeEmail(req: EmailAnalysisRequest): Promise<EmailAnalysisResult> {
     const res = await this.client.post<{ success: boolean; data: EmailAnalysisResult }>('/ingest/email', req);
+    return res.data.data;
+  }
+
+  public async analyzeAttachment(req: AttachmentAnalysisRequest): Promise<AttachmentAnalysisResult> {
+    const res = await this.client.post<{ success: boolean; data: AttachmentAnalysisResult }>('/ingest/attachment', req);
     return res.data.data;
   }
 

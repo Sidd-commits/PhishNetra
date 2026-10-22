@@ -1,66 +1,90 @@
-# PhishNetra — 10-Month Master Roadmap
+# PhishNetra — Academic Master Roadmap & Implementation Alignment
 
-**Project:** PhishNetra — A MultiLayered AI-Driven Zero-Trust Framework for Real-Time Phishing Detection and Browser-Level Threat Mitigation  
-**Specification Reference:** `/Markdowns/02_AI_IDE_MASTER_PROMPT.md`
-
----
-
-## Roadmap Milestones
-
-| Milestone | Timeframe | Focus Area | Status |
-| :--- | :--- | :--- | :---: |
-| **Milestone 1** | Month 1 → 1.5 | Architecture Foundation, Deterministic Features, Baseline ML, Web Console | **COMPLETED** |
-| **Milestone 2** | Month 1.5 → 3 | Multi-Layer Intelligence (RDAP, DNS, TLS, Reputation Feeds, Risk Engine) | **COMPLETED** |
-| **Milestone 3 / Implementation 3** | Month 3 → 5 | Secure Web Content Analysis, Isolated Browser Sandbox, DOM/Form/Brand Analysis | **COMPLETED** |
-| **Milestone 4 / Implementation 4** | Month 5 → 6 | Async Worker Architecture (BullMQ, Redis), Caching & Batch Ingestion, Domain Dossier | **COMPLETED** |
-| **Milestone 5** | Month 6 → 7 | Chrome Manifest V3 Browser Extension & Real-Time Threat Mitigation | **COMPLETED** |
-| **Milestone 6** | Month 7 → 8 | Threat Graph Engine, IOC Clustering & Analyst Intelligence Explorer | **COMPLETED** |
-| **Milestone 7** | Month 8 → 9 | MLOps Lifecycle, Continuous Retraining, Model Registry & Adversarial Hardening | **COMPLETED** |
-| **Milestone 8** | Month 9 → 10 | Enterprise SIEM/SOAR Deployment, Webhook Alerts, SOC Case Management & Email Ingestion | **COMPLETED** |
-| **Milestone 9** | Production Ready | Enterprise Governance, Dynamic Risk Engine Calibration, SOC Audit Trail & Threat Feeds | **COMPLETED** |
-| **Milestone 10** | Enterprise Defense Lab | Threat Simulation Lab, Red Team Attack Replay Sandbox & Automated Defense Benchmark | **COMPLETED** |
-| **Milestone 11** | Production Hardening | CI/CD GitHub Actions, Docker Microservices Stack, Prometheus Observability & ADRs | **COMPLETED** |
-| **Milestone 12** | Enterprise Governance | Legal Takedown Dispatcher (RFC 2142), Multi-Tenant Workspaces (RBAC) & Executive Dossiers | **COMPLETED** |
-| **Milestone 13** | Autonomous SOAR & Threat Hunting | SOAR Playbook Orchestrator, Multi-Vector Hunting Sandbox & Threat Intel Connectors | **COMPLETED** |
-| **Milestone 14** | AI Co-Pilot, Deception & EASM | AI SOC Co-Pilot Assistant, Active Canary Deception Tripwires & CT Logs Radar | **COMPLETED** |
-| **Milestone 15** | Active Defense & Threat Sharing | Remote Browser Isolation (RBI) Sandbox, Phishing Tarpit Flooder & STIX/TAXII 2.1 Server | **COMPLETED** |
-| **Milestone 16** | Advanced Active Defense & Governance | Adversary-in-the-Middle (AiTM) Reverse Proxy Defense, Threat Intel Bayesian Fusion & Enterprise Compliance Studio | **COMPLETED** |
-| **Milestone 17** | Multimodal Defense & Cyber Risk | Multimodal Quishing (QR Code) Defense, Threat Actor Attribution Matrix & FAIR Cyber Risk Modeling | **COMPLETED** |
-| **Milestone 18** | Zero-Trust Client & Session Security | Client Anti-Tampering SDK, Continuous Session Verification & MITRE D3FEND Countermeasures | **COMPLETED** |
-| **Milestone 19** | GenAI Defense, Telecom Fusion & Digital Forensics | Prompt Injection Defense, STIR/SHAKEN Vishing Fusion & HAR Packet Forensics | **COMPLETED** |
-| **Milestone 20** | Decentralized CTI, BGP Radar & FIDO2 Guard | TAXII 2.1 Threat Exchange, BGP Route Hijacking & FIDO2 Phishing-Resistant MFA | **COMPLETED** |
+**Official Project Title:** PhishNetra — A MultiLayered AI-Driven Zero-Trust Framework for Real-Time Phishing Detection and Browser-Level Threat Mitigation  
+**Time Allocation:** 10-Month Major Academic Project  
+**Authoritative Scope Document:** [`docs/PROJECT_SCOPE.md`](PROJECT_SCOPE.md)  
+**Detailed Audit Inventory:** [`docs/SCOPE_AUDIT.md`](SCOPE_AUDIT.md)  
+**Upcoming Milestone:** Panel Presentation & Live Architecture Demonstration  
 
 ---
 
-## Implementation 20 Deliverables Summary
-1. **Decentralized CTI TAXII 2.1 Threat Exchange (`TAXIIClientService.ts` / `/api/cti-exchange`):**
-   - Ingests and disseminates bidirectional OASIS STIX 2.1 threat intelligence bundles across authoritative roots (CISA AIS, AlienVault OTX, FS-ISAC).
-   - Normalizes indicators (`URL`, `DOMAIN`, `IPV4`, `IPV6`, `FILE_HASH`, `ATTACK_PATTERN`).
-   - TLP classification enforcement (`TLP:WHITE`, `TLP:GREEN`, `TLP:AMBER`, `TLP:RED`).
-   - Automated edge blocklist propagation into Threat Graph and edge cache.
-2. **Infrastructure Integrity Radar: BGP Route & DNS Poisoning Radar (`BGPRouteIntegrityService.ts` / `/api/bgp-integrity`):**
-   - Real-time RPKI Route Origin Authorization (ROA) validation detecting prefix hijacking (`RPKI INVALID`).
-   - Autonomous System (AS) path hop traversal and anomalous transit peering detection.
-   - Multi-Resolver recursive DNS consensus matrix (Cloudflare, Google, Quad9, OpenDNS) detecting cache poisoning and depleted TTL injection.
-   - Computes Route & Resolution Integrity Score (RRIS: 0-100) with forensic audit narratives.
-3. **FIDO2 / WebAuthn Phishing-Resistant MFA Credential Guard (`FIDO2CredentialGuardService.ts` / `/api/fido2-guard`):**
-   - Deconstructs clientDataJSON origin binding to mathematically prove Passkey cryptographic immunity against AiTM reverse proxies (Evilginx2, Modlishka).
-   - Evaluates authentication protocol tiers according to NIST SP 800-63B / CISA standards.
-   - Generates downloadable enterprise FIDO2 Conditional Access policies (`webauthn-policy.json`).
-4. **Interactive React SOC UI Pages:**
-   - Decentralized CTI TAXII 2.1 Threat Exchange Console (`/cti-exchange`).
-   - Real-Time BGP Route Hijacking & DNS Cache Poisoning Radar (`/bgp-integrity`).
-   - FIDO2 / WebAuthn Phishing-Resistant MFA Credential Guard (`/fido2-guard`).
-5. **251 Automated Tests Passing Monorepo-Wide (100%):**
-   - 181 Jest API tests across 27 suites (100% pass)
-   - 58 Pytest ML tests (100% pass)
-   - 12 Jest Extension tests (100% pass)
-   - Clean Vite & TypeScript production builds with zero errors
+## 1. Executive Status Overview
+
+PhishNetra addresses real-time web phishing detection and browser-level mitigation through a zero-trust, multi-layered architecture. Following a rigorous scope audit and refactoring, the project is structured around six core research and engineering questions:
+
+1. **URL Evaluation:** Is the URL suspicious or malicious?
+2. **Explainable Evidence:** What concrete evidence across DNS, TLS, domain age, and ML features supports the verdict?
+3. **Webpage Indicators:** Does the rendered webpage exhibit credential-harvesting or brand-impersonation indicators invisible in the URL alone?
+4. **Attachment Extraction:** Does an email attachment contain embedded URLs leading to phishing destinations?
+5. **Real-Time Mitigation:** Can the browser extension communicate risk and block navigation with an interstitial barrier before user credentials are compromised?
+6. **User Guidance:** What safe, actionable choices does the system provide to the user?
 
 ---
 
-## Complete Enterprise Master Plan Verified
-All 20 implementation milestones of the PhishNetra Platform are fully operational, tested, and documented.
+## 2. Master Roadmap & Milestone Classification
 
+The table below reflects the **verified implementation status** across the 10-month development lifecycle:
 
+| Phase / Milestone | Target Timeframe | Focus Area | Status | Deliverables & Verification |
+| :--- | :--- | :--- | :---: | :--- |
+| **Phase 1: Foundation & Baseline ML** | Months 1 → 2 | URL Canonicalization, Lexical Features, Random Forest Classifier, Core API & Web Console | **VERIFIED (CORE)** | `canonicalization.ts`, `services/ml/app/model/pipeline.py`, 58 Pytest tests passing. |
+| **Phase 2: Multi-Layer Intelligence** | Months 3 → 4 | RDAP/WHOIS Domain Age, DNS Resolution, TLS Structural Checks, Blacklist Feeds & Zero-Trust Invariants | **VERIFIED (CORE)** | Multi-layer risk engine, `RiskEngineService.ts`, async layer parallelization with strict timeouts. |
+| **Phase 3: Web Content & DOM Analysis** | Months 5 → 6 | SSRF-Protected Webpage Fetching, DOM Form Action Inspection, Cross-Origin Credential Traps, Brand Mismatch | **VERIFIED (CORE)** | Isolated DOM analyzer, SSRF loopback/private range protection, 26 unit tests. |
+| **Phase 4: Async Batching & Domain Hub** | Months 6 → 7 | High-Capacity URL Queue, Domain Dossier, Typosquatting / Homoglyph Deception Detection | **VERIFIED (SUPPORTING)** | BullMQ/Redis worker pipeline, Levenshtein & Cyrillic confusables matrix (`typosquatting.ts`). |
+| **Phase 5: Chrome Extension (Manifest V3)** | Months 7 → 8 | Real-Time Tab Navigation Interception, Local Heuristics, Multi-Tier API Client, DOM Interstitial Overlay | **VERIFIED (P0 PRIMARY)** | `apps/extension`, Chrome MV3 service worker, `interstitial.ts` zero silent redirects barrier. |
+| **Phase 6: Email Attachment Link Analysis** | Months 8 → 9 | Safe Hyperlink Extraction from Supported Formats (PDF, HTML, DOCX, TXT, EML) & Multi-Layer Evaluation | **VERIFIED (P0 CORE)** | `AttachmentAnalysisService.ts`, pure-JS safe parser, `POST /api/ingest/attachment`, 10 automated tests. |
+| **Phase 7: Explainable Risk & User Experience** | Months 9 → 10 | Telemetry History, Structured Evidence Engine, Simplified Academic UI, Developer Guides | **VERIFIED (P1 SUPPORTING)** | `AnalysisHistoryPage.tsx`, `ExtensionGuidePage.tsx`, clean 8-item navigation. |
+| **Phase 8: Evaluation & Panel Presentation** | Presentation Target | Live End-to-End Walkthrough, Performance & Latency Benchmarks, False Positive Characterization | **ACTIVE / READY** | Complete automated test suite passing (262/262 tests, 100%), verified live daemons. |
 
+---
+
+## 3. Scope Boundaries & Deferred Features
+
+During earlier development milestones, enterprise-oriented Security Operations Center (SOC) modules were implemented or mocked that exceeded the academic major project thesis. These modules have been **safely decoupled from active navigation** and classified as **DEFERRED** for future research:
+
+```
++-----------------------------------------------------------------------------------------+
+|                               PHISHNETRA REPOSITORY SCOPE                               |
+|                                                                                         |
+|  [P0 CORE — ACTIVE & TESTED]                [P1 SUPPORTING — ACTIVE & TESTED]           |
+|  * Chrome Manifest V3 Browser Extension     * Web Dashboard Overview                    |
+|  * Multi-Layer URL Threat Scanner           * Telemetry & Audit History                 |
+|  * Email Attachment Hyperlink Analyzer      * Domain Intelligence Dossier               |
+|  * Baseline Random Forest ML Model          * Async Batch Queue Ingestion               |
+|  * Webpage Content & Form Analyzer          * Detection Settings & Calibration          |
+|  * Zero-Trust Interstitial Overlay          * Extension Installation Guide              |
+|                                                                                         |
+|  [DEFERRED — REMOVED FROM ACTIVE UI / PRESERVED FOR FUTURE WORK]                        |
+|  * SOAR Playbook Orchestrator               * Autonomous Incident Cases                 |
+|  * Remote Browser Isolation (RBI) Sandbox   * Phishing Tarpit Flooder                   |
+|  * STIX/TAXII 2.1 Threat Exchange           * BGP Route Integrity Radar                 |
+|  * FIDO2 Credential Guard Admin             * Attack Surface Management (EASM)          |
+|  * Telecom Vishing / STIR-SHAKEN Fusion     * Digital Forensics DPI & HAR Chaining      |
+|  * Executive Board-Level Briefings          * Continuous Session Anomaly JA3 Drift      |
++-----------------------------------------------------------------------------------------+
+```
+
+---
+
+## 4. Test & Verification Baseline
+
+| Test Suite / Target | Number of Tests | Status | Execution Command |
+| :--- | :---: | :---: | :--- |
+| **`@phishnetra/api` (Backend Express)** | **192 tests** (28 suites) | **100% PASS** | `npm test --workspace=@phishnetra/api` |
+| **`@phishnetra/extension` (Browser MV3)** | **12 tests** (2 suites) | **100% PASS** | `npm test --workspace=@phishnetra/extension` |
+| **`services/ml` (Python FastAPI)** | **58 tests** | **100% PASS** | `pytest services/ml/tests` |
+| **Total Monorepo Automated Tests** | **262 tests** | **100% PASS** | Zero regressions monorepo-wide |
+| **Production Build Status** | All Packages | **CLEAN** | `npm run build` (Shared, API, Web, Extension) |
+
+---
+
+## 5. Remaining Academic Milestones (Pre-Final Evaluation)
+
+- [x] Master Scope Correction and Repository Audit (`docs/SCOPE_AUDIT.md`, `docs/PROJECT_SCOPE.md`).
+- [x] Email Attachment Link Analysis implementation (`AttachmentAnalysisService.ts`).
+- [x] Pure-JS multi-format link extraction (PDF, HTML, DOCX, TXT, EML) with strict safety boundaries.
+- [x] Restructure Web Navigation and Dashboard to emphasize the Extension and Core Scanners.
+- [x] Create dedicated Chrome Extension Showcase and Installation Guide (`/extension`).
+- [x] Build comprehensive telemetry history viewer (`/history`).
+- [ ] Conduct live panel presentation and walkthrough (3-day target).
+- [ ] Finalize academic project thesis document and performance benchmark chapter.

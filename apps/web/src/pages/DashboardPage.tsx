@@ -194,81 +194,81 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Security Modules Hub */}
+      {/* Core Detection Framework Capabilities */}
       <div className="glass-panel p-5 rounded-2xl border-slate-800/80 space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
           <h2 className="text-sm font-semibold text-slate-200">
-            Security Modules
+            Core Detection Framework Capabilities
           </h2>
           <span className="text-xs text-slate-400">
-            Direct access to specialized detection and response tools
+            Multi-layered zero-trust phishing detection and browser mitigation
           </span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
           <Link
-            to="/cti-exchange"
-            className="p-3 rounded-xl bg-slate-950/60 hover:bg-slate-900 border border-slate-800/80 hover:border-slate-700 text-slate-300 hover:text-white transition-all text-xs flex flex-col space-y-1 group"
+            to="/extension"
+            className="p-3 rounded-xl bg-cyan-950/30 hover:bg-cyan-900/40 border border-cyan-500/30 hover:border-cyan-500/60 text-slate-300 hover:text-white transition-all text-xs flex flex-col space-y-1 group"
           >
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-slate-200 group-hover:text-cyan-400 transition-colors">Threat Feeds</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400 transition-colors" />
+              <span className="font-semibold text-cyan-300 group-hover:text-cyan-200 transition-colors">Extension</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             </div>
-            <span className="text-[11px] text-slate-400">TAXII 2.1 & STIX</span>
+            <span className="text-[11px] text-slate-400">Chrome MV3 Guardian</span>
           </Link>
 
           <Link
-            to="/bgp-integrity"
+            to="/analyze"
             className="p-3 rounded-xl bg-slate-950/60 hover:bg-slate-900 border border-slate-800/80 hover:border-slate-700 text-slate-300 hover:text-white transition-all text-xs flex flex-col space-y-1 group"
           >
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-slate-200 group-hover:text-cyan-400 transition-colors">Route Radar</span>
+              <span className="font-semibold text-slate-200 group-hover:text-cyan-400 transition-colors">URL Scanner</span>
               <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400 transition-colors" />
             </div>
-            <span className="text-[11px] text-slate-400">BGP & RPKI health</span>
+            <span className="text-[11px] text-slate-400">8-layer deep inspection</span>
           </Link>
 
           <Link
-            to="/fido2-guard"
-            className="p-3 rounded-xl bg-slate-950/60 hover:bg-slate-900 border border-slate-800/80 hover:border-slate-700 text-slate-300 hover:text-white transition-all text-xs flex flex-col space-y-1 group"
+            to="/attachments"
+            className="p-3 rounded-xl bg-purple-950/30 hover:bg-purple-900/40 border border-purple-500/30 hover:border-purple-500/60 text-slate-300 hover:text-white transition-all text-xs flex flex-col space-y-1 group"
           >
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-slate-200 group-hover:text-cyan-400 transition-colors">Credential Guard</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400 transition-colors" />
+              <span className="font-semibold text-purple-300 group-hover:text-purple-200 transition-colors">Attachments</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-purple-400 transition-colors" />
             </div>
-            <span className="text-[11px] text-slate-400">FIDO2 protection</span>
+            <span className="text-[11px] text-slate-400">PDF, HTML, DOCX, TXT</span>
           </Link>
 
           <Link
-            to="/rbi"
+            to="/domains"
             className="p-3 rounded-xl bg-slate-950/60 hover:bg-slate-900 border border-slate-800/80 hover:border-slate-700 text-slate-300 hover:text-white transition-all text-xs flex flex-col space-y-1 group"
           >
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-slate-200 group-hover:text-cyan-400 transition-colors">Browser Sandbox</span>
+              <span className="font-semibold text-slate-200 group-hover:text-cyan-400 transition-colors">Domain Intel</span>
               <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400 transition-colors" />
             </div>
-            <span className="text-[11px] text-slate-400">Isolated DOM preview</span>
+            <span className="text-[11px] text-slate-400">RDAP & Typosquatting</span>
           </Link>
 
           <Link
-            to="/threat-graph"
+            to="/batch"
             className="p-3 rounded-xl bg-slate-950/60 hover:bg-slate-900 border border-slate-800/80 hover:border-slate-700 text-slate-300 hover:text-white transition-all text-xs flex flex-col space-y-1 group"
           >
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-slate-200 group-hover:text-cyan-400 transition-colors">Threat Graph</span>
+              <span className="font-semibold text-slate-200 group-hover:text-cyan-400 transition-colors">Batch Queue</span>
               <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400 transition-colors" />
             </div>
-            <span className="text-[11px] text-slate-400">Infrastructure map</span>
+            <span className="text-[11px] text-slate-400">High-throughput bulk</span>
           </Link>
 
           <Link
-            to="/takedowns"
+            to="/history"
             className="p-3 rounded-xl bg-slate-950/60 hover:bg-slate-900 border border-slate-800/80 hover:border-slate-700 text-slate-300 hover:text-white transition-all text-xs flex flex-col space-y-1 group"
           >
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-slate-200 group-hover:text-cyan-400 transition-colors">Takedown Center</span>
+              <span className="font-semibold text-slate-200 group-hover:text-cyan-400 transition-colors">Telemetry Log</span>
               <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400 transition-colors" />
             </div>
-            <span className="text-[11px] text-slate-400">Automated dispatch</span>
+            <span className="text-[11px] text-slate-400">Auditable history & export</span>
           </Link>
         </div>
       </div>

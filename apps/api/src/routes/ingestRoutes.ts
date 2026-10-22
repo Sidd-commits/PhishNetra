@@ -1,11 +1,31 @@
 import { Router, Request, Response } from 'express';
 import { emailIngestionService } from '../services/ingestion/EmailIngestionService';
+import { attachmentAnalysisService } from '../services/ingestion/AttachmentAnalysisService';
 import {
   EmailAnalysisRequestSchema,
-  RawIOCExtractionRequestSchema
+  RawIOCExtractionRequestSchema,
+  AttachmentAnalysisRequestSchema
 } from '@phishnetra/shared';
 
+import { validateBody } from '../middleware/validateRequest';
+
 const router = Router();
+
+/**
+ * POST /api/ingest/attachment
+ * Upload and inspect email attachment (PDF, HTML, TXT, DOCX, EML) to extract and analyze all embedded URLs
+ */
+router.post('/attachment', validateBody(AttachmentAnalysisRequestSchema), async (req: Request, res: Response, next) => {
+  try {
+    const result = await attachmentAnalysisService.analyzeAttachment(req.body);
+    res.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 /**
  * POST /api/ingest/email
@@ -42,3 +62,4 @@ router.post('/raw-ioc', (req: Request, res: Response, next) => {
 });
 
 export default router;
+

@@ -1149,6 +1149,36 @@ export const RawIOCExtractionResultSchema = z.object({
 });
 export type RawIOCExtractionResult = z.infer<typeof RawIOCExtractionResultSchema>;
 
+export const AttachmentAnalysisRequestSchema = z.object({
+  filename: z.string().min(1, 'Filename is required'),
+  contentBase64: z.string().optional(),
+  rawText: z.string().optional(),
+  fileMimeType: z.string().optional(),
+  maxUrlsToAnalyze: z.number().int().min(1).max(50).default(15).optional()
+});
+export type AttachmentAnalysisRequest = z.infer<typeof AttachmentAnalysisRequestSchema>;
+
+export const AttachmentAnalysisResultSchema = z.object({
+  analysisId: z.string(),
+  filename: z.string(),
+  detectedFormat: z.enum(['PDF', 'HTML', 'TXT', 'DOCX', 'EML', 'UNKNOWN']),
+  fileSizeBytes: z.number().int().min(0),
+  processingStatus: z.enum(['SUCCESS', 'NO_SUSPICIOUS_URLS_FOUND', 'THREATS_DETECTED', 'UNABLE_TO_ANALYZE']),
+  totalUrlsExtracted: z.number().int().min(0),
+  uniqueUrlsExtracted: z.number().int().min(0),
+  analyzedUrls: z.array(AnalysisSummarySchema).default([]),
+  suspiciousOrMaliciousUrls: z.array(z.string()).default([]),
+  unreachableUrls: z.array(z.string()).default([]),
+  overallVerdict: ThreatVerdictSchema,
+  overallRiskScore: z.number().min(0).max(100),
+  overallRiskLevel: RiskLevelSchema,
+  evidenceReasons: z.array(z.string()),
+  warningNotes: z.array(z.string()),
+  disclaimer: z.string(),
+  analyzedAt: z.string()
+});
+export type AttachmentAnalysisResult = z.infer<typeof AttachmentAnalysisResultSchema>;
+
 // ============================================================================
 // Milestone 9: Governance, Calibration, Audit Logging & Feed Synchronization
 // ============================================================================

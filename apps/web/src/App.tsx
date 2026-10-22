@@ -46,6 +46,9 @@ import { DigitalForensicsPage } from './pages/DigitalForensicsPage';
 import { CTIExchangePage } from './pages/CTIExchangePage';
 import { BGPIntegrityPage } from './pages/BGPIntegrityPage';
 import { FIDO2GuardPage } from './pages/FIDO2GuardPage';
+import { AttachmentScannerPage } from './pages/AttachmentScannerPage';
+import { ExtensionGuidePage } from './pages/ExtensionGuidePage';
+import { AnalysisHistoryPage } from './pages/AnalysisHistoryPage';
 
 export const App: React.FC = () => {
   return (
@@ -106,7 +109,39 @@ export const App: React.FC = () => {
                   path="/email-scanner"
                   element={
                     <ProtectedRoute>
-                      <EmailIngestionPage />
+                      <AttachmentScannerPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/attachments"
+                  element={
+                    <ProtectedRoute>
+                      <AttachmentScannerPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/attachment-scanner"
+                  element={
+                    <ProtectedRoute>
+                      <AttachmentScannerPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/extension"
+                  element={
+                    <ProtectedRoute>
+                      <ExtensionGuidePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/history"
+                  element={
+                    <ProtectedRoute>
+                      <AnalysisHistoryPage />
                     </ProtectedRoute>
                   }
                 />
@@ -474,10 +509,10 @@ export const App: React.FC = () => {
             <footer className="border-t border-slate-900 bg-slate-950/90 py-6 text-center text-xs text-slate-500 font-mono">
               <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
                 <div>
-                  PhishNetra Cybersecurity Platform • Enterprise Governance & Live Threat Mitigation
+                  PhishNetra • AI-Driven Zero-Trust Phishing Detection & Browser Threat Mitigation
                 </div>
                 <div className="text-slate-600">
-                  Zero-Trust Real-Time Threat Mitigation & Autonomous Incident Response
+                  Academic Major Research Framework • Chrome Manifest V3 & Multi-Layer URL/Attachment Defense
                 </div>
               </div>
             </footer>
