@@ -352,9 +352,61 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
-  if (message.type === 'CONTENT_SCRIPT_READY') {
-    if (tabId && sender.tab?.url) {
-      processTabAnalysis(tabId, sender.tab.url);
-    }
+  if (message.type === 'CHECK_PAGE_THREAT' || message.type === 'CONTENT_SCRIPT_READY') {
+    (async () => {
+      const targetUrl = message.url || sender.tab?.url;
+      const targetTabId = tabId || sender.tab?.id;
+      if (!targetUrl || !targetTabId || !shouldAnalyzeUrl(targetUrl)) {
+        sendResponse({ action: 'NONE' });
+        return;
+      }
+
+      let state = tabStateMap.get(targetTabId);
+      if (!state || state.url !== targetUrl) {
+        await processTabAnalysis(targetTabId, targetUrl);
+        state = tabStateMap.get(targetTabId);
+      }
+
+      if (state) {
+        const settings = await StorageService.getSettings();
+        const score = state.analysis?.riskScore || state.localHeuristics.score || 0;
+        const verdict = state.status;
+        const isCritical = verdict === 'PHISHING' || score >= settings.blockThreshold;
+        const isSuspicious = verdict === 'SUSPICIOUS' || (score >= 40 && !isCritical);
+        const bypassed = await StorageService.hasTemporaryBypass(targetUrl);
+        const isWhitelisted = await StorageService.isWhitelisted(state.domain);
+
+        if (!bypassed && !isWhitelisted && isCritical) {
+          const evidenceDescriptions = state.analysis?.evidence?.map((e: any) => e.description) || state.localHeuristics.reasons;
+          sendResponse({
+            action: 'SHOW_INTERSTITIAL',
+            payload: {
+              url: targetUrl,
+              domain: state.domain,
+              compositeScore: score,
+              riskLevel: verdict,
+              criticalIndicators: evidenceDescriptions,
+              aiConfidence: state.analysis?.mlProbability || state.analysis?.confidence || 0.95,
+              dashboardUrl: settings.dashboardUrl
+            }
+          });
+          return;
+        } else if (!bypassed && !isWhitelisted && isSuspicious) {
+          sendResponse({
+            action: 'SHOW_BANNER',
+            payload: {
+              url: targetUrl,
+              domain: state.domain,
+              compositeScore: score,
+              dashboardUrl: settings.dashboardUrl
+            }
+          });
+          return;
+        }
+      }
+
+      sendResponse({ action: 'NONE' });
+    })();
+    return true;
   }
 });

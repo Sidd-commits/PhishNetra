@@ -218,7 +218,7 @@ export const AttachmentScannerPage: React.FC = () => {
               <FileText className="w-5 h-5" />
             </span>
             <span className="text-xs font-mono font-semibold tracking-wider text-indigo-400 uppercase">
-              Semester 1 Vertical Slice • Safe Attachment Link Extraction &amp; Threat Evaluation
+              Threat Extraction Engine • Multi-Format Attachment Link Scanner
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">

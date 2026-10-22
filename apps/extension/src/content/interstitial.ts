@@ -32,6 +32,12 @@ export function showInterstitial(payload: InterstitialPayload): void {
   document.documentElement.style.overflow = 'hidden';
   if (document.body) {
     document.body.style.overflow = 'hidden';
+  } else {
+    document.addEventListener('DOMContentLoaded', () => {
+      if (document.body && document.getElementById(OVERLAY_ID)) {
+        document.body.style.overflow = 'hidden';
+      }
+    });
   }
 
   const container = document.createElement('div');
