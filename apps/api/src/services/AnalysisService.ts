@@ -4,6 +4,7 @@
  * Milestone: 3
  */
 
+import crypto from 'crypto';
 import { prisma } from '../db/prisma';
 import {
   AnalysisResponse,
@@ -239,7 +240,7 @@ export class AnalysisService {
     };
 
     // 5. Persist Analysis Record & Evidence to Database
-    let savedAnalysisId = `mock-${Date.now()}`;
+    let savedAnalysisId: string = crypto.randomUUID();
     let createdAtIso = new Date().toISOString();
 
     try {

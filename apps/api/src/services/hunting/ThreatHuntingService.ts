@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import {
   ForensicArtifact,
   ThreatHuntQuery,
@@ -72,7 +73,7 @@ export class ThreatHuntingService {
     // Default match fallbacks if query is custom
     if (matches.length === 0) {
       matches.push({
-        id: `hunt_mock_${Date.now()}`,
+        id: `hunt_${crypto.randomUUID().slice(0, 12)}`,
         indicator: query.queryValue,
         indicatorType: query.queryType === 'IP_CIDR' ? 'IP' : query.queryType === 'ASN_LOOKUP' ? 'ASN' : 'DOMAIN',
         verdict: 'SUSPICIOUS',
