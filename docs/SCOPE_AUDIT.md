@@ -1,9 +1,11 @@
 # PhishNetra — Master Scope Audit & Feature Classification
 
-**Date:** October 2026  
-**Auditor:** Senior Software Architect & Refactoring Specialist  
-**Project:** PhishNetra — A MultiLayered AI-Driven Zero-Trust Framework for Real-Time Phishing Detection and Browser-Level Threat Mitigation  
-**Context:** Academic Major Project (10-Month Timeline) — Alignment for Final Project Defense
+**Project Title:** PhishNetra — A MultiLayered AI-Driven Zero-Trust Framework for Real-Time Phishing Detection and Browser-Level Threat Mitigation  
+**Classification:** Academic Major Project (Two-Semester / 10-Month Timeline)  
+**Current Milestone:** Semester 1 Presentation & Evaluation (Months 1–5)  
+**Authoritative Milestone Audit:** [`docs/SEMESTER_MILESTONE_AUDIT.md`](SEMESTER_MILESTONE_AUDIT.md)  
+**Authoritative Scope Document:** [`docs/PROJECT_SCOPE.md`](PROJECT_SCOPE.md)  
+**Two-Semester Roadmap:** [`docs/ROADMAP.md`](ROADMAP.md)  
 
 ---
 

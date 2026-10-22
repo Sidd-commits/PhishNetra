@@ -43,13 +43,13 @@ export const ExtensionGuidePage: React.FC = () => {
           <div className="space-y-4 max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-mono font-medium">
               <Sparkles className="w-3.5 h-3.5" />
-              Primary Deliverable • Chrome Manifest V3
+              Semester 1 Proof of Concept • Chrome Manifest V3 Prototype
             </div>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
               PhishNetra Browser Extension
             </h1>
             <p className="text-base text-slate-300 leading-relaxed">
-              The first line of defense in the PhishNetra architecture. Intercepts tab navigation in real time, applies instant client-side heuristics, queries the multi-layer AI backend, and injects an un-bypassable DOM interstitial barrier whenever high-confidence phishing indicators are discovered.
+              The endpoint protection component in the PhishNetra architecture. Intercepts tab navigation in real time, applies instant client-side heuristics (&lt;5ms), queries the multi-layer AI backend, and injects an un-bypassable DOM interstitial barrier whenever high-confidence phishing indicators are discovered. Semester 2 roadmap includes declarativeNetRequest lifecycle hardening and cross-browser support.
             </p>
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <button

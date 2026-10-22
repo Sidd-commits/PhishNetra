@@ -1,104 +1,130 @@
-# PhishNetra — System Architecture & Threat Mitigation Framework
+# PhishNetra — System Architecture & Implementation Topology
 
-**Project:** PhishNetra — A MultiLayered AI-Driven Zero-Trust Framework for Real-Time Phishing Detection and Browser-Level Threat Mitigation  
-**Specification:** Academic Major Project Framework  
-**Authoritative Documents:** [`docs/PROJECT_SCOPE.md`](PROJECT_SCOPE.md) • [`docs/SCOPE_AUDIT.md`](SCOPE_AUDIT.md) • [`docs/ROADMAP.md`](ROADMAP.md)  
+**Official Project Title:** PhishNetra — A MultiLayered AI-Driven Zero-Trust Framework for Real-Time Phishing Detection and Browser-Level Threat Mitigation  
+**Specification:** Academic Major Project Framework (Two-Semester Architecture)  
+**Authoritative Documents:** [`docs/PROJECT_SCOPE.md`](PROJECT_SCOPE.md) • [`docs/SEMESTER_MILESTONE_AUDIT.md`](SEMESTER_MILESTONE_AUDIT.md) • [`docs/ROADMAP.md`](ROADMAP.md)  
 
 ---
 
-## 1. Architectural Overview & Component Topology
+## 1. Semester 1 Operational Architecture (Current Working State)
 
-PhishNetra unites browser-level real-time navigation defense with backend multi-layer threat intelligence and email attachment link extraction. All inputs (browser URLs, direct user submissions, batch jobs, and attachment links) flow through a single, shared canonicalization and multi-layer risk engine.
+The diagram below reflects the **verified Semester 1 architecture** operational in the repository today. Inputs from the web console, browser extension prototype, and email attachments pass through a single canonicalization engine and shared multi-layer risk pipeline.
 
 ```mermaid
 graph TD
-    subgraph Client Tier
-        Ext["Chrome Extension (Manifest V3)<br/>• tabs.onUpdated Hook<br/>• Local Heuristics Filter<br/>• Interstitial DOM Barrier"]
-        WebUI["React Security Console<br/>• Live URL Scanner<br/>• Attachment Link Scanner<br/>• Telemetry History"]
+    subgraph Client Tier [Semester 1 Verified Clients]
+        Ext["Chrome Extension Prototype (MV3)<br/>• tabs.onUpdated Navigation Hook<br/>• Sub-5ms Local Heuristics<br/>• DOM Interstitial Barrier Overlay"]
+        WebUI["React Security Console<br/>• Live URL Scanner (/analyze)<br/>• Attachment Link Scanner (/attachments)<br/>• Telemetry History (/history)"]
     end
 
-    subgraph Ingestion & Pre-Processing
-        AttSvc["Attachment Link Service<br/>• Pure-JS Format Parser<br/>• PDF / HTML / DOCX / TXT / EML<br/>• URL Normalization & Dedup"]
-        Canon["URL Canonicalization Engine<br/>• Lowercasing & Port Stripping<br/>• Punycode / IDN Normalization<br/>• Duplicate Slash Collapsing"]
+    subgraph Ingestion & Pre-Processing [Ingestion Pipeline]
+        AttSvc["Attachment Link Service<br/>• Safe Pure-JS Format Parser<br/>• PDF / HTML / DOCX / TXT / EML<br/>• Hyperlink Normalization & Dedup"]
+        Canon["URL Canonicalization Engine<br/>• Scheme Lowercasing & Port Stripping<br/>• Punycode / IDN Homoglyph Normalization<br/>• Redundant Slash Collapsing"]
     end
 
-    subgraph Shared Multi-Layer Threat Pipeline
-        L1["L1: Lexical & Hex Features<br/>(Entropy, Length, Tokens)"]
-        L2["L2: Domain & RDAP Age<br/>(Registration Freshness)"]
-        L3["L3: DNS & IP Resolution<br/>(Fast-Flux, A/MX Records)"]
-        L4["L4: TLS Certificate Struct<br/>(Issuer, Lifetime, SANs)"]
-        L5["L5: Threat Feeds & Rep<br/>(URLhaus, Local Blacklist)"]
-        L6["L6: Python ML Classifier<br/>(Random Forest Inference)"]
-        L7["L7 & L8: Webpage & Brand Intel<br/>(SSRF Barrier, Forms, Mismatch)"]
+    subgraph Shared Threat Pipeline [Shared Multi-Layer Pipeline]
+        L1["L1: Lexical Structural Engine<br/>(Length, Shannon Entropy, Tokens)"]
+        L2["L2: Domain & RDAP Age<br/>(Registration Freshness, <48h Trigger)"]
+        L3["L3: DNS Resolution & Bogons<br/>(RFC 1918 SSRF Immunity, MX/NS)"]
+        L4["L4: TLS Certificate Struct<br/>(Hostname Validation, SANs, Lifetime)"]
+        L5["L5: Threat Feeds & Reputation<br/>(URLhaus, Local Blacklist Cache)"]
+        L6["L6: Baseline ML Microservice<br/>(Random Forest Classifier, Tree-SHAP)"]
+        L7["L7: Sandboxed DOM Analyzer<br/>(SSRF Guard, Form Action, Brand Mismatch)"]
     end
 
-    subgraph Decision & Mitigation
-        RiskEng["Zero-Trust Risk Engine<br/>• Layer Score Normalization<br/>• Hard Zero-Trust Overrides<br/>• Composite Score (0-100)"]
-        Evid["Explainable Evidence Engine<br/>• Grouped Structured Findings<br/>• Actionable Guidance"]
+    subgraph Decision & Mitigation [Zero-Trust Decision Engine]
+        RiskEng["Composite Risk Engine<br/>• Layer Score Normalization<br/>• Zero-Trust Overrides (Fresh Domain, Blacklist)<br/>• NaN-Safe Composite Score (0-100)"]
+        Evid["Explainable Evidence Engine<br/>• Structured Findings Breakdown<br/>• Recommended Action Synthesis"]
         Verdict["Threat Verdict<br/>[SAFE | SUSPICIOUS | PHISHING]"]
     end
 
     Ext -->|Intercepted URL| Canon
-    WebUI -->|Submitted URL| Canon
-    WebUI -->|Uploaded File| AttSvc
+    WebUI -->|Submitted Target URL| Canon
+    WebUI -->|Uploaded Attachment| AttSvc
     AttSvc -->|Extracted Hyperlinks| Canon
     Canon --> L1 & L2 & L3 & L4 & L5 & L6 & L7
     L1 & L2 & L3 & L4 & L5 & L6 & L7 --> RiskEng
     RiskEng --> Evid --> Verdict
-    Verdict -->|Risk >= 70| Ext
-    Verdict -->|Visual Report| WebUI
+    Verdict -->|Risk >= 70 or PHISHING| Ext
+    Verdict -->|Visual Layer Report| WebUI
 ```
 
 ---
 
-## 2. Component Specifications
+## 2. Semester 2 Planned Architectural Evolution
 
-### 2.1 Chrome Manifest V3 Browser Extension (`apps/extension`)
-The browser extension is the primary deliverable for user-facing protection.
-- **Interception Lifecycle:** Monitors navigation requests via `tabs.onUpdated`. Captures URLs before DOM rendering.
-- **Client-Side Pre-Filtering:** Rapid sub-millisecond evaluation in the background service worker:
-  - Shannon entropy calculation.
-  - Punycode / homoglyph confusables detection.
-  - IP-literal hostnames (`http://192.168.1.1/login`).
-  - Whitelist bypass lookup.
-- **Backend Dispatch:** Asynchronous HTTP `POST /api/analyze` request to the PhishNetra Express API.
-- **Mitigation Interstitial Overlay (`interstitial.ts`):** When the composite risk score is $\ge 70$ or the verdict is `PHISHING`, the content script injects an un-bypassable DOM security barrier.
-  - Freezes host page input and scrolling.
-  - Presents threat indicators, ML confidence, and composite risk score.
-  - Enforces three conscious user choices: **Return to Safety**, **Inspect Evidence on Web Console**, or **Bypass & Proceed**.
+The diagram below highlights the **planned Semester 2 additions** (dashed lines and dedicated components) that advance the prototype into a fully evaluated research framework.
 
-### 2.2 Email Attachment Link Analyzer (`AttachmentAnalysisService.ts`)
-Solves the vector where phishing destinations are distributed within email attachments rather than directly in the email body.
-- **Supported Formats:**
-  - **PDF:** Extracts hyperlink action dictionaries (`/Type /Action /S /URI /URI (...)`), hex-encoded URIs, and link annotations.
-  - **HTML:** Parses anchor tags (`<a href="...">`), form submission targets (`<form action="...">`), and `<meta http-equiv="refresh">` redirects.
-  - **DOCX:** Inspects OpenXML relationship targets (`Target="http..."`) within document relationship parts.
-  - **TXT / EML:** Normalizes and extracts plain text URLs and defanged links (`hxxp://`, `[.]`).
-- **Safety Boundary:**
-  - Pure-JS string and stream inspection; **never executes macros, active content, or binary payloads**.
-  - Strict 10MB file size ceiling with timeout protections.
-  - Enforces a clear distinction between `NO_SUSPICIOUS_URLS_FOUND` (clean document) and `UNABLE_TO_ANALYZE` (unsupported format or corrupted payload).
+```mermaid
+graph TD
+    subgraph S1 [Semester 1 Operational Baseline]
+        CorePipeline["Shared Multi-Layer Pipeline<br/>(Lexical, RDAP, DNS, TLS, Feeds, Baseline ML)"]
+        WebDash["React Research Dashboard"]
+    end
 
-### 2.3 Shared Threat Analysis Pipeline (`apps/api` & `services/ml`)
-A unified pipeline that evaluates all URLs:
-1. **Canonicalization:** Standardizes schemes, removes redundant ports, converts Punycode/IDN homoglyphs, and cleans paths.
-2. **Layer 1 (Lexical):** 16 deterministic features extracted from URL tokens, path depth, parameter count, and entropy.
-3. **Layer 2 (Domain/RDAP):** Evaluates domain registration age. Newly registered domains (< 14 days) trigger zero-trust flags.
-4. **Layer 3 (DNS/IP):** Resolves A, AAAA, MX, and NS records. Validates against fast-flux infrastructure and bogon IP allocations.
-5. **Layer 4 (TLS):** Inspects certificate authority, validity periods, and SAN structures.
-6. **Layer 5 (Reputation):** Cross-references local caching and live blacklist feeds (URLhaus, OpenPhish).
-7. **Layer 6 (Machine Learning):** FastAPI service running a calibrated Random Forest classifier (`scikit-learn`) returning confidence intervals and SHAP feature attributions.
-8. **Layer 7 & 8 (Webpage Content & Brand Consistency):** Ephemeral sandboxed page rendering evaluating cross-origin password forms, hidden credential traps, and brand logo/domain mismatches.
+    subgraph S2_Ext [Semester 2: Browser Hardening]
+        DNR["chrome.declarativeNetRequest Engine<br/>• Dynamic Rule Updates<br/>• Zero First-Byte Leakage Guarantee"]
+        Bloom["Client-Side Bloom Filter Cache<br/>• Compact Offline Malicious Host Cache"]
+    end
+
+    subgraph S2_Eval [Semester 2: Empirical Evaluation Framework]
+        DatasetBench["Benchmark Ingestion Engine<br/>• Standard Datasets (PhishTank, Alexa 1M)<br/>• Automated Precision/Recall/F1/AUC Evaluation"]
+        LatProfile["Latency Profiler & Calibration<br/>• Empirical Validation Loss Weight Tuning"]
+    end
+
+    subgraph S2_Content [Semester 2: Extended Ingestion & Vision]
+        XLSXParser["Extended Format Parsers<br/>• OpenXML XLSX, PPTX, RTF<br/>• Obfuscated Redirect Unfurling"]
+        CVLogo["Computer Vision Brand Classifier<br/>• YOLO/CLIP Visual Logo Matching"]
+    end
+
+    DNR -.->|Replaces tabs.onUpdated| CorePipeline
+    Bloom -.->|Fast-path offline check| DNR
+    DatasetBench -.->|Benchmark Batches| CorePipeline
+    LatProfile -.->|Calibrated Layer Weights| CorePipeline
+    XLSXParser -.->|Extracted Links| CorePipeline
+    CVLogo -.->|Visual Mismatch Score| CorePipeline
+```
 
 ---
 
-## 3. Zero-Trust Security Guarantees & Safeguards
+## 3. Detailed Component Specifications (Semester 1 Baseline)
 
-| Threat Vector | Mitigation Strategy & Security Control |
+### 3.1 Chrome Manifest V3 Browser Extension (`apps/extension`)
+- **Lifecycle Hook:** Monitors tab navigation via `chrome.tabs.onUpdated`.
+- **Client-Side Heuristics Filter (<5ms):** Background worker calculates Shannon entropy, scans for IP-literal hostnames, and checks Punycode homoglyphs before dispatching backend requests.
+- **Backend Communication:** Asynchronous HTTP `POST /api/analyze` request with timeout handling.
+- **Threat Interstitial Barrier (`interstitial.ts`):** Injected directly into the tab DOM when the composite score $\ge 70$ or verdict is `PHISHING`. Freezes page scrolling and presents three options:
+  1. *Return to Safety* (navigates browser to safe history).
+  2. *View Threat Evidence* (opens full breakdown in web console).
+  3. *Bypass & Proceed* (requires explicit acknowledgement of risk).
+
+### 3.2 Email Attachment Link Extraction Engine (`apps/api`)
+- **Safe Pure-JS Parsing (`AttachmentAnalysisService.ts`):**
+  - **PDF:** Extracts hyperlink action dictionaries (`/Type /Action /S /URI`) and URI text annotations.
+  - **HTML:** Parses anchor tags (`<a href>`), form action attributes (`<form action>`), and `<meta http-equiv="refresh">` redirect targets.
+  - **DOCX:** Extracts OpenXML relationship XML targets (`Target="http..."`) within document relationship packages.
+  - **TXT / EML:** Normalizes and extracts plain text URLs and defanged hyperlinks (`hxxp://`, `[.]`).
+- **Safety Boundary:** Declarative parsing without invoking external native binaries, office suites, or script interpreters.
+- **Resource Limits:** 10MB file size ceiling with strict stream timeouts.
+
+### 3.3 Multi-Layer Threat Pipeline (`apps/api` & `services/ml`)
+1. **Layer 0 (Canonicalization):** RFC 3986 normalization, scheme lowercasing, default port removal, Punycode/IDN conversion.
+2. **Layer 1 (Lexical):** 16 structural features: path depth, parameter count, suspicious TLDs, entropy.
+3. **Layer 2 (Domain/RDAP):** Registration age evaluation; domains $<48\text{h}$ old trigger critical zero-trust overrides.
+4. **Layer 3 (DNS/IP):** Resolves A, AAAA, MX, NS records; checks bogons and fast-flux TTL anomalies.
+5. **Layer 4 (TLS):** Certificate authority, expiration, and SAN structure inspection.
+6. **Layer 5 (Reputation):** URLhaus, local blocklists, and provider abstraction.
+7. **Layer 6 (Machine Learning):** Scikit-learn Random Forest classifier with Tree-SHAP feature attribution.
+8. **Layer 7 (Webpage Content):** Sandboxed fetcher inspecting cross-origin form actions and 15-brand domain mismatches.
+
+---
+
+## 4. Zero-Trust Security Controls & Invariants
+
+| Threat Vector | Mitigation Strategy & Verification |
 | :--- | :--- |
-| **Server-Side Request Forgery (SSRF)** | Pre-flight DNS validation rejects IPv4 loopback (`127.0.0.0/8`), RFC 1918 private subnets (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`), link-local addresses (`169.254.0.0/16`), and AWS/GCP cloud metadata endpoints (`169.254.169.254`). |
-| **DNS Rebinding** | Re-validates the resolved IP immediately before TCP socket connection; aborts if resolved target points to an internal boundary. |
-| **Malicious Attachment Code Execution** | Attachments are parsed in memory using declarative regular expressions and XML/text decoders without invoking external native shell utilities or document renderers. |
-| **Browser Extension Snooping** | Content scripts operate with minimal Manifest V3 permissions (`activeTab`, `storage`, `scripting`). Form inputs, credentials, and unrelated browsing history are never read or stored. |
-| **Silent Navigation Bypasses** | Interstitial overlays are injected directly into the active tab DOM with `z-index: 2147483647` and page scroll locking. Automated silent redirects are strictly forbidden. |
-| **Fail-Safe Principle** | Incomplete intelligence or network timeouts never default to a `SAFE` verdict. Unknown or failed analyses receive `SUSPICIOUS` or `UNABLE_TO_ANALYZE`. |
+| **Server-Side Request Forgery (SSRF)** | Pre-flight DNS validation rejects IPv4 loopback (`127.0.0.0/8`), RFC 1918 subnets (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`), link-local (`169.254.0.0/16`), and AWS/GCP cloud metadata (`169.254.169.254`). Verified by 26 automated tests in `services/ml/tests/test_ssrf.py`. |
+| **DNS Rebinding** | Target hostname is resolved immediately prior to TCP handshake; aborts if resolved destination points to an internal boundary. |
+| **Attachment Code Execution** | Files are parsed in-memory using string decoders and regular expressions; macros, scripts, and binary payloads are never executed. |
+| **Extension Privacy** | Minimal Manifest V3 permissions (`activeTab`, `storage`, `scripting`). Form inputs, passwords, and unrelated history are never accessed. |
+| **Fail-Safe Principle** | Corrupted or missing layer telemetry never defaults to a `SAFE` verdict. Unknown or failed analyses receive `SUSPICIOUS` or `UNABLE_TO_ANALYZE`. |

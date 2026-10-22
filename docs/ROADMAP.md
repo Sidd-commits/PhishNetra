@@ -1,90 +1,101 @@
-# PhishNetra — Academic Master Roadmap & Implementation Alignment
+# PhishNetra — Two-Semester Academic Development Roadmap
 
 **Official Project Title:** PhishNetra — A MultiLayered AI-Driven Zero-Trust Framework for Real-Time Phishing Detection and Browser-Level Threat Mitigation  
-**Time Allocation:** 10-Month Major Academic Project  
+**Time Allocation:** 10-Month Major Academic Project (Two Semesters)  
+**Current Milestone:** Semester 1 Presentation & Milestone Evaluation (Months 1–5)  
 **Authoritative Scope Document:** [`docs/PROJECT_SCOPE.md`](PROJECT_SCOPE.md)  
-**Detailed Audit Inventory:** [`docs/SCOPE_AUDIT.md`](SCOPE_AUDIT.md)  
-**Upcoming Milestone:** Panel Presentation & Live Architecture Demonstration  
+**Milestone Audit Evidence:** [`docs/SEMESTER_MILESTONE_AUDIT.md`](SEMESTER_MILESTONE_AUDIT.md)  
 
 ---
 
-## 1. Executive Status Overview
+## 1. Academic Milestone Framework
 
-PhishNetra addresses real-time web phishing detection and browser-level mitigation through a zero-trust, multi-layered architecture. Following a rigorous scope audit and refactoring, the project is structured around six core research and engineering questions:
+PhishNetra is engineered across two structured academic semesters spanning ten months. The milestone roadmap below replaces all legacy sprint tracking to establish an honest, verifiable division between the **Semester 1 Deliverable (Working Prototype & Proof of Concept)** and the **Semester 2 Scope (Empirical Evaluation, Browser Hardening & Research Completion)**.
 
-1. **URL Evaluation:** Is the URL suspicious or malicious?
-2. **Explainable Evidence:** What concrete evidence across DNS, TLS, domain age, and ML features supports the verdict?
-3. **Webpage Indicators:** Does the rendered webpage exhibit credential-harvesting or brand-impersonation indicators invisible in the URL alone?
-4. **Attachment Extraction:** Does an email attachment contain embedded URLs leading to phishing destinations?
-5. **Real-Time Mitigation:** Can the browser extension communicate risk and block navigation with an interstitial barrier before user credentials are compromised?
-6. **User Guidance:** What safe, actionable choices does the system provide to the user?
+```
++---------------------------------------------------------------------------------------------------+
+|                               PHISHNETRA TWO-SEMESTER TIMELINE                                     |
++---------------------------------------------------------------------------------------------------+
+|  SEMESTER 1: Months 1 → 5 (Current Milestone)                                                     |
+|  * Multi-Layer URL Threat Engine (Canonicalization, Lexical, Domain, DNS, TLS, Reputation)        |
+|  * Baseline Random Forest ML Model with SHAP Feature Explainability                               |
+|  * Email Attachment Link Extraction Vertical Slice (PDF, HTML, DOCX, TXT, EML)                     |
+|  * Chrome Manifest V3 Extension Proof of Concept (Local Heuristics, Interstitial Barrier)         |
+|  * Academic Research Dashboard & Telemetry Audit History                                          |
+|  STATUS: VERIFIED & DEMONSTRABLE (262/262 Tests Passing)                                          |
++---------------------------------------------------------------------------------------------------+
+|  SEMESTER 2: Months 6 → 10 (Future Development Roadmap)                                           |
+|  * Standardized Benchmark Dataset Evaluation (Precision, Recall, F1, ROC-AUC)                      |
+|  * Browser Extension Lifecycle Hardening (declarativeNetRequest, Zero First-Byte Leakage)         |
+|  * Extended Attachment Coverage (OpenXML XLSX/PPTX, Obfuscated Redirect Tracking)                 |
+|  * Computer Vision Brand Logo Matching Prototype (YOLO/CLIP vs DOM Inspection)                    |
+|  * Dynamic Layer Weight Calibration & Latency Profiling under Load                                |
+|  * Academic Thesis, Empirical Results Documentation & Final Defense                               |
+|  STATUS: PLANNED ROADMAP                                                                          |
++---------------------------------------------------------------------------------------------------+
+```
 
 ---
 
-## 2. Master Roadmap & Milestone Classification
+## 2. Semester 1 Milestones (Months 1–5): Working Prototype
 
-The table below reflects the **verified implementation status** across the 10-month development lifecycle:
-
-| Phase / Milestone | Target Timeframe | Focus Area | Status | Deliverables & Verification |
+| Milestone | Target | Description | Status | Verification & Deliverables |
 | :--- | :--- | :--- | :---: | :--- |
-| **Phase 1: Foundation & Baseline ML** | Months 1 → 2 | URL Canonicalization, Lexical Features, Random Forest Classifier, Core API & Web Console | **VERIFIED (CORE)** | `canonicalization.ts`, `services/ml/app/model/pipeline.py`, 58 Pytest tests passing. |
-| **Phase 2: Multi-Layer Intelligence** | Months 3 → 4 | RDAP/WHOIS Domain Age, DNS Resolution, TLS Structural Checks, Blacklist Feeds & Zero-Trust Invariants | **VERIFIED (CORE)** | Multi-layer risk engine, `RiskEngineService.ts`, async layer parallelization with strict timeouts. |
-| **Phase 3: Web Content & DOM Analysis** | Months 5 → 6 | SSRF-Protected Webpage Fetching, DOM Form Action Inspection, Cross-Origin Credential Traps, Brand Mismatch | **VERIFIED (CORE)** | Isolated DOM analyzer, SSRF loopback/private range protection, 26 unit tests. |
-| **Phase 4: Async Batching & Domain Hub** | Months 6 → 7 | High-Capacity URL Queue, Domain Dossier, Typosquatting / Homoglyph Deception Detection | **VERIFIED (SUPPORTING)** | BullMQ/Redis worker pipeline, Levenshtein & Cyrillic confusables matrix (`typosquatting.ts`). |
-| **Phase 5: Chrome Extension (Manifest V3)** | Months 7 → 8 | Real-Time Tab Navigation Interception, Local Heuristics, Multi-Tier API Client, DOM Interstitial Overlay | **VERIFIED (P0 PRIMARY)** | `apps/extension`, Chrome MV3 service worker, `interstitial.ts` zero silent redirects barrier. |
-| **Phase 6: Email Attachment Link Analysis** | Months 8 → 9 | Safe Hyperlink Extraction from Supported Formats (PDF, HTML, DOCX, TXT, EML) & Multi-Layer Evaluation | **VERIFIED (P0 CORE)** | `AttachmentAnalysisService.ts`, pure-JS safe parser, `POST /api/ingest/attachment`, 10 automated tests. |
-| **Phase 7: Explainable Risk & User Experience** | Months 9 → 10 | Telemetry History, Structured Evidence Engine, Simplified Academic UI, Developer Guides | **VERIFIED (P1 SUPPORTING)** | `AnalysisHistoryPage.tsx`, `ExtensionGuidePage.tsx`, clean 8-item navigation. |
-| **Phase 8: Evaluation & Panel Presentation** | Presentation Target | Live End-to-End Walkthrough, Performance & Latency Benchmarks, False Positive Characterization | **ACTIVE / READY** | Complete automated test suite passing (262/262 tests, 100%), verified live daemons. |
+| **S1.1: URL Canonicalization & Lexical Features** | Month 1 | RFC 3986 normalization, Punycode/IDN decoding, Shannon entropy, token depth, IP literal detection. | **VERIFIED** | `canonicalization.ts`, `urlLayer.ts`, 5 unit tests passing. |
+| **S1.2: Baseline Machine Learning Model** | Month 2 | Scikit-learn Random Forest classifier trained on 18 lexical features; Tree-SHAP feature attribution. | **VERIFIED** | `services/ml/app/model/pipeline.py`, 58 Pytest tests passing. |
+| **S1.3: Multi-Layer Threat Intelligence** | Month 3 | Parallel RDAP domain age, DNS resolution, TLS certificate checks, blacklist lookups with fail-safe NaN scoring. | **VERIFIED** | `RiskEngineService.ts`, `domainLayer.ts`, `dnsLayer.ts`, `tlsLayer.ts`. |
+| **S1.4: Sandboxed Webpage DOM Analysis** | Month 4 | SSRF-protected remote fetching, form action check, cross-origin password target, 15-brand domain mismatch. | **PROTOTYPE** | `services/ml/app/analyzer/dom_parser.py`, 26 SSRF tests passing. |
+| **S1.5: Email Attachment Link Extraction** | Month 4 | Safe pure-JS hyperlink extraction from PDF, HTML, DOCX, TXT, EML; 10MB ceiling; multi-layer evaluation. | **VERIFIED** | `AttachmentAnalysisService.ts`, `POST /api/ingest/attachment`, 10 tests passing. |
+| **S1.6: Chrome Browser Extension (MV3)** | Month 5 | Background navigation monitoring (`tabs.onUpdated`), sub-5ms local heuristics, DOM interstitial barrier overlay. | **PROTOTYPE** | `apps/extension`, `interstitial.ts`, 12 Jest tests passing. |
+| **S1.7: Academic Research Dashboard** | Month 5 | Streamlined web console: URL Threat Scanner, Attachment Scanner, Telemetry History with search/export. | **VERIFIED** | `apps/web/src/pages/`, clean 8-item navigation, zero dead routes. |
+| **S1.8: Semester 1 Presentation** | Current | Live end-to-end demonstration, reproducible evaluation script, architecture defense before academic panel. | **ACTIVE** | All daemons verified, 262/262 tests passing, production builds clean. |
 
 ---
 
-## 3. Scope Boundaries & Deferred Features
+## 3. Semester 2 Milestones (Months 6–10): Empirical Evaluation & Hardening
 
-During earlier development milestones, enterprise-oriented Security Operations Center (SOC) modules were implemented or mocked that exceeded the academic major project thesis. These modules have been **safely decoupled from active navigation** and classified as **DEFERRED** for future research:
+| Milestone | Target | Focus Area | Acceptance Criteria & Technical Work | Status |
+| :--- | :--- | :--- | :--- | :---: |
+| **S2.1: Dataset Benchmarking & Metrics** | Month 6 | Evaluation Methodology | Curate standard benchmark datasets (PhishTank, Alexa Top 1M benign, Mendeley). Measure accuracy, precision, recall, F1-score, and ROC-AUC. Compare multi-layer against baseline single signals. | **PLANNED** |
+| **S2.2: Extension Lifecycle Hardening** | Month 7 | Browser Protection | Migrate from `tabs.onUpdated` DOM injection to `chrome.declarativeNetRequest` dynamic rulesets to eliminate first-byte leakage before analysis completes. Add cross-browser support (Firefox, Edge). | **PLANNED** |
+| **S2.3: Attachment Format Expansion** | Month 8 | Ingestion Pipeline | Implement safe hyperlink parsing for OpenXML XLSX/PPTX, RTF, and nested archives. Resolve shortened and multi-hop redirect chains within attachment URLs. | **PLANNED** |
+| **S2.4: Visual Brand & Content Prototype** | Month 8 | Content Intelligence | Prototype computer vision logo similarity matching (YOLO/CLIP) to complement DOM attribute analysis. Evaluate anti-cloaking defenses against bot-detection evasions. | **PLANNED** |
+| **S2.5: Dynamic Calibration & Optimization** | Month 9 | System Optimization | Optimize layer weighting using empirical validation loss. Profile end-to-end latency distributions and evaluate throughput under concurrent load. | **PLANNED** |
+| **S2.6: Academic Thesis & Final Defense** | Month 10 | Final Evaluation | Complete academic thesis dissertation, document threats to validity, conduct usability study on warning interstitial compliance, and present final project defense. | **PLANNED** |
+
+---
+
+## 4. Scope Classification Matrix
 
 ```
 +-----------------------------------------------------------------------------------------+
 |                               PHISHNETRA REPOSITORY SCOPE                               |
 |                                                                                         |
-|  [P0 CORE — ACTIVE & TESTED]                [P1 SUPPORTING — ACTIVE & TESTED]           |
-|  * Chrome Manifest V3 Browser Extension     * Web Dashboard Overview                    |
-|  * Multi-Layer URL Threat Scanner           * Telemetry & Audit History                 |
-|  * Email Attachment Hyperlink Analyzer      * Domain Intelligence Dossier               |
-|  * Baseline Random Forest ML Model          * Async Batch Queue Ingestion               |
-|  * Webpage Content & Form Analyzer          * Detection Settings & Calibration          |
-|  * Zero-Trust Interstitial Overlay          * Extension Installation Guide              |
+|  [SEMESTER 1 — VERIFIED DELIVERABLE]        [SEMESTER 2 — RESEARCH ROADMAP]             |
+|  * Multi-Layer URL Threat Pipeline          * Standardized Benchmark Evaluation         |
+|  * Baseline Random Forest ML Model          * declarativeNetRequest Hardening          |
+|  * SHAP Tree Feature Explainability         * OpenXML XLSX/PPTX Attachment Support      |
+|  * Attachment Link Extraction Slice         * Computer Vision Logo Similarity           |
+|  * Chrome MV3 Extension Proof of Concept    * Dynamic Layer Weight Calibration          |
+|  * Interstitial DOM Security Barrier        * Cross-Browser Compatibility (Firefox/Edge)|
+|  * Academic Research Dashboard              * Comprehensive Thesis & Usability Study    |
 |                                                                                         |
-|  [DEFERRED — REMOVED FROM ACTIVE UI / PRESERVED FOR FUTURE WORK]                        |
-|  * SOAR Playbook Orchestrator               * Autonomous Incident Cases                 |
-|  * Remote Browser Isolation (RBI) Sandbox   * Phishing Tarpit Flooder                   |
+|  [EXPLICITLY DEFERRED — PRESERVED IN CODEBASE / EXCLUDED FROM THESIS SCOPE]             |
+|  * Autonomous SOAR Playbook Containment     * SOC Incident Case Management Workbench    |
+|  * Remote Browser Isolation (RBI) Sandbox   * Phishing Tarpit Credential Flooder        |
 |  * STIX/TAXII 2.1 Threat Exchange           * BGP Route Integrity Radar                 |
-|  * FIDO2 Credential Guard Admin             * Attack Surface Management (EASM)          |
-|  * Telecom Vishing / STIR-SHAKEN Fusion     * Digital Forensics DPI & HAR Chaining      |
-|  * Executive Board-Level Briefings          * Continuous Session Anomaly JA3 Drift      |
+|  * FIDO2 / WebAuthn Administration          * External Attack Surface Management (EASM) |
+|  * Telecom Vishing / STIR-SHAKEN Fusion     * Board-Level Executive Risk Briefings      |
 +-----------------------------------------------------------------------------------------+
 ```
 
 ---
 
-## 4. Test & Verification Baseline
+## 5. Verification Baseline
 
-| Test Suite / Target | Number of Tests | Status | Execution Command |
-| :--- | :---: | :---: | :--- |
-| **`@phishnetra/api` (Backend Express)** | **192 tests** (28 suites) | **100% PASS** | `npm test --workspace=@phishnetra/api` |
-| **`@phishnetra/extension` (Browser MV3)** | **12 tests** (2 suites) | **100% PASS** | `npm test --workspace=@phishnetra/extension` |
-| **`services/ml` (Python FastAPI)** | **58 tests** | **100% PASS** | `pytest services/ml/tests` |
-| **Total Monorepo Automated Tests** | **262 tests** | **100% PASS** | Zero regressions monorepo-wide |
-| **Production Build Status** | All Packages | **CLEAN** | `npm run build` (Shared, API, Web, Extension) |
-
----
-
-## 5. Remaining Academic Milestones (Pre-Final Evaluation)
-
-- [x] Master Scope Correction and Repository Audit (`docs/SCOPE_AUDIT.md`, `docs/PROJECT_SCOPE.md`).
-- [x] Email Attachment Link Analysis implementation (`AttachmentAnalysisService.ts`).
-- [x] Pure-JS multi-format link extraction (PDF, HTML, DOCX, TXT, EML) with strict safety boundaries.
-- [x] Restructure Web Navigation and Dashboard to emphasize the Extension and Core Scanners.
-- [x] Create dedicated Chrome Extension Showcase and Installation Guide (`/extension`).
-- [x] Build comprehensive telemetry history viewer (`/history`).
-- [ ] Conduct live panel presentation and walkthrough (3-day target).
-- [ ] Finalize academic project thesis document and performance benchmark chapter.
+- **Automated Tests:** 262 / 262 tests passing (100% pass rate)
+  - Backend API: 192 tests (28 suites)
+  - Browser Extension: 12 tests (2 suites)
+  - ML Microservice: 58 tests (8 suites)
+- **Production Builds:** 4/4 packages compile cleanly (`@phishnetra/shared`, `@phishnetra/api`, `@phishnetra/web`, `@phishnetra/extension`)
+- **Active Daemons:** Python ML (`:8000`), Express API (`:5000`), React Web (`:5173`)

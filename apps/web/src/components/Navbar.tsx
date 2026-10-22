@@ -106,9 +106,14 @@ export const Navbar: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-lg font-bold tracking-tight text-white leading-tight">
-                    Phish<span className="text-cyan-400">Netra</span>
-                  </span>
+                  <div className="flex items-center space-x-1.5">
+                    <span className="text-lg font-bold tracking-tight text-white leading-tight">
+                      Phish<span className="text-cyan-400">Netra</span>
+                    </span>
+                    <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-semibold">
+                      Sem 1 Prototype
+                    </span>
+                  </div>
                   <span className="text-[9px] font-mono text-slate-400 tracking-wider uppercase font-semibold">
                     Zero-Trust Shield
                   </span>

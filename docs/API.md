@@ -1,25 +1,30 @@
-# PhishNetra — Core REST API Reference
+# PhishNetra — REST API Reference & Endpoint Specification
 
-**Framework:** PhishNetra Multi-Layer Zero-Trust Phishing Detection  
-**Base URL:** `http://localhost:5000/api`  
-**Authentication:** Bearer JWT in `Authorization: Bearer <TOKEN>` header (Optional for public inspection; required for analyst actions)
+**Official Project Title:** PhishNetra — A MultiLayered AI-Driven Zero-Trust Framework for Real-Time Phishing Detection and Browser-Level Threat Mitigation  
+**Specification:** Semester 1 Endpoint Reference  
+**Base URL:** `http://localhost:5000/api` (Backend Express Core)  
+**ML Microservice URL:** `http://127.0.0.1:8000` (FastAPI Python Engine)  
+**Authentication:** Optional Bearer JWT (`Authorization: Bearer <TOKEN>`) or API Key (`x-api-key: <KEY>`)  
 
 ---
 
-## 1. Real-Time URL Threat Analysis (P0 Core)
+## 1. Semester 1 Operational Endpoints (Core In-Scope)
 
-### `POST /api/analyze`
+### 1.1 Real-Time URL Threat Analysis
+
+#### `POST /api/analyze`
 Submits a target destination URL to the multi-layer evaluation pipeline.
 
-**Request Body:**
+**Request Schema:**
 ```json
 {
   "url": "http://secure-login-update-paypal-verification.com/account",
-  "analyzePage": true
+  "analyzePage": false
 }
 ```
+*Note: `analyzePage` defaults to `false` for sub-second analysis; set to `true` to invoke sandboxed DOM fetching.*
 
-**Response (200 OK):**
+**Representative Response (200 OK):**
 ```json
 {
   "id": "ana_4c98a3b8-2e11",
@@ -31,27 +36,26 @@ Submits a target destination URL to the multi-layer evaluation pipeline.
   "riskLevel": "CRITICAL",
   "confidence": 0.96,
   "mlProbability": 0.94,
-  "pageStatus": "COMPLETED",
-  "summary": "High-confidence phishing destination targeting PayPal credentials with young domain and cross-origin forms.",
+  "pageStatus": "SKIPPED",
+  "summary": "High-confidence phishing destination targeting PayPal credentials with young domain (<48h) and high lexical entropy.",
   "layerResults": {
     "lexical": { "score": 88.0, "status": "COMPLETED" },
     "domain": { "score": 95.0, "status": "COMPLETED", "ageDays": 2 },
     "dns": { "score": 70.0, "status": "COMPLETED" },
     "tls": { "score": 85.0, "status": "COMPLETED" },
     "reputation": { "score": 90.0, "status": "COMPLETED" },
-    "ml": { "score": 94.0, "status": "COMPLETED" },
-    "pageContent": { "score": 95.0, "status": "COMPLETED" }
+    "ml": { "score": 94.0, "status": "COMPLETED" }
   },
   "evidence": [
-    {
-      "layer": "PAGE_CONTENT",
-      "severity": "CRITICAL",
-      "description": "Brand Domain Mismatch: Page renders PayPal brand assets on non-official domain."
-    },
     {
       "layer": "DOMAIN",
       "severity": "CRITICAL",
       "description": "Domain registered within the last 48 hours (Zero-Trust trigger)."
+    },
+    {
+      "layer": "LEXICAL",
+      "severity": "HIGH",
+      "description": "High Shannon entropy (4.32) and suspicious brand token 'paypal' in unverified hostname."
     }
   ],
   "createdAt": "2026-10-22T20:15:30.000Z"
@@ -60,14 +64,14 @@ Submits a target destination URL to the multi-layer evaluation pipeline.
 
 ---
 
-### `GET /api/analyze/history`
-Returns paginated historical scans and evaluation records.
+#### `GET /api/analyze/history`
+Retrieves paginated historical evaluation records.
 
 **Query Parameters:**
 - `limit` (integer, default: 20, max: 100)
 - `offset` (integer, default: 0)
 
-**Response (200 OK):**
+**Representative Response (200 OK):**
 ```json
 {
   "total": 142,
@@ -87,19 +91,19 @@ Returns paginated historical scans and evaluation records.
 
 ---
 
-### `GET /api/analyze/:id`
-Retrieves detailed evidence, layer breakdowns, and DOM findings for a specific scan.
+#### `GET /api/analyze/:id`
+Retrieves complete layer telemetry, individual layer scores, and structured evidence for a previously executed scan.
 
 ---
 
-## 2. Email Attachment Hyperlink Ingestion (P0 Core)
+### 1.2 Email Attachment Link Ingestion
 
-### `POST /api/ingest/attachment`
-Parses a supported email attachment, extracts all embedded hyperlinks, executes multi-layer URL evaluation on each extracted target, and synthesizes an explainable risk report.
+#### `POST /api/ingest/attachment`
+Parses a supported email attachment in-memory, extracts embedded hyperlinks without code execution, and evaluates extracted URLs through the multi-layer threat pipeline.
 
 **Supported Formats:** `PDF`, `HTML`, `DOCX`, `TXT`, `EML` (Maximum size: 10MB)
 
-**Request Body:**
+**Request Schema:**
 ```json
 {
   "filename": "Payroll_Update_Notice.pdf",
@@ -107,9 +111,9 @@ Parses a supported email attachment, extracts all embedded hyperlinks, executes 
   "maxUrlsToAnalyze": 15
 }
 ```
-*Alternatively, `rawText` may be supplied for plain text, HTML snippets, or RFC 822 EML content.*
+*Alternatively, `rawText` may be provided for plain text or RFC 822 EML content.*
 
-**Response (200 OK):**
+**Representative Response (200 OK):**
 ```json
 {
   "success": true,
@@ -152,64 +156,63 @@ Parses a supported email attachment, extracts all embedded hyperlinks, executes 
       "Extracted 3 embedded hyperlinks across PDF URI action dictionaries and annotations.",
       "Identified 1 high-risk phishing destination targeting organizational credentials."
     ],
-    "warningNotes": [
-      "Advisory: Do not open hyperlinks embedded in this attachment outside an isolated test sandbox."
-    ],
     "disclaimer": "Security Note: This analysis evaluated embedded hyperlinks and target destination indicators. It does not constitute a full operating-system sandbox or local binary malware scan.",
     "analyzedAt": "2026-10-22T20:16:03.000Z"
   }
 }
 ```
 
-**Status Values:**
-- `SUCCESS`: Clean processing with all URLs analyzed.
-- `NO_SUSPICIOUS_URLS_FOUND`: File parsed successfully; zero embedded links or all links verified safe.
-- `THREATS_DETECTED`: One or more extracted URLs were classified as `PHISHING` or `SUSPICIOUS`.
-- `UNABLE_TO_ANALYZE`: File exceeded processing limits, was malformed, or has an unsupported binary format.
+**Verdict Status Values:**
+- `SUCCESS`: Parsing clean; all URLs processed successfully.
+- `NO_SUSPICIOUS_URLS_FOUND`: File parsed cleanly; zero URLs detected or all extracted links verified safe.
+- `THREATS_DETECTED`: One or more extracted URLs classified as `PHISHING` or `SUSPICIOUS`.
+- `UNABLE_TO_ANALYZE`: File format unsupported, corrupted, or exceeds the 10MB ceiling.
 
 ---
 
-## 3. Domain Intelligence & Typosquatting (P1 Supporting)
+### 1.3 Supporting Utilities (In-Scope)
 
-### `GET /api/domains/:domain`
+#### `GET /api/domains/:domain`
 Retrieves aggregated domain age (RDAP), nameservers, MX records, and typosquatting risk scores.
 
-### `POST /api/domains/typosquatting`
-Generates and evaluates lookalike brand variations (Levenshtein distance, Cyrillic confusables, combosquatting).
+#### `POST /api/domains/typosquatting`
+Generates and evaluates lookalike brand variations using Levenshtein distance, Cyrillic confusables, and combosquatting patterns.
+
+#### `POST /api/batch` & `GET /api/batch/:id`
+Enqueues bulk URL lists for asynchronous worker evaluation with progress reporting and CSV/JSON export.
+
+#### `GET /api/health`
+Standard service health check returning statuses of backend services and database connections.
 
 ---
 
-## 4. Asynchronous Batch Queue (P1 Supporting)
+## 2. Python ML Microservice Endpoints (`:8000`)
 
-### `POST /api/batch`
-Submits bulk URL lists for asynchronous worker processing.
+### `POST /predict`
+Fast Random Forest inference on 18 deterministic lexical features. Returns phishing probability, classification verdict, and confidence score.
 
-### `GET /api/batch/:id`
-Retrieves live progress and completed item verdicts.
+### `POST /analyze-page`
+Sandboxed webpage fetcher operating with strict SSRF immunity. Inspects DOM form action destinations and tests against the 15-brand catalog for domain mismatch.
 
-### `GET /api/batch/:id/export?format=csv|json`
-Exports batch evaluation outcomes.
+### `POST /explain`
+Computes Tree-SHAP feature attributions and generates natural-language explainable narratives.
 
----
-
-## 5. Health & Observability (P1 Supporting)
-
-### `GET /api/health`
-Standard service health probe returning dependency statuses (API, ML Service, Database).
-
-### `GET /api/metrics`
-Prometheus metrics scraping endpoint.
+### `GET /health`
+Returns microservice operational status and loaded model metadata.
 
 ---
 
-## 6. Deferred Endpoints (Preserved for Backward Compatibility)
+## 3. Explicitly Deferred Endpoints (Preserved for Backward Compatibility)
 
-The following modules remain mounted in the backend to ensure zero regression for existing automated tests and migrations, but are **deferred from the active product navigation**:
-- `/api/siem/*` (SIEM format exporters)
-- `/api/cases/*` (SOC case management)
-- `/api/playbooks/*` (Autonomous SOAR playbooks)
-- `/api/rbi/*` (Remote browser isolation container stubs)
-- `/api/tarpit/*` (Phishing tarpit flooder)
-- `/api/bgp-integrity/*` (BGP route integrity radar)
-- `/api/fido2-guard/*` (FIDO2 authentication policy builder)
-- `/api/cti-exchange/*` (TAXII 2.1 threat exchange)
+The following modules remain mounted in the backend to ensure zero regression for existing automated tests and database migrations, but are **excluded from the active academic presentation**:
+
+| Endpoint Route | Original Purpose | Current Status |
+| :--- | :--- | :---: |
+| `/api/cases/*` | SOC Incident Case Management | Deferred (Enterprise) |
+| `/api/playbooks/*` | Autonomous SOAR Playbook Execution | Deferred (Enterprise) |
+| `/api/siem/*` | Syslog & SIEM Event Forwarders | Deferred (Enterprise) |
+| `/api/rbi/*` | Remote Browser Isolation Stubs | Deferred (Enterprise) |
+| `/api/tarpit/*` | Phishing Tarpit Flooder | Deferred (Enterprise) |
+| `/api/bgp-integrity/*` | BGP Route Integrity Radar | Deferred (Enterprise) |
+| `/api/fido2-guard/*` | FIDO2 Credential Guard Admin | Deferred (Enterprise) |
+| `/api/cti-exchange/*` | TAXII 2.1 Threat Exchange | Deferred (Enterprise) |
