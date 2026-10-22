@@ -169,24 +169,28 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Right Action Section: User Info & Mobile Hamburger */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 shrink-0">
             {isAuthenticated && user ? (
-              <div className="flex items-center space-x-3">
-                <div className="hidden md:flex flex-col text-right">
-                  <span className="text-xs font-medium text-slate-200">{user.name}</span>
-                  <span className="text-[11px] text-slate-400 font-mono">
+              <div className="flex items-center space-x-2.5 pl-3 py-1 pr-1.5 rounded-full bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm">
+                <div className="hidden sm:flex flex-col text-right leading-tight pr-0.5">
+                  <span className="text-xs font-semibold text-slate-200 whitespace-nowrap capitalize tracking-tight">
+                    {user.name}
+                  </span>
+                  <span className="text-[10px] text-cyan-400 font-mono whitespace-nowrap uppercase tracking-wider font-medium">
                     {user.role === 'ADMIN' ? 'Researcher (Admin)' : 'Security Analyst'}
                   </span>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700/80 flex items-center justify-center text-slate-200 text-xs font-semibold">
-                  {user.name.charAt(0).toUpperCase()}
+                <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-600 p-[1px] shrink-0 shadow-sm shadow-cyan-500/20">
+                  <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center text-cyan-300 text-xs font-bold font-mono">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
                 </div>
                 <button
                   onClick={handleLogout}
                   title="Sign out"
-                  className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
+                  className="p-1 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-full transition-colors ml-0.5"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-3.5 h-3.5" />
                 </button>
               </div>
             ) : (

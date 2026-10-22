@@ -130,9 +130,9 @@ export const DashboardPage: React.FC = () => {
             Active Multi-Layer Defense: Lexical Analysis, Domain RDAP Freshness, Passive DNS, TLS Certificate Structure, and Tree-SHAP ML Inference.
           </span>
         </div>
-        <div className="flex items-center space-x-2 text-slate-400 font-mono text-[11px] shrink-0">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-          <span>Engine Status: Nominal (sub-5ms Inference)</span>
+        <div className="flex items-center space-x-2 text-slate-400 font-mono text-[11px] shrink-0 whitespace-nowrap">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Engine: Active (sub-5ms)</span>
         </div>
       </div>
 
