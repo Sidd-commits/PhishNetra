@@ -80,8 +80,20 @@ export class DomainService {
 
     // Calculate aggregated domain risk score
     let domainRiskScore = 15; // baseline low risk
-    if (phishingScans > 0) {
-      domainRiskScore = Math.min(100, 60 + phishingScans * 15);
+    if (totalScans > 0) {
+      const recentVerdict = pastAnalyses[0]?.verdict;
+      const recentScore = Math.round(pastAnalyses[0]?.riskScore ?? 15);
+      const phishingRatio = phishingScans / totalScans;
+
+      if (recentVerdict === 'SAFE') {
+        domainRiskScore = Math.min(100, Math.round(recentScore + phishingRatio * 10));
+      } else if (recentVerdict === 'PHISHING' || phishingRatio > 0.5) {
+        domainRiskScore = Math.min(100, Math.max(recentScore, 75));
+      } else if (recentVerdict === 'SUSPICIOUS' || phishingRatio > 0.2) {
+        domainRiskScore = Math.min(100, Math.max(recentScore, 45));
+      } else {
+        domainRiskScore = recentScore;
+      }
     } else if (domainResult.data.domainAgeCategory === '< 30 days') {
       domainRiskScore = Math.max(domainRiskScore, 45);
     } else if (typoScan.isDirectImpersonation) {
