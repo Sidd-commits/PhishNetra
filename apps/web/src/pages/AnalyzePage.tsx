@@ -334,7 +334,7 @@ export const AnalyzePage: React.FC = () => {
                   <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
                     <span className="text-[10px] text-slate-400 font-mono">Confidence:</span>
                     <div className="text-sm font-bold font-mono text-emerald-400">
-                      {Math.round((result.confidence || 0.8) * 100)}%
+                      {Math.round((result.confidence ?? 0.85) * 100)}%
                     </div>
                   </div>
                 </div>

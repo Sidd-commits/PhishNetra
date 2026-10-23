@@ -163,14 +163,14 @@ export const PopupApp: React.FC = () => {
         </span>
       );
     }
-    if (verdict === 'PHISHING' || riskScore >= 75) {
+    if (verdict === 'PHISHING' || riskScore >= 70) {
       return (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(239, 68, 68, 0.2)', color: '#f87171', padding: '3px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700 }}>
           <ShieldAlert size={12} /> PHISHING THREAT
         </span>
       );
     }
-    if (verdict === 'SUSPICIOUS' || riskScore >= 40) {
+    if (verdict === 'SUSPICIOUS' || riskScore >= 35) {
       return (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(245, 158, 11, 0.2)', color: '#fbbf24', padding: '3px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700 }}>
           <AlertTriangle size={12} /> SUSPICIOUS
@@ -186,8 +186,8 @@ export const PopupApp: React.FC = () => {
 
   const getScoreColor = (score: number) => {
     if (isWhitelisted) return '#10b981';
-    if (score >= 75) return '#ef4444';
-    if (score >= 40) return '#f59e0b';
+    if (score >= 70 || verdict === 'PHISHING') return '#ef4444';
+    if (score >= 35 || verdict === 'SUSPICIOUS') return '#f59e0b';
     return '#10b981';
   };
 
@@ -342,18 +342,24 @@ export const PopupApp: React.FC = () => {
         </div>
 
         {/* Threat Reasons / Flags */}
-        {localHeuristics?.reasons && localHeuristics.reasons.length > 0 && (
-          <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: 8, padding: 10, marginBottom: 14 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: '#f87171', textTransform: 'uppercase', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Info size={11} /> Flagged Heuristics
+        {(() => {
+          const displayReasons = (analysis?.evidence && analysis.evidence.length > 0)
+            ? analysis.evidence.map(e => e.description)
+            : (localHeuristics?.reasons || []);
+          if (displayReasons.length === 0) return null;
+          return (
+            <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: 8, padding: 10, marginBottom: 14 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#f87171', textTransform: 'uppercase', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <Info size={11} /> Flagged Heuristics & Signals
+              </div>
+              <ul style={{ margin: 0, paddingLeft: 14, fontSize: 11, color: '#fca5a5', lineHeight: 1.4 }}>
+                {displayReasons.map((r, i) => (
+                  <li key={i} style={{ marginBottom: 2 }}>{r}</li>
+                ))}
+              </ul>
             </div>
-            <ul style={{ margin: 0, paddingLeft: 14, fontSize: 11, color: '#fca5a5', lineHeight: 1.4 }}>
-              {localHeuristics.reasons.map((r, i) => (
-                <li key={i} style={{ marginBottom: 2 }}>{r}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+          );
+        })()}
       </div>
 
       {/* Footer SOC Quick Actions */}
