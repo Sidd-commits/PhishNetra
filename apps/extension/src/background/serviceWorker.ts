@@ -122,7 +122,7 @@ function parseInterstitialState(interstitialUrlStr: string): TabInspectionState 
       analyzedAt: Date.now()
     };
   } catch (err) {
-    console.error('[PhishNetra Background] Failed to parse interstitial state:', err);
+    console.warn('[PhishNetra Background] Failed to parse interstitial state:', err);
     return null;
   }
 }
@@ -295,7 +295,7 @@ async function processTabAnalysis(tabId: number, url: string, forceRefresh = fal
       }
 
     } catch (err: any) {
-      console.error('[PhishNetra Background] Analysis error:', err);
+      console.warn('[PhishNetra Background] Analysis fallback notice:', err);
       tabStateMap.set(tabId, {
         url,
         domain,
