@@ -27,6 +27,17 @@ document.addEventListener('DOMContentLoaded', () => {
     indicators = ['High-risk phishing signatures or credential theft indicators detected'];
   }
 
+  // Notify background service worker to lock threat badge and state for this tab
+  if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+    chrome.runtime.sendMessage({
+      type: 'INTERSTITIAL_PAGE_LOADED',
+      url: window.location.href,
+      targetUrl,
+      score,
+      level: params.get('level') || 'PHISHING'
+    });
+  }
+
   // 1. Update Score Badge
   const scoreBadge = document.getElementById('score-badge');
   if (scoreBadge) {

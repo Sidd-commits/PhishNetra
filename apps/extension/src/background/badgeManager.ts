@@ -40,16 +40,24 @@ export class BadgeManager {
     const isSuspicious = verdictOrLevel === 'SUSPICIOUS' || verdictOrLevel === 'HIGH' || verdictOrLevel === 'MEDIUM' || score >= 40;
 
     if (isPhishing) {
-      badgeText = score >= 90 ? '90+' : `${Math.round(score)}`;
+      badgeText = score >= 100 ? '100' : `${Math.round(score)}`;
       badgeColor = '#ef4444'; // Red
       title = `⚠️ PhishNetra Alert: Phishing Threat Detected! (Risk Score: ${Math.round(score)}/100)`;
     } else if (isSuspicious) {
+      badgeText = `${Math.round(score)}`;
       badgeColor = '#f59e0b'; // Amber
       title = `⚠️ PhishNetra: Suspicious Site Detected (Risk Score: ${Math.round(score)}/100)`;
     }
 
     await chrome.action.setBadgeText({ text: badgeText, tabId });
     await chrome.action.setBadgeBackgroundColor({ color: badgeColor, tabId });
+    if (chrome.action.setBadgeTextColor) {
+      try {
+        await chrome.action.setBadgeTextColor({ color: '#ffffff', tabId });
+      } catch {
+        // Fallback for older browser builds
+      }
+    }
     await chrome.action.setTitle({ title, tabId });
   }
 

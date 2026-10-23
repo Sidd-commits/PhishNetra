@@ -17,7 +17,7 @@ import {
   Info
 } from 'lucide-react';
 import { AnalysisResponse, ThreatVerdict } from '@phishnetra/shared';
-import { LocalHeuristicResult } from '../background/localHeuristics';
+import { evaluateLocalHeuristics, LocalHeuristicResult } from '../background/localHeuristics';
 import { StorageService } from '../utils/storage';
 
 interface TabStatusResponse {
@@ -54,9 +54,96 @@ export const PopupApp: React.FC = () => {
     }
 
     chrome.runtime.sendMessage({ type: 'GET_CURRENT_TAB_STATUS' }, (response: TabStatusResponse) => {
-      setTabData(response);
-      setLoading(false);
-      setRefreshing(false);
+      if (response?.state) {
+        setTabData(response);
+        setLoading(false);
+        setRefreshing(false);
+        return;
+      }
+
+      // Fallback: Check if the active tab is an interstitial barrier
+      if (chrome.tabs && chrome.tabs.query) {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          const activeTab = tabs[0];
+          if (activeTab?.url && activeTab.url.includes('interstitial.html')) {
+            try {
+              const parsed = new URL(activeTab.url);
+              const targetUrl = parsed.searchParams.get('url');
+              if (targetUrl) {
+                const targetDomain = parsed.searchParams.get('domain') || new URL(targetUrl).hostname;
+                const score = parseInt(parsed.searchParams.get('score') || '90', 10);
+                const level = (parsed.searchParams.get('level') || 'PHISHING') as ThreatVerdict;
+                let indicators: string[] = [];
+                try {
+                  const rawInd = parsed.searchParams.get('indicators');
+                  if (rawInd) indicators = JSON.parse(decodeURIComponent(rawInd));
+                } catch {
+                  indicators = ['High-risk phishing signatures or credential theft indicators detected'];
+                }
+
+                const baseHeuristics = evaluateLocalHeuristics(targetUrl);
+                const localHeuristics: LocalHeuristicResult = {
+                  ...baseHeuristics,
+                  score,
+                  isLikelyPhishing: level === 'PHISHING' || score >= 70,
+                  isSuspicious: level === 'SUSPICIOUS' || (score >= 35 && score < 70),
+                  reasons: indicators.length > 0 ? indicators : baseHeuristics.reasons
+                };
+
+                const confidence = parseFloat(parsed.searchParams.get('confidence') || '0.85');
+                const analysis: AnalysisResponse = {
+                  analysisId: `interstitial-${Date.now()}`,
+                  url: targetUrl,
+                  normalizedUrl: targetUrl.toLowerCase(),
+                  verdict: level,
+                  riskScore: score,
+                  riskLevel: score >= 75 ? 'CRITICAL' : score >= 50 ? 'HIGH' : score >= 25 ? 'MEDIUM' : 'LOW',
+                  confidence,
+                  mlProbability: score / 100,
+                  evidence: indicators.map((desc, idx) => ({
+                    layer: 'URL',
+                    featureKey: `threat_indicator_${idx}`,
+                    featureValue: true,
+                    severity: score >= 70 ? 'CRITICAL' : 'HIGH',
+                    description: desc,
+                    contribution: score / 100,
+                    source: 'PhishNetraInterceptor',
+                    confidence
+                  })),
+                  createdAt: new Date().toISOString()
+                };
+
+                setTabData({
+                  success: true,
+                  url: targetUrl,
+                  isWhitelisted: false,
+                  isBypassed: false,
+                  state: {
+                    url: targetUrl,
+                    domain: targetDomain,
+                    status: level,
+                    analyzedAt: Date.now(),
+                    localHeuristics,
+                    analysis
+                  }
+                });
+                setLoading(false);
+                setRefreshing(false);
+                return;
+              }
+            } catch {
+              // Ignore fallback parse error
+            }
+          }
+          setTabData(response);
+          setLoading(false);
+          setRefreshing(false);
+        });
+      } else {
+        setTabData(response);
+        setLoading(false);
+        setRefreshing(false);
+      }
     });
   };
 
@@ -231,7 +318,7 @@ export const PopupApp: React.FC = () => {
         <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 220 }}>
           <div style={{ fontSize: 10, color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Target Domain</div>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#93c5fd', fontFamily: 'monospace' }}>
-            {state?.domain || 'Unknown Domain'}
+            {state?.domain || (tabData?.url && !tabData.url.startsWith('chrome') ? (() => { try { return new URL(tabData.url).hostname; } catch { return 'Unknown Domain'; } })() : 'Unknown Domain')}
           </div>
         </div>
         <div>

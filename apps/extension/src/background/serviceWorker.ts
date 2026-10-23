@@ -44,6 +44,89 @@ function shouldAnalyzeUrl(urlStr: string): boolean {
   }
 }
 
+/**
+ * Detects if a URL is an internal PhishNetra interstitial barrier
+ */
+function isInterstitialUrl(urlStr: string): boolean {
+  if (!urlStr) return false;
+  try {
+    const url = new URL(urlStr);
+    return (
+      url.protocol === 'chrome-extension:' &&
+      (url.pathname.includes('interstitial.html') || url.pathname.endsWith('/interstitial.html'))
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Extracts threat state parameters from an interstitial barrier URL
+ */
+function parseInterstitialState(interstitialUrlStr: string): TabInspectionState | null {
+  try {
+    const parsed = new URL(interstitialUrlStr);
+    const targetUrl = parsed.searchParams.get('url');
+    if (!targetUrl) return null;
+    const targetDomain = parsed.searchParams.get('domain') || new URL(targetUrl).hostname;
+    const score = parseInt(parsed.searchParams.get('score') || '90', 10);
+    const level = (parsed.searchParams.get('level') || 'PHISHING') as ThreatVerdict;
+    const confidence = parseFloat(parsed.searchParams.get('confidence') || '0.85');
+    let indicators: string[] = [];
+    try {
+      const rawInd = parsed.searchParams.get('indicators');
+      if (rawInd) {
+        indicators = JSON.parse(decodeURIComponent(rawInd));
+      }
+    } catch {
+      indicators = ['High-risk phishing signatures or credential theft indicators detected'];
+    }
+
+    const baseHeuristics = evaluateLocalHeuristics(targetUrl);
+    const localHeuristics: LocalHeuristicResult = {
+      ...baseHeuristics,
+      score,
+      isLikelyPhishing: level === 'PHISHING' || score >= 70,
+      isSuspicious: level === 'SUSPICIOUS' || (score >= 35 && score < 70),
+      reasons: indicators.length > 0 ? indicators : baseHeuristics.reasons
+    };
+
+    const analysis: AnalysisResponse = {
+      analysisId: `interstitial-${Date.now()}`,
+      url: targetUrl,
+      normalizedUrl: targetUrl.toLowerCase(),
+      verdict: level,
+      riskScore: score,
+      riskLevel: score >= 75 ? 'CRITICAL' : score >= 50 ? 'HIGH' : score >= 25 ? 'MEDIUM' : 'LOW',
+      confidence,
+      mlProbability: score / 100,
+      evidence: indicators.map((desc, idx) => ({
+        layer: 'URL',
+        featureKey: `threat_indicator_${idx}`,
+        featureValue: true,
+        severity: score >= 70 ? 'CRITICAL' : 'HIGH',
+        description: desc,
+        contribution: score / 100,
+        source: 'PhishNetraInterceptor',
+        confidence
+      })),
+      createdAt: new Date().toISOString()
+    };
+
+    return {
+      url: targetUrl,
+      domain: targetDomain,
+      localHeuristics,
+      analysis,
+      status: level,
+      analyzedAt: Date.now()
+    };
+  } catch (err) {
+    console.error('[PhishNetra Background] Failed to parse interstitial state:', err);
+    return null;
+  }
+}
+
 const inFlightAnalysisMap = new Map<number, Promise<void>>();
 
 /**
@@ -51,6 +134,18 @@ const inFlightAnalysisMap = new Map<number, Promise<void>>();
  */
 async function processTabAnalysis(tabId: number, url: string, forceRefresh = false): Promise<void> {
   const run = async () => {
+    // If navigation is on the dedicated interstitial threat barrier, preserve and restore threat posture
+    if (isInterstitialUrl(url)) {
+      const interstitialState = parseInterstitialState(url);
+      if (interstitialState) {
+        tabStateMap.set(tabId, interstitialState);
+        const score = interstitialState.analysis?.riskScore ?? interstitialState.localHeuristics.score;
+        const verdict = (interstitialState.status as ThreatVerdict) || 'PHISHING';
+        await BadgeManager.setRiskStatus(score, verdict, tabId);
+      }
+      return;
+    }
+
     if (!shouldAnalyzeUrl(url)) {
       BadgeManager.clearBadge(tabId);
       tabStateMap.delete(tabId);
@@ -295,6 +390,7 @@ async function triggerThreatInterstitial(
         const tab = await chrome.tabs.get(tabId);
         if (tab && tab.url && !tab.url.includes('interstitial.html')) {
           await chrome.tabs.update(tabId, { url: interstitialUrl });
+          await BadgeManager.setRiskStatus(score, verdict as any, tabId);
         }
       } catch {
         // Tab may have closed
@@ -328,9 +424,19 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
   try {
     const tab = await chrome.tabs.get(activeInfo.tabId);
     if (tab.url) {
-      const existing = tabStateMap.get(activeInfo.tabId);
-      if (!existing || existing.url !== tab.url) {
-        processTabAnalysis(activeInfo.tabId, tab.url);
+      if (isInterstitialUrl(tab.url)) {
+        const interstitialState = parseInterstitialState(tab.url);
+        if (interstitialState) {
+          tabStateMap.set(activeInfo.tabId, interstitialState);
+          const score = interstitialState.analysis?.riskScore ?? interstitialState.localHeuristics.score;
+          const verdict = (interstitialState.status as ThreatVerdict) || 'PHISHING';
+          await BadgeManager.setRiskStatus(score, verdict, activeInfo.tabId);
+        }
+      } else {
+        const existing = tabStateMap.get(activeInfo.tabId);
+        if (!existing || existing.url !== tab.url) {
+          processTabAnalysis(activeInfo.tabId, tab.url);
+        }
       }
     }
   } catch (err) {
@@ -361,31 +467,72 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
 
       let state = tabStateMap.get(targetTabId);
-      if (!state || state.url !== targetUrl) {
+      const isInterstitial = isInterstitialUrl(targetUrl);
+
+      if (isInterstitial) {
+        if (!state || state.url !== new URL(targetUrl).searchParams.get('url')) {
+          state = parseInterstitialState(targetUrl) || state;
+          if (state) {
+            tabStateMap.set(targetTabId, state);
+            const score = state.analysis?.riskScore ?? state.localHeuristics.score;
+            await BadgeManager.setRiskStatus(score, state.status as ThreatVerdict, targetTabId);
+          }
+        }
+      } else if (!state || state.url !== targetUrl) {
         // Trigger fresh analysis if state missing
         await processTabAnalysis(targetTabId, targetUrl);
         state = tabStateMap.get(targetTabId);
       }
 
-      const isWhitelisted = await StorageService.isWhitelisted(new URL(targetUrl).hostname);
-      const isBypassed = await StorageService.hasTemporaryBypass(targetUrl);
+      const effectiveUrl = state?.url || (isInterstitial ? new URL(targetUrl).searchParams.get('url') || targetUrl : targetUrl);
+      let effectiveDomain = state?.domain;
+      if (!effectiveDomain && effectiveUrl) {
+        try { effectiveDomain = new URL(effectiveUrl).hostname; } catch {}
+      }
+      const isWhitelisted = effectiveDomain ? await StorageService.isWhitelisted(effectiveDomain) : false;
+      const isBypassed = effectiveUrl ? await StorageService.hasTemporaryBypass(effectiveUrl) : false;
 
       sendResponse({
         success: true,
         state,
         isWhitelisted,
         isBypassed,
-        url: targetUrl
+        url: effectiveUrl
       });
     })();
     return true; // Keep message channel open for async response
+  }
+
+  if (message.type === 'INTERSTITIAL_PAGE_LOADED') {
+    (async () => {
+      const activeTabId = tabId || sender.tab?.id || (await chrome.tabs.query({ active: true, currentWindow: true }))[0]?.id;
+      if (activeTabId && message.url) {
+        const interstitialState = parseInterstitialState(message.url);
+        if (interstitialState) {
+          tabStateMap.set(activeTabId, interstitialState);
+          await BadgeManager.setRiskStatus(
+            interstitialState.analysis?.riskScore ?? message.score ?? 90,
+            (interstitialState.status as ThreatVerdict) || 'PHISHING',
+            activeTabId
+          );
+        }
+      }
+      sendResponse({ success: true });
+    })();
+    return true;
   }
 
   if (message.type === 'RESCAN_URL') {
     (async () => {
       const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (activeTab && activeTab.id && activeTab.url) {
-        await processTabAnalysis(activeTab.id, activeTab.url, true);
+        let scanUrl = activeTab.url;
+        if (isInterstitialUrl(scanUrl)) {
+          const parsed = new URL(scanUrl);
+          const target = parsed.searchParams.get('url');
+          if (target) scanUrl = target;
+        }
+        await processTabAnalysis(activeTab.id, scanUrl, true);
         sendResponse({ success: true });
       } else {
         sendResponse({ success: false, error: 'Cannot rescan current tab' });
