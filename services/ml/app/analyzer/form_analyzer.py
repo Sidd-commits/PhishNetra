@@ -9,6 +9,15 @@ import re
 from typing import Dict, Any, List
 
 
+from app.features.url_features import extract_domain_parts
+
+
+AUTHENTIC_SSO_PROVIDERS = {
+    "google.com", "google.co.in", "google.co.uk", "microsoft.com", "microsoftonline.com",
+    "live.com", "apple.com", "github.com", "auth0.com", "okta.com"
+}
+
+
 class FormAnalyzer:
     """
     Form Inspector detecting credential phishing, cross-origin action submissions,
@@ -26,9 +35,10 @@ class FormAnalyzer:
         base_reg_domain = ""
         try:
             parsed_base = urllib.parse.urlsplit(base_url)
-            base_host = parsed_base.netloc.lower()
-            parts = base_host.split(".")
-            base_reg_domain = ".".join(parts[-2:]) if len(parts) >= 2 else base_host
+            base_host = parsed_base.netloc.lower().split(":")[0]
+            _, base_reg_domain, _, _ = extract_domain_parts(base_host)
+            if not base_reg_domain:
+                base_reg_domain = base_host
         except Exception:
             pass
 
@@ -49,6 +59,7 @@ class FormAnalyzer:
             is_cross_origin = False
             is_ip_action = False
             action_host = ""
+            action_reg_domain = ""
             try:
                 parsed_action = urllib.parse.urlsplit(action_resolved)
                 action_host = parsed_action.netloc.lower().split(":")[0]
@@ -56,11 +67,14 @@ class FormAnalyzer:
                     if re.match(r"^(\d{1,3}\.){3}\d{1,3}$", action_host):
                         is_ip_action = True
 
-                    action_parts = action_host.split(".")
-                    action_reg_domain = ".".join(action_parts[-2:]) if len(action_parts) >= 2 else action_host
+                    _, action_reg_domain, _, _ = extract_domain_parts(action_host)
+                    if not action_reg_domain:
+                        action_reg_domain = action_host
 
+                    # Disallow cross-origin flag if action submits to verified federated SSO
                     if base_reg_domain and action_reg_domain and base_reg_domain != action_reg_domain:
-                        is_cross_origin = True
+                        if action_reg_domain not in AUTHENTIC_SSO_PROVIDERS:
+                            is_cross_origin = True
             except Exception:
                 pass
 

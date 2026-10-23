@@ -5,7 +5,7 @@
 **Evaluation Target:** Semester 1 Presentation and Evaluation Milestone  
 **Authoritative Scope Document:** [`docs/PROJECT_SCOPE.md`](PROJECT_SCOPE.md)  
 **Master Roadmap Reference:** [`docs/ROADMAP.md`](ROADMAP.md)  
-**Monorepo Verification Baseline:** 262 / 262 Automated Tests Passing (100%) • 4/4 Workspaces Clean Build  
+**Monorepo Verification Baseline:** 281 / 281 Automated Tests Passing (100%) • 4/4 Workspaces Clean Build  
 
 ---
 
@@ -65,16 +65,16 @@ The Semester 1 evaluation will be conducted using the following reproducible dem
 ================================================================================
 Workspace / Target          Test Runner    Suites    Passed    Failed   Pass Rate
 --------------------------------------------------------------------------------
-@phishnetra/api (Express)   Jest           28        192       0        100.0%
+@phishnetra/api (Express)   Jest           29        202       0        100.0%
 @phishnetra/extension (MV3) Jest            2         12       0        100.0%
-services/ml (FastAPI)       Pytest          8         58       0        100.0%
+services/ml (FastAPI)       Pytest          9         67       0        100.0%
 --------------------------------------------------------------------------------
-MONOREPO TOTAL                             38        262       0        100.0%
+MONOREPO TOTAL                             40        281       0        100.0%
 ================================================================================
 Production Builds:
   - @phishnetra/shared:    CLEAN (tsc)
   - @phishnetra/api:       CLEAN (tsc)
   - @phishnetra/web:       CLEAN (tsc && vite build - 1610 modules transformed)
-  - @phishnetra/extension: CLEAN (tsc && vite build - 1508 modules transformed)
+  - @phishnetra/extension: CLEAN (tsc && vite build - 1519 modules transformed)
 ================================================================================
 ```

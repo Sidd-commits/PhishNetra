@@ -186,6 +186,27 @@ Standard service health check returning statuses of backend services and databas
 
 ---
 
+### 1.4 Unified Classification Policy & Risk Thresholds
+
+All API responses, UI components, and the browser extension adhere to a single unified risk score boundary policy defined in `@phishnetra/shared`:
+
+| Composite Risk Score | Classification Verdict | Risk Level | Browser Mitigation Action |
+| :---: | :---: | :---: | :--- |
+| **0.00 – 34.99** | `SAFE` | `LOW` | Allowed (Green Badge `OK`, no interstitial) |
+| **35.00 – 69.99** | `SUSPICIOUS` | `MEDIUM` | Warning banner in popup (Yellow Badge `WARN`) |
+| **70.00 – 79.99** | `PHISHING` | `HIGH` | **Full-Screen Interstitial Barrier** (`interstitial.ts`, Red Badge `BLOCK`) |
+| **80.00 – 100.00** | `PHISHING` | `CRITICAL` | **Full-Screen Interstitial Barrier** with Critical Indicators |
+
+#### Zero-Trust Deterministic Overrides
+- **Domain Age $< 48$ Hours:** Risk score forced $\ge 70.0$ (`PHISHING`).
+- **Threat Feed Blacklist Match:** Risk score forced $\ge 90.0$ (`CRITICAL / PHISHING`).
+- **Raw IP Hostname with Password Input:** Risk score forced $\ge 90.0$ (`CRITICAL / PHISHING`).
+- **Punycode Confusable / Homoglyph Spoof:** Risk score forced $\ge 85.0$ (`CRITICAL / PHISHING`).
+- **Combosquatting on High-Abuse TLD (`.xyz`, `.top`, etc.):** Risk score forced $\ge 80.0$ (`CRITICAL / PHISHING`).
+- **Verified Authentic Brand Domain (SSO / Official Portal):** Negative risk dampener caps composite risk $\le 18.0$ (`SAFE`).
+
+---
+
 ## 2. Python ML Microservice Endpoints (`:8000`)
 
 ### `POST /predict`

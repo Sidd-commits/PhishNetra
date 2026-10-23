@@ -1,4 +1,4 @@
-import { URLIntelligence, EvidenceItem, URLFeatureVector } from '@phishnetra/shared';
+import { URLIntelligence, EvidenceItem, URLFeatureVector, extractDomainParts } from '@phishnetra/shared';
 import { CanonicalUrlResult } from './canonicalization';
 
 const KNOWN_SHORTENERS = new Set([
@@ -12,6 +12,20 @@ const SUSPICIOUS_TLDS = new Set([
 ]);
 
 const SUSPICIOUS_PORTS = new Set([8080, 8443, 8888, 8000, 9000, 2082, 2083, 2086, 2087]);
+
+const TARGETED_BRANDS = ['google', 'microsoft', 'apple', 'amazon', 'paypal', 'netflix', 'chase', 'wellsfargo', 'bankofamerica'];
+
+const HOMOGLYPH_MAP: Record<string, string> = {
+  '\u0430': 'a', '\u0441': 'c', '\u0434': 'd', '\u0435': 'e', '\u0456': 'i',
+  '\u0458': 'j', '\u043a': 'k', '\u043e': 'o', '\u0440': 'p', '\u0455': 's',
+  '\u0442': 't', '\u0443': 'y', '\u0445': 'x', '\u03bf': 'o', '\u03b1': 'a',
+  '\u03c1': 'p', '\u03bd': 'v', '\u03b5': 'e', '\u03b9': 'i'
+};
+
+function normalizeHomoglyphs(text: string): string {
+  const decomposed = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return decomposed.split('').map(c => HOMOGLYPH_MAP[c] || c).join('');
+}
 
 export class URLLayer {
   /**
@@ -27,8 +41,8 @@ export class URLLayer {
     const isShortener = KNOWN_SHORTENERS.has(hostname);
     const shortenerProvider = isShortener ? hostname : null;
 
-    // Check userinfo (e.g. http://user@attacker.com)
-    const hasUserInfo = canonical.rawUrl.includes('@') && !search.includes('@');
+    // Check RFC 3986 userinfo credential prefix (e.g. http://user@attacker.com)
+    const hasUserInfo = canonical.hasUserInfo;
     if (hasUserInfo) {
       evidence.push({
         layer: 'URL',
@@ -56,13 +70,18 @@ export class URLLayer {
     }
 
     if (isPunycode) {
+      const decoded = unicodeHostname || hostname;
+      const normalizedDecoded = normalizeHomoglyphs(decoded);
+      const isTargetingBrand = TARGETED_BRANDS.some(b => normalizedDecoded.includes(b));
       evidence.push({
         layer: 'URL',
-        featureKey: 'punycode_hostname',
-        featureValue: unicodeHostname || hostname,
-        severity: 'HIGH',
-        description: `Internationalized domain name (Punycode: ${hostname}) detected, often used in homoglyph visual spoofing.`,
-        contribution: 0.30,
+        featureKey: isTargetingBrand ? 'homoglyph_brand_spoofing' : 'punycode_hostname',
+        featureValue: decoded,
+        severity: isTargetingBrand ? 'CRITICAL' : 'HIGH',
+        description: isTargetingBrand
+          ? `Homoglyph visual spoofing attack targeting authentic brand detected via Punycode domain (${decoded}).`
+          : `Internationalized domain name (Punycode: ${hostname}) detected, often used in homoglyph visual spoofing.`,
+        contribution: isTargetingBrand ? 0.45 : 0.30,
         source: 'URL_Intelligence',
         confidence: 0.95
       });
@@ -110,9 +129,12 @@ export class URLLayer {
     const specialCharRatio = Math.round((specialCount / totalLen) * 1000) / 1000;
     const hyphenRatio = Math.round((hyphenCount / Math.max(1, hostname.length)) * 1000) / 1000;
 
+    // Multi-part ccTLD and domain parsing
+    const { registrableDomain, tld, subdomain } = extractDomainParts(hostname);
+    const subdomainParts = subdomain ? subdomain.split('.').filter(p => p && p !== 'www') : [];
+    const subdomainCount = subdomainParts.length;
+
     // TLD Suspiciousness
-    const hostParts = hostname.split('.');
-    const tld = hostParts.length > 1 ? hostParts[hostParts.length - 1] : '';
     if (SUSPICIOUS_TLDS.has(tld)) {
       evidence.push({
         layer: 'URL',
@@ -120,9 +142,9 @@ export class URLLayer {
         featureValue: `.${tld}`,
         severity: 'MEDIUM',
         description: `Domain utilizes top-level domain (.${tld}) statistically correlated with high abuse and disposable campaigns.`,
-        contribution: 0.15,
+        contribution: 0.20,
         source: 'URL_Intelligence',
-        confidence: 0.80
+        confidence: 0.85
       });
     }
 
@@ -132,7 +154,7 @@ export class URLLayer {
       hostname_length: hostname.length,
       path_length: pathname.length,
       query_length: search.length,
-      subdomain_count: Math.max(0, hostParts.length - 2),
+      subdomain_count: subdomainCount,
       has_ip_address: /(\d{1,3}\.){3}\d{1,3}/.test(hostname) ? 1 : 0,
       has_https: canonical.protocol === 'https:' ? 1 : 0,
       special_char_count: specialCount,

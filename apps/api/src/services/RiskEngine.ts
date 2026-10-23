@@ -97,6 +97,13 @@ export class RiskEngine {
     if (urlLayer.features.subdomain_count >= 3) urlScoreAcc += 20;
     if (urlLayer.features.tld_in_subdomain === 1) urlScoreAcc += 30;
     if (urlLayer.entropy > 4.5) urlScoreAcc += 15;
+
+    const hasHighRiskTld = layerEvidences.some(e => e.featureKey === 'high_risk_tld');
+    if (hasHighRiskTld) urlScoreAcc += 25;
+
+    const hasHomoglyphBrandSpoof = layerEvidences.some(e => e.featureKey === 'homoglyph_brand_spoofing');
+    if (hasHomoglyphBrandSpoof) urlScoreAcc += 50;
+
     layerScores.URL = Math.min(100, urlScoreAcc);
 
     // 2. Domain Layer Scoring (0 to 100)
@@ -218,22 +225,46 @@ export class RiskEngine {
       compositeScore += score * normalizedWeight;
     }
 
-    // --- Critical Override Rules ---
-    // 1. Brand Impersonation Mismatch
+    // --- Critical Override Rules (Zero-Trust Synthesis) ---
+    // 1. Homoglyph Brand Spoofing (e.g. xn--gogle-pqa.com)
+    if (hasHomoglyphBrandSpoof) {
+      compositeScore = Math.max(compositeScore, 85);
+    }
+    // 2. Brand Impersonation Mismatch
     if (hasBrandMismatch) {
       compositeScore = Math.max(compositeScore, 82);
     }
-    // 2. Cross-origin / Raw IP credential submission
+    // 3. Combosquatting on high-abuse TLD
+    if (hasHighRiskTld && urlLayer.features.tld_in_subdomain === 1) {
+      compositeScore = Math.max(compositeScore, 80);
+    }
+    // 4. Cross-origin / Raw IP credential submission
     if (hasCrossOriginCredentialForm) {
       compositeScore = Math.max(compositeScore, 88);
     }
-    // 3. Blacklisted Reputation Hit
+    // 5. Raw IP address with password form
+    if (urlLayer.features.has_ip_address === 1 && pageLayer?.forms?.some(f => f.hasPasswordField)) {
+      compositeScore = Math.max(compositeScore, 90);
+    }
+    // 6. Blacklisted Reputation Hit
     if (reputationLayer.isListedMalicious) {
       compositeScore = Math.max(compositeScore, 85);
     }
-    // 4. SSRF Defense / Private IP Destination
+    // 7. SSRF Defense / Private IP Destination
     if (hasPrivateIp || isSsrfBlocked) {
       compositeScore = Math.max(compositeScore, 95);
+    }
+
+    // --- Negative Risk Dampener for Verified Authentic Brands ---
+    const hasVerifiedAuthenticBrand = Boolean(
+      pageLayer &&
+      pageLayer.status === 'COMPLETED' &&
+      (pageLayer.brandFindings || []).length > 0 &&
+      !hasBrandMismatch
+    );
+    if (hasVerifiedAuthenticBrand && !hasCrossOriginCredentialForm && !reputationLayer.isListedMalicious && !hasPrivateIp && !hasHomoglyphBrandSpoof) {
+      // Clean authentic brand page; dampen residual background heuristic noise
+      compositeScore = Math.min(compositeScore, 18.0);
     }
 
     // Fail-safe protection against NaN or non-finite values (never fail open)

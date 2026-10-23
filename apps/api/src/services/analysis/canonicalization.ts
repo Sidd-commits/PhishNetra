@@ -11,6 +11,7 @@ export interface CanonicalUrlResult {
   hash: string;
   isPunycode: boolean;
   unicodeHostname: string | null;
+  hasUserInfo: boolean;
 }
 
 /**
@@ -70,6 +71,9 @@ export function canonicalizeUrl(rawInput: string): CanonicalUrlResult {
     const search = parsed.search || '';
     const hash = parsed.hash || '';
 
+    // RFC 3986 userinfo credential indicator
+    const hasUserInfo = Boolean(parsed.username || parsed.password);
+
     const hostHeader = port ? `${hostname}:${port}` : hostname;
     const canonicalUrl = `${protocol}//${hostHeader}${pathname}${search}${hash}`;
 
@@ -83,7 +87,8 @@ export function canonicalizeUrl(rawInput: string): CanonicalUrlResult {
       search,
       hash,
       isPunycode,
-      unicodeHostname
+      unicodeHostname,
+      hasUserInfo
     };
   } catch {
     // If URL constructor fails, return sanitized string fallback
@@ -97,7 +102,8 @@ export function canonicalizeUrl(rawInput: string): CanonicalUrlResult {
       search: '',
       hash: '',
       isPunycode: false,
-      unicodeHostname: null
+      unicodeHostname: null,
+      hasUserInfo: false
     };
   }
 }

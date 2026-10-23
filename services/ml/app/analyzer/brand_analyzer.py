@@ -9,14 +9,17 @@ import urllib.parse
 from typing import Dict, Any, List, Tuple
 
 
+from app.features.url_features import extract_domain_parts
+
+
 KNOWN_BRANDS = {
     "Microsoft": {
-        "keywords": ["microsoft", "office365", "office 365", "outlook", "onedrive", "sharepoint", "azure", "live.com", "msn"],
-        "domains": ["microsoft.com", "live.com", "office.com", "outlook.com", "azure.com", "msn.com", "sharepoint.com", "microsoftonline.com", "windows.net"]
+        "keywords": ["microsoft", "office365", "office 365", "outlook", "onedrive", "sharepoint", "azure", "live.com", "msn", "microsoft 365"],
+        "domains": ["microsoft.com", "live.com", "office.com", "outlook.com", "azure.com", "msn.com", "sharepoint.com", "microsoftonline.com", "windows.net", "microsoft365.com"]
     },
     "Google": {
-        "keywords": ["google", "gmail", "google drive", "google docs", "google workspace", "youtube"],
-        "domains": ["google.com", "gmail.com", "youtube.com", "google.co.in", "google.co.uk", "google.ca", "google.de", "google.fr", "1e100.net"]
+        "keywords": ["google", "gmail", "google drive", "google docs", "google workspace", "youtube", "gemini"],
+        "domains": ["google.com", "gmail.com", "youtube.com", "google.co.in", "google.co.uk", "google.ca", "google.de", "google.fr", "1e100.net", "googleapis.com", "gstatic.com", "googleusercontent.com"]
     },
     "Apple": {
         "keywords": ["apple", "icloud", "apple id", "itunes", "app store"],
@@ -105,11 +108,8 @@ class BrandConsistencyAnalyzer:
 
     @classmethod
     def get_registrable_domain(cls, hostname: str) -> str:
-        clean_host = hostname.lower().split(":")[0].strip(".")
-        parts = clean_host.split(".")
-        if len(parts) >= 2:
-            return ".".join(parts[-2:])
-        return clean_host
+        clean_host, reg_domain, _, _ = extract_domain_parts(hostname)
+        return reg_domain or clean_host
 
     @classmethod
     def analyze(cls, base_url: str, title: str, visible_text: str, forms: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], float]:
@@ -149,7 +149,7 @@ class BrandConsistencyAnalyzer:
             if brand_hits >= 2:
                 # Brand is claimed/referenced on the page
                 is_authentic = any(
-                    target_reg_domain == d or target_reg_domain.endswith("." + d)
+                    host == d or host.endswith("." + d) or target_reg_domain == d or target_reg_domain.endswith("." + d)
                     for d in brand_data["domains"]
                 )
 

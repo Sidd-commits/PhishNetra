@@ -15,6 +15,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     accuracy_score,
@@ -22,6 +23,7 @@ from sklearn.metrics import (
     recall_score,
     f1_score,
     roc_auc_score,
+    brier_score_loss,
     confusion_matrix,
     classification_report
 )
@@ -87,25 +89,34 @@ def train_baseline_model(
 
     print(f"[*] Training samples: {len(X_train)}, Testing samples: {len(X_test)}")
 
-    # Model training (Random Forest Classifier Baseline)
-    print("[*] Training Baseline RandomForestClassifier...")
-    model = RandomForestClassifier(
+    # Model training (Calibrated RandomForestClassifier)
+    print("[*] Training Base RandomForestClassifier...")
+    base_rf = RandomForestClassifier(
         n_estimators=100,
         max_depth=6,
         random_state=random_state,
         class_weight="balanced"
     )
-    model.fit(X_train, y_train)
+    base_rf.fit(X_train, y_train)
+
+    print("[*] Calibrating model probabilities via CalibratedClassifierCV (sigmoid)...")
+    calibrated_model = CalibratedClassifierCV(
+        estimator=base_rf,
+        method="sigmoid",
+        cv="prefit"
+    )
+    calibrated_model.fit(X_train, y_train)
 
     # Evaluation
-    print("[*] Evaluating baseline model on test set...")
-    y_pred = model.predict(X_test)
-    y_proba = model.predict_proba(X_test)[:, 1]
+    print("[*] Evaluating calibrated model on test set...")
+    y_pred = calibrated_model.predict(X_test)
+    y_proba = calibrated_model.predict_proba(X_test)[:, 1]
 
     acc = float(accuracy_score(y_test, y_pred))
     prec = float(precision_score(y_test, y_pred, zero_division=0))
     rec = float(recall_score(y_test, y_pred, zero_division=0))
     f1 = float(f1_score(y_test, y_pred, zero_division=0))
+    brier = float(brier_score_loss(y_test, y_proba))
     try:
         auc = float(roc_auc_score(y_test, y_proba))
     except Exception:
@@ -113,18 +124,18 @@ def train_baseline_model(
 
     cm = confusion_matrix(y_test, y_pred).tolist()
 
-    # Feature Importances
+    # Feature Importances from base tree ensemble
     importances = {
         col: round(float(imp), 4)
-        for col, imp in zip(FEATURE_COLUMNS, model.feature_importances_)
+        for col, imp in zip(FEATURE_COLUMNS, base_rf.feature_importances_)
     }
     sorted_importances = dict(
         sorted(importances.items(), key=lambda item: item[1], reverse=True)
     )
 
     metrics = {
-        "model_type": "RandomForestClassifier",
-        "model_version": "v0.1.0-baseline",
+        "model_type": "CalibratedRandomForestClassifier",
+        "model_version": "v1.0.0-optimized",
         "trained_at": datetime.utcnow().isoformat() + "Z",
         "dataset_path": str(data_path),
         "total_samples": len(df),
@@ -137,6 +148,7 @@ def train_baseline_model(
             "recall": round(rec, 4),
             "f1_score": round(f1, 4),
             "roc_auc": round(auc, 4),
+            "brier_score": round(brier, 4),
             "confusion_matrix": {
                 "true_negative": cm[0][0] if len(cm) > 0 else 0,
                 "false_positive": cm[0][1] if len(cm) > 0 and len(cm[0]) > 1 else 0,
@@ -154,9 +166,9 @@ def train_baseline_model(
 
     joblib.dump(
         {
-            "model": model,
+            "model": calibrated_model,
             "feature_columns": FEATURE_COLUMNS,
-            "version": "v0.1.0-baseline"
+            "version": "v1.0.0-optimized"
         },
         model_artifact_path
     )
@@ -166,23 +178,28 @@ def train_baseline_model(
         json.dump(metrics, f, indent=2)
     print(f"[+] Metrics artifact saved to: {metrics_artifact_path}")
 
-    print("\n--- BASELINE EVALUATION REPORT ---")
-    print(f"Accuracy:  {acc:.4f}")
-    print(f"Precision: {prec:.4f}")
-    print(f"Recall:    {rec:.4f}")
-    print(f"F1 Score:  {f1:.4f}")
-    print(f"ROC AUC:   {auc:.4f}")
-    print("----------------------------------\n")
+    print("\n--- OPTIMIZED MODEL EVALUATION REPORT ---")
+    print(f"Accuracy:    {acc:.4f}")
+    print(f"Precision:   {prec:.4f}")
+    print(f"Recall:      {rec:.4f}")
+    print(f"F1 Score:    {f1:.4f}")
+    print(f"ROC AUC:     {auc:.4f}")
+    print(f"Brier Score: {brier:.4f}")
+    print("-----------------------------------------\n")
 
     return metrics
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="PhishNetra ML Baseline Trainer")
+    parser = argparse.ArgumentParser(description="PhishNetra ML Model Trainer")
+    default_data = str(ml_root / "data" / "url_dataset_v1.csv")
+    if not os.path.exists(default_data):
+        default_data = str(ml_root / "data" / "synthetic_sample.csv")
+
     parser.add_argument(
         "--data",
         type=str,
-        default=str(ml_root / "data" / "synthetic_sample.csv"),
+        default=default_data,
         help="Path to training dataset CSV"
     )
     parser.add_argument(
@@ -194,3 +211,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     train_baseline_model(args.data, args.output)
+

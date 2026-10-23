@@ -276,7 +276,7 @@ export const PopupApp: React.FC = () => {
             <div>
               <div style={{ fontSize: 9, color: '#6b7280', textTransform: 'uppercase' }}>AI Confidence</div>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#e5e7eb' }}>
-                {analysis ? `${Math.round((analysis.mlProbability || analysis.confidence || 0.95) * 100)}%` : 'N/A'}
+                {analysis ? `${Math.round((analysis.confidence ?? 0.85) * 100)}%` : 'N/A'}
               </div>
             </div>
             <div>

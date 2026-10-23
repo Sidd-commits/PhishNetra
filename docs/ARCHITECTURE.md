@@ -114,7 +114,7 @@ graph TD
 4. **Layer 3 (DNS/IP):** Resolves A, AAAA, MX, NS records; checks bogons and fast-flux TTL anomalies.
 5. **Layer 4 (TLS):** Certificate authority, expiration, and SAN structure inspection.
 6. **Layer 5 (Reputation):** URLhaus, local blocklists, and provider abstraction.
-7. **Layer 6 (Machine Learning):** Scikit-learn Random Forest classifier with Tree-SHAP feature attribution.
+7. **Layer 6 (Machine Learning):** Scikit-learn Calibrated Random Forest classifier (Platt scaling / `CalibratedClassifierCV`) with Tree-SHAP feature attribution.
 8. **Layer 7 (Webpage Content):** Sandboxed fetcher inspecting cross-origin form actions and 15-brand domain mismatches.
 
 ---

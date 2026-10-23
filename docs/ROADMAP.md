@@ -22,7 +22,7 @@ PhishNetra is engineered across two structured academic semesters spanning ten m
 |  * Email Attachment Link Extraction Vertical Slice (PDF, HTML, DOCX, TXT, EML)                     |
 |  * Chrome Manifest V3 Extension Proof of Concept (Local Heuristics, Interstitial Barrier)         |
 |  * Academic Research Dashboard & Telemetry Audit History                                          |
-|  STATUS: VERIFIED & DEMONSTRABLE (262/262 Tests Passing)                                          |
+|  STATUS: VERIFIED & DEMONSTRABLE (281/281 Tests Passing)                                          |
 +---------------------------------------------------------------------------------------------------+
 |  SEMESTER 2: Months 6 → 10 (Future Development Roadmap)                                           |
 |  * Standardized Benchmark Dataset Evaluation (Precision, Recall, F1, ROC-AUC)                      |
@@ -48,7 +48,7 @@ PhishNetra is engineered across two structured academic semesters spanning ten m
 | **S1.5: Email Attachment Link Extraction** | Month 4 | Safe pure-JS hyperlink extraction from PDF, HTML, DOCX, TXT, EML; 10MB ceiling; multi-layer evaluation. | **VERIFIED** | `AttachmentAnalysisService.ts`, `POST /api/ingest/attachment`, 10 tests passing. |
 | **S1.6: Chrome Browser Extension (MV3)** | Month 5 | Background navigation monitoring (`tabs.onUpdated`), sub-5ms local heuristics, DOM interstitial barrier overlay. | **PROTOTYPE** | `apps/extension`, `interstitial.ts`, 12 Jest tests passing. |
 | **S1.7: Academic Research Dashboard** | Month 5 | Streamlined web console: URL Threat Scanner, Attachment Scanner, Telemetry History with search/export. | **VERIFIED** | `apps/web/src/pages/`, clean 8-item navigation, zero dead routes. |
-| **S1.8: Semester 1 Presentation** | Current | Live end-to-end demonstration, reproducible evaluation script, architecture defense before academic panel. | **ACTIVE** | All daemons verified, 262/262 tests passing, production builds clean. |
+| **S1.8: Semester 1 Presentation** | Current | Live end-to-end demonstration, reproducible evaluation script, architecture defense before academic panel. | **ACTIVE** | All daemons verified, 281/281 tests passing, production builds clean. |
 
 ---
 
@@ -93,9 +93,9 @@ PhishNetra is engineered across two structured academic semesters spanning ten m
 
 ## 5. Verification Baseline
 
-- **Automated Tests:** 262 / 262 tests passing (100% pass rate)
-  - Backend API: 192 tests (28 suites)
+- **Automated Tests:** 281 / 281 tests passing (100% pass rate)
+  - Backend API: 202 tests (29 suites)
   - Browser Extension: 12 tests (2 suites)
-  - ML Microservice: 58 tests (8 suites)
+  - ML Microservice: 67 tests (9 suites)
 - **Production Builds:** 4/4 packages compile cleanly (`@phishnetra/shared`, `@phishnetra/api`, `@phishnetra/web`, `@phishnetra/extension`)
 - **Active Daemons:** Python ML (`:8000`), Express API (`:5000`), React Web (`:5173`)

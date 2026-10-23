@@ -5,6 +5,8 @@
  * before full backend multi-tier pipeline completes.
  */
 
+import { extractDomainParts } from '@phishnetra/shared';
+
 export interface LocalHeuristicResult {
   score: number; // 0 to 100
   isSuspicious: boolean;
@@ -29,11 +31,13 @@ const SUSPICIOUS_TLDS = new Set([
   'cam', 'monster', 'beauty', 'hair', 'press', 'quest'
 ]);
 
-const HIGH_RISK_KEYWORDS = [
-  'paypal', 'bank', 'login', 'signin', 'secure', 'verify', 'account',
-  'update', 'wallet', 'metamask', 'crypto', 'billing', 'support',
-  'security', 'authentication', 'recovery', 'passcode', 'credential',
-  'webscr', 'ebayisapi', 'banking', 'confirm', 'portal'
+const BRAND_KEYWORDS = [
+  'paypal', 'microsoft', 'apple', 'google', 'amazon', 'netflix', 'chase', 'wellsfargo', 'bankofamerica'
+];
+
+const GENERIC_CREDENTIAL_KEYWORDS = [
+  'login', 'signin', 'secure', 'verify', 'account', 'update', 'wallet',
+  'billing', 'security', 'authentication', 'recovery', 'passcode', 'credential'
 ];
 
 /**
@@ -73,7 +77,10 @@ export function evaluateLocalHeuristics(rawUrl: string): LocalHeuristicResult {
   };
 
   try {
-    const urlObj = new URL(rawUrl);
+    const safeUrl = (rawUrl.startsWith('http://') || rawUrl.startsWith('https://'))
+      ? rawUrl
+      : 'https://' + rawUrl;
+    const urlObj = new URL(safeUrl);
     const hostname = urlObj.hostname.toLowerCase();
 
     // 1. IP Address as Hostname check
@@ -91,9 +98,11 @@ export function evaluateLocalHeuristics(rawUrl: string): LocalHeuristicResult {
       reasons.push('Internationalized/Punycode domain (potential Cyrillic/homoglyph spoofing)');
     }
 
+    // Domain and TLD extraction
+    const { registrableDomain, tld, subdomain } = extractDomainParts(hostname);
+    const subdomains = subdomain ? subdomain.split('.').filter(p => p && p !== 'www') : [];
+
     // 3. Suspicious TLD check
-    const parts = hostname.split('.');
-    const tld = parts.length > 1 ? parts[parts.length - 1] : '';
     if (SUSPICIOUS_TLDS.has(tld)) {
       indicators.suspiciousTld = true;
       score += 25;
@@ -101,44 +110,48 @@ export function evaluateLocalHeuristics(rawUrl: string): LocalHeuristicResult {
     }
 
     // 4. Excessive Subdomains check (e.g. paypal.security.login.attacker.com)
-    // Filter out standard 'www'
-    const subdomains = parts.filter(p => p !== 'www' && p !== tld);
     if (subdomains.length >= 3) {
       indicators.excessiveSubdomains = true;
       score += 30;
       reasons.push(`Excessive subdomains (${subdomains.length}) detected`);
     }
 
-    // 5. Credential/Phishing Keywords in Hostname & Subdomain
-    const matchedKeywords: string[] = [];
-    for (const kw of HIGH_RISK_KEYWORDS) {
-      if (hostname.includes(kw)) {
-        matchedKeywords.push(kw);
-      }
-    }
-    if (matchedKeywords.length > 0) {
+    // 5. Credential/Phishing Keywords & Combosquatting
+    // Brand keywords appearing in subdomains of a different registrable domain
+    const suspiciousBrandSpoof = BRAND_KEYWORDS.some(b => 
+      (subdomain.includes(b) && !registrableDomain.includes(b))
+    );
+    if (suspiciousBrandSpoof) {
       indicators.credentialKeywords = true;
-      // If keyword is in subdomain of a different base domain, highly suspicious
-      score += Math.min(35, matchedKeywords.length * 20);
-      reasons.push(`Security/credential keywords present in domain (${matchedKeywords.join(', ')})`);
+      score += 40;
+      reasons.push(`Brand name found in subdomain of unrelated domain (${registrableDomain})`);
+    }
+
+    // Multiple generic credential keywords crammed into hostname
+    const matchedGeneric = GENERIC_CREDENTIAL_KEYWORDS.filter(kw => hostname.includes(kw));
+    if (matchedGeneric.length >= 2 && !suspiciousBrandSpoof) {
+      indicators.credentialKeywords = true;
+      score += Math.min(30, matchedGeneric.length * 15);
+      reasons.push(`Multiple security/credential keywords present in domain (${matchedGeneric.join(', ')})`);
     }
 
     // 6. High Shannon Entropy in hostname
     const entropy = calculateEntropy(hostname);
-    if (entropy > 3.8 && hostname.length > 15) {
+    if (entropy > 3.9 && hostname.length > 20) {
       score += 20;
       reasons.push(`High lexical entropy (${entropy}) suggesting algorithmically generated or randomized domain`);
     }
 
-    // 7. Presence of '@' symbol (often used to obscure real host)
-    if (rawUrl.includes('@')) {
+    // 7. Presence of '@' in userinfo authority (RFC 3986 trick)
+    const hasUserInfoAt = Boolean(urlObj.username || urlObj.password);
+    if (hasUserInfoAt) {
       indicators.atSymbolPresent = true;
       score += 35;
-      reasons.push('Contains "@" character used to mislead browser URL parser');
+      reasons.push('Contains RFC 3986 userinfo credentials prefix "@" used to mislead browser URL parser');
     }
 
-    // 8. Excessive URL length
-    if (rawUrl.length > 100) {
+    // 8. Excessive URL length (only flag truly abnormal lengths > 250 chars)
+    if (rawUrl.length > 250 || hostname.length > 50) {
       indicators.excessiveLength = true;
       score += 15;
       reasons.push(`Abnormally long URL length (${rawUrl.length} characters)`);
@@ -156,7 +169,7 @@ export function evaluateLocalHeuristics(rawUrl: string): LocalHeuristicResult {
 
     return {
       score: finalScore,
-      isSuspicious: finalScore >= 40,
+      isSuspicious: finalScore >= 35,
       isLikelyPhishing: finalScore >= 70,
       reasons,
       entropy,

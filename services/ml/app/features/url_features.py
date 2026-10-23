@@ -121,6 +121,29 @@ def is_ip_address(hostname: str) -> int:
     return 0
 
 
+MULTI_PART_CCTLDS = {"co", "com", "org", "net", "edu", "gov", "ac", "ne", "or", "mil"}
+
+
+def extract_domain_parts(hostname: str) -> Tuple[str, str, str, str]:
+    """
+    Returns (clean_hostname, registrable_domain, tld, subdomain)
+    Accurately supports multi-part country code second-level domains (e.g. .co.uk, .co.in, .com.au)
+    """
+    clean = (hostname or "").lower().split(":")[0].strip(".")
+    parts = clean.split(".")
+    if len(parts) <= 1:
+        return clean, clean, "", ""
+    tld = parts[-1]
+    if len(parts) >= 3 and parts[-2] in MULTI_PART_CCTLDS:
+        registrable_domain = ".".join(parts[-3:])
+        tld = ".".join(parts[-2:])
+        subdomain = ".".join(parts[:-3])
+        return clean, registrable_domain, tld, subdomain
+    registrable_domain = ".".join(parts[-2:])
+    subdomain = ".".join(parts[:-2])
+    return clean, registrable_domain, tld, subdomain
+
+
 class URLFeatureExtractor:
     """
     Deterministic URL Feature Extraction class.
@@ -149,6 +172,7 @@ class URLFeatureExtractor:
             query = ""
             scheme = "http"
             port_in_url = 0
+            parsed = None
         
         # 1. Length features
         url_length = len(canonical_url)
@@ -156,23 +180,17 @@ class URLFeatureExtractor:
         path_length = len(path)
         query_length = len(query)
         
-        # 2. Hostname / Domain features
-        host_parts = hostname.split(".") if hostname else []
-        if len(host_parts) > 2:
-            # e.g., sub1.sub2.example.com -> subdomain_count = 2
-            subdomain_count = len(host_parts) - 2
-        else:
-            subdomain_count = 0
-            
-        tld = host_parts[-1] if host_parts else ""
+        # 2. Hostname / Domain features (multi-part ccTLD aware)
+        _, _, tld, subdomain = extract_domain_parts(hostname)
+        subdomain_parts = [p for p in subdomain.split(".") if p and p != "www"] if subdomain else []
+        subdomain_count = len(subdomain_parts)
         tld_length = len(tld)
         
         # Check if a known TLD is embedded within subdomain (e.g. paypal.com.attacker.xyz)
         tld_in_sub = 0
-        if subdomain_count > 0:
-            subdomain_str = ".".join(host_parts[:-2])
+        if subdomain:
             for known_tld in COMMON_TLDS:
-                if f".{known_tld}" in subdomain_str or subdomain_str.endswith(known_tld):
+                if f".{known_tld}" in subdomain or subdomain.endswith(known_tld) or subdomain.startswith(known_tld):
                     tld_in_sub = 1
                     break
 
@@ -184,7 +202,16 @@ class URLFeatureExtractor:
         special_char_count = sum(1 for c in canonical_url if c in special_chars)
         digit_count = sum(1 for c in canonical_url if c.isdigit())
         hyphen_count = hostname.count("-")
-        at_symbol_count = canonical_url.count("@")
+        
+        # RFC 3986: @ is an obfuscation indicator only in userinfo authority (not query string/params)
+        has_userinfo_at = 0
+        if parsed is not None:
+            if parsed.username or parsed.password:
+                has_userinfo_at = 1
+            elif parsed.netloc and "@" in parsed.netloc:
+                has_userinfo_at = 1
+        at_symbol_count = has_userinfo_at
+        
         double_slash_in_path = 1 if "//" in path else 0
         encoded_char_count = canonical_url.count("%")
         

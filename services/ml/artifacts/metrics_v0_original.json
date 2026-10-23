@@ -1,0 +1,62 @@
+{
+  "model_type": "RandomForestClassifier",
+  "model_version": "v0.1.0-baseline",
+  "trained_at": "2026-09-03T16:06:24.217217Z",
+  "dataset_path": "C:\\Users\\siddh\\OneDrive\\Desktop\\PhishNetra\\services\\ml\\data\\synthetic_sample.csv",
+  "total_samples": 40,
+  "train_samples": 30,
+  "test_samples": 10,
+  "feature_columns": [
+    "url_length",
+    "hostname_length",
+    "path_length",
+    "query_length",
+    "subdomain_count",
+    "has_ip_address",
+    "has_https",
+    "special_char_count",
+    "digit_count",
+    "hyphen_count",
+    "at_symbol_count",
+    "double_slash_in_path",
+    "encoded_char_count",
+    "suspicious_keyword_count",
+    "entropy",
+    "tld_in_subdomain",
+    "port_in_url",
+    "tld_length"
+  ],
+  "metrics": {
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "roc_auc": 1.0,
+    "confusion_matrix": {
+      "true_negative": 5,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_positive": 5
+    }
+  },
+  "feature_importances": {
+    "has_https": 0.2444,
+    "special_char_count": 0.1884,
+    "url_length": 0.1389,
+    "hyphen_count": 0.1336,
+    "hostname_length": 0.1114,
+    "suspicious_keyword_count": 0.0615,
+    "entropy": 0.0577,
+    "digit_count": 0.025,
+    "path_length": 0.0129,
+    "subdomain_count": 0.0126,
+    "has_ip_address": 0.0076,
+    "tld_length": 0.0059,
+    "query_length": 0.0,
+    "at_symbol_count": 0.0,
+    "double_slash_in_path": 0.0,
+    "encoded_char_count": 0.0,
+    "tld_in_subdomain": 0.0,
+    "port_in_url": 0.0
+  }
+}

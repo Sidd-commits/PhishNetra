@@ -36,6 +36,11 @@ function copyExtensionAssets() {
 
 export default defineConfig({
   plugins: [react(), copyExtensionAssets()],
+  resolve: {
+    alias: {
+      '@phishnetra/shared': resolve(__dirname, '../../packages/shared/src/index.ts')
+    }
+  },
   build: {
     outDir: 'dist',
     emptyOutDir: true,

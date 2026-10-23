@@ -12,7 +12,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   apiUrl: 'http://localhost:5000/api',
   dashboardUrl: 'http://localhost:5173',
   autoScan: true,
-  blockThreshold: 75,
+  blockThreshold: 70,
   enableNotifications: true
 };
 

@@ -34,10 +34,16 @@ class ContentRiskModel:
             score += 10.0
 
         # 3. Hidden & Cross-Origin Iframes
+        has_suspicious_context = (
+            features.get("brand_domain_mismatch", 0) == 1 or
+            features.get("external_form_actions", 0) > 0 or
+            features.get("obfuscated_script_count", 0) > 0 or
+            features.get("urgency_score", 0.0) > 0.3
+        )
         if features.get("hidden_iframe_count", 0) > 0:
-            score += 20.0
+            score += 25.0 if has_suspicious_context else 5.0
         elif features.get("external_iframe_count", 0) > 2:
-            score += 10.0
+            score += 15.0 if has_suspicious_context else 5.0
 
         # 4. JavaScript Obfuscation & Evasion
         if features.get("obfuscated_script_count", 0) > 0:

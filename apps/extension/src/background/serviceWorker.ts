@@ -44,166 +44,180 @@ function shouldAnalyzeUrl(urlStr: string): boolean {
   }
 }
 
+const inFlightAnalysisMap = new Map<number, Promise<void>>();
+
 /**
  * Dispatches analysis for a given tab
  */
 async function processTabAnalysis(tabId: number, url: string, forceRefresh = false): Promise<void> {
-  if (!shouldAnalyzeUrl(url)) {
-    BadgeManager.clearBadge(tabId);
-    tabStateMap.delete(tabId);
-    return;
-  }
-
-  const parsedUrl = new URL(url);
-  const domain = parsedUrl.hostname;
-
-  // 1. Check Whitelist
-  const isWhitelisted = await StorageService.isWhitelisted(domain);
-  if (isWhitelisted) {
-    tabStateMap.set(tabId, {
-      url,
-      domain,
-      localHeuristics: evaluateLocalHeuristics(url),
-      analysis: null,
-      status: 'WHITELISTED',
-      analyzedAt: Date.now()
-    });
-    await BadgeManager.setWhitelisted(tabId);
-    sendMessageToTab(tabId, { type: 'HIDE_OVERLAYS' });
-    return;
-  }
-
-  // 2. Check Session Bypass
-  const isBypassed = await StorageService.hasTemporaryBypass(url);
-  if (isBypassed) {
-    await BadgeManager.setBypassed(tabId);
-    sendMessageToTab(tabId, { type: 'HIDE_OVERLAYS' });
-    return;
-  }
-
-  // 3. Fast Local Heuristic Pre-Evaluation
-  const localHeuristics = evaluateLocalHeuristics(url);
-  if (localHeuristics.isLikelyPhishing) {
-    await BadgeManager.setRiskStatus(localHeuristics.score, 'PHISHING', tabId);
-  } else {
-    await BadgeManager.setScanning(tabId);
-  }
-
-  tabStateMap.set(tabId, {
-    url,
-    domain,
-    localHeuristics,
-    analysis: null,
-    status: 'PENDING',
-    analyzedAt: Date.now()
-  });
-
-  const settings = await StorageService.getSettings();
-
-  try {
-    let analysis: AnalysisResponse | null = null;
-
-    // 4. Check Client-Side Cache if not force refreshed
-    if (!forceRefresh) {
-      analysis = await StorageService.getCachedAnalysis(url);
+  const run = async () => {
+    if (!shouldAnalyzeUrl(url)) {
+      BadgeManager.clearBadge(tabId);
+      tabStateMap.delete(tabId);
+      return;
     }
 
-    // 5. Backend Pipeline Query if not in cache
-    if (!analysis) {
-      const response = await fetch(`${settings.apiUrl}/analyze`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ url })
+    const parsedUrl = new URL(url);
+    const domain = parsedUrl.hostname;
+
+    // 1. Check Whitelist
+    const isWhitelisted = await StorageService.isWhitelisted(domain);
+    if (isWhitelisted) {
+      tabStateMap.set(tabId, {
+        url,
+        domain,
+        localHeuristics: evaluateLocalHeuristics(url),
+        analysis: null,
+        status: 'WHITELISTED',
+        analyzedAt: Date.now()
       });
-
-      if (!response.ok) {
-        throw new Error(`PhishNetra API error: ${response.status} ${response.statusText}`);
-      }
-
-      analysis = await response.json();
-      if (analysis) {
-        await StorageService.setCachedAnalysis(url, analysis);
-      }
-    }
-
-    if (!analysis) {
-      throw new Error('No analysis data received from engine');
-    }
-
-    const riskScore = analysis.riskScore || 0;
-    const verdict = analysis.verdict || 'SAFE';
-
-    tabStateMap.set(tabId, {
-      url,
-      domain,
-      localHeuristics,
-      analysis,
-      status: verdict,
-      analyzedAt: Date.now()
-    });
-
-    // 6. Update Extension Action Badge
-    await BadgeManager.setRiskStatus(riskScore, verdict, tabId);
-
-    // 7. Trigger In-Page Threat Mitigations (Zero Silent Redirects Policy)
-    const isCritical = verdict === 'PHISHING' || riskScore >= settings.blockThreshold;
-    const isSuspicious = verdict === 'SUSPICIOUS' || (riskScore >= 40 && !isCritical);
-
-    if (isCritical) {
-      const bypassed = await StorageService.hasTemporaryBypass(url);
-      if (!bypassed) {
-        const evidenceDescriptions = analysis.evidence?.map((e) => e.description) || localHeuristics.reasons;
-        sendMessageToTab(tabId, {
-          type: 'SHOW_INTERSTITIAL',
-          payload: {
-            url,
-            domain,
-            compositeScore: riskScore,
-            riskLevel: verdict,
-            criticalIndicators: evidenceDescriptions,
-            aiConfidence: analysis.mlProbability || analysis.confidence || 0.95,
-            dashboardUrl: settings.dashboardUrl
-          }
-        });
-      }
-    } else if (isSuspicious) {
-      const bypassed = await StorageService.hasTemporaryBypass(url);
-      if (!bypassed) {
-        sendMessageToTab(tabId, {
-          type: 'SHOW_BANNER',
-          payload: {
-            url,
-            domain,
-            compositeScore: riskScore,
-            dashboardUrl: settings.dashboardUrl
-          }
-        });
-      }
-    } else {
+      await BadgeManager.setWhitelisted(tabId);
       sendMessageToTab(tabId, { type: 'HIDE_OVERLAYS' });
+      return;
     }
 
-  } catch (err: any) {
-    console.error('[PhishNetra Background] Analysis error:', err);
-    tabStateMap.set(tabId, {
-      url,
-      domain,
-      localHeuristics,
-      analysis: null,
-      status: localHeuristics.isLikelyPhishing ? 'PHISHING' : 'SAFE',
-      error: err.message || 'API connection failed',
-      analyzedAt: Date.now()
-    });
+    // 2. Check Session Bypass
+    const isBypassed = await StorageService.hasTemporaryBypass(url);
+    if (isBypassed) {
+      await BadgeManager.setBypassed(tabId);
+      sendMessageToTab(tabId, { type: 'HIDE_OVERLAYS' });
+      return;
+    }
 
-    // Fall back to local heuristic status if backend is unreachable
+    // 3. Fast Local Heuristic Pre-Evaluation
+    const localHeuristics = evaluateLocalHeuristics(url);
     if (localHeuristics.isLikelyPhishing) {
       await BadgeManager.setRiskStatus(localHeuristics.score, 'PHISHING', tabId);
-    } else if (localHeuristics.isSuspicious) {
-      await BadgeManager.setRiskStatus(localHeuristics.score, 'SUSPICIOUS', tabId);
     } else {
-      await BadgeManager.setRiskStatus(10, 'SAFE', tabId);
+      await BadgeManager.setScanning(tabId);
+    }
+
+    tabStateMap.set(tabId, {
+      url,
+      domain,
+      localHeuristics,
+      analysis: null,
+      status: 'PENDING',
+      analyzedAt: Date.now()
+    });
+
+    const settings = await StorageService.getSettings();
+
+    try {
+      let analysis: AnalysisResponse | null = null;
+
+      // 4. Check Client-Side Cache if not force refreshed
+      if (!forceRefresh) {
+        analysis = await StorageService.getCachedAnalysis(url);
+      }
+
+      // 5. Backend Pipeline Query if not in cache
+      if (!analysis) {
+        const response = await fetch(`${settings.apiUrl}/analyze`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ url })
+        });
+
+        if (!response.ok) {
+          throw new Error(`PhishNetra API error: ${response.status} ${response.statusText}`);
+        }
+
+        analysis = await response.json();
+        if (analysis) {
+          await StorageService.setCachedAnalysis(url, analysis);
+        }
+      }
+
+      if (!analysis) {
+        throw new Error('No analysis data received from engine');
+      }
+
+      const riskScore = analysis.riskScore ?? 0;
+      const verdict = analysis.verdict || 'SAFE';
+
+      tabStateMap.set(tabId, {
+        url,
+        domain,
+        localHeuristics,
+        analysis,
+        status: verdict,
+        analyzedAt: Date.now()
+      });
+
+      // 6. Update Extension Action Badge
+      await BadgeManager.setRiskStatus(riskScore, verdict, tabId);
+
+      // 7. Trigger In-Page Threat Mitigations (Zero Silent Redirects Policy)
+      const isCritical = verdict === 'PHISHING' || riskScore >= settings.blockThreshold;
+      const isSuspicious = verdict === 'SUSPICIOUS' || (riskScore >= 35 && !isCritical);
+
+      if (isCritical) {
+        const bypassed = await StorageService.hasTemporaryBypass(url);
+        if (!bypassed) {
+          const evidenceDescriptions = analysis.evidence?.map((e) => e.description) || localHeuristics.reasons;
+          sendMessageToTab(tabId, {
+            type: 'SHOW_INTERSTITIAL',
+            payload: {
+              url,
+              domain,
+              compositeScore: riskScore,
+              riskLevel: verdict,
+              criticalIndicators: evidenceDescriptions,
+              aiConfidence: analysis.confidence ?? 0.85,
+              dashboardUrl: settings.dashboardUrl
+            }
+          });
+        }
+      } else if (isSuspicious) {
+        const bypassed = await StorageService.hasTemporaryBypass(url);
+        if (!bypassed) {
+          sendMessageToTab(tabId, {
+            type: 'SHOW_BANNER',
+            payload: {
+              url,
+              domain,
+              compositeScore: riskScore,
+              dashboardUrl: settings.dashboardUrl
+            }
+          });
+        }
+      } else {
+        sendMessageToTab(tabId, { type: 'HIDE_OVERLAYS' });
+      }
+
+    } catch (err: any) {
+      console.error('[PhishNetra Background] Analysis error:', err);
+      tabStateMap.set(tabId, {
+        url,
+        domain,
+        localHeuristics,
+        analysis: null,
+        status: localHeuristics.isLikelyPhishing ? 'PHISHING' : 'SAFE',
+        error: err.message || 'API connection failed',
+        analyzedAt: Date.now()
+      });
+
+      // Fall back to local heuristic status if backend is unreachable
+      if (localHeuristics.isLikelyPhishing) {
+        await BadgeManager.setRiskStatus(localHeuristics.score, 'PHISHING', tabId);
+      } else if (localHeuristics.isSuspicious) {
+        await BadgeManager.setRiskStatus(localHeuristics.score, 'SUSPICIOUS', tabId);
+      } else {
+        await BadgeManager.setRiskStatus(10, 'SAFE', tabId);
+      }
+    }
+  };
+
+  const promise = run();
+  inFlightAnalysisMap.set(tabId, promise);
+  try {
+    await promise;
+  } finally {
+    if (inFlightAnalysisMap.get(tabId) === promise) {
+      inFlightAnalysisMap.delete(tabId);
     }
   }
 }
@@ -361,23 +375,34 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return;
       }
 
+      // If an analysis is currently running in background for this tab, await it
+      const inFlight = inFlightAnalysisMap.get(targetTabId);
+      if (inFlight) {
+        await inFlight;
+      }
+
       let state = tabStateMap.get(targetTabId);
-      if (!state || state.url !== targetUrl) {
+      if (!state || state.url !== targetUrl || state.status === 'PENDING') {
         await processTabAnalysis(targetTabId, targetUrl);
         state = tabStateMap.get(targetTabId);
       }
 
       if (state) {
         const settings = await StorageService.getSettings();
-        const score = state.analysis?.riskScore || state.localHeuristics.score || 0;
-        const verdict = state.status;
+        // Authoritative score: use backend analysis riskScore if available, else local heuristics
+        const score = state.analysis !== null
+          ? (state.analysis.riskScore ?? 0)
+          : (state.localHeuristics?.score ?? 0);
+        const verdict = state.analysis?.verdict ?? (state.localHeuristics?.isLikelyPhishing ? 'PHISHING' : state.localHeuristics?.isSuspicious ? 'SUSPICIOUS' : 'SAFE');
         const isCritical = verdict === 'PHISHING' || score >= settings.blockThreshold;
-        const isSuspicious = verdict === 'SUSPICIOUS' || (score >= 40 && !isCritical);
+        const isSuspicious = verdict === 'SUSPICIOUS' || (score >= 35 && !isCritical);
         const bypassed = await StorageService.hasTemporaryBypass(targetUrl);
         const isWhitelisted = await StorageService.isWhitelisted(state.domain);
 
+        const aiConfidence = state.analysis?.confidence ?? 0.85;
+
         if (!bypassed && !isWhitelisted && isCritical) {
-          const evidenceDescriptions = state.analysis?.evidence?.map((e: any) => e.description) || state.localHeuristics.reasons;
+          const evidenceDescriptions = state.analysis?.evidence?.map((e: any) => e.description) || state.localHeuristics?.reasons || [];
           sendResponse({
             action: 'SHOW_INTERSTITIAL',
             payload: {
@@ -386,7 +411,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               compositeScore: score,
               riskLevel: verdict,
               criticalIndicators: evidenceDescriptions,
-              aiConfidence: state.analysis?.mlProbability || state.analysis?.confidence || 0.95,
+              aiConfidence,
               dashboardUrl: settings.dashboardUrl
             }
           });

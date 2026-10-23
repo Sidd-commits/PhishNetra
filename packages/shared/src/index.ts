@@ -499,10 +499,43 @@ export const LAYER_WEIGHTS = {
 } as const;
 
 export const RISK_THRESHOLDS = {
-  SAFE_MAX: 29.99,
-  SUSPICIOUS_MAX: 59.99,
+  SAFE_MAX: 34.99,
+  SUSPICIOUS_MAX: 69.99,
   HIGH_MAX: 79.99
 } as const;
+
+/**
+ * Universal Registrable Domain & Subdomain Extractor
+ * Handles both standard TLDs and multi-part country code second-level domains (e.g. .co.uk, .co.in, .com.au)
+ */
+export function extractDomainParts(hostname: string): {
+  domain: string;
+  registrableDomain: string;
+  tld: string;
+  subdomain: string;
+} {
+  const clean = (hostname || '').toLowerCase().split(':')[0].replace(/\.+$/, '');
+  const parts = clean.split('.');
+  if (parts.length <= 1) {
+    return { domain: clean, registrableDomain: clean, tld: '', subdomain: '' };
+  }
+  const tld = parts[parts.length - 1];
+  const MULTI_PART_CCTLDS = new Set(['co', 'com', 'org', 'net', 'edu', 'gov', 'ac', 'ne', 'or', 'mil']);
+  if (parts.length >= 3 && MULTI_PART_CCTLDS.has(parts[parts.length - 2])) {
+    return {
+      domain: clean,
+      registrableDomain: parts.slice(-3).join('.'),
+      tld: parts.slice(-2).join('.'),
+      subdomain: parts.slice(0, -3).join('.')
+    };
+  }
+  return {
+    domain: clean,
+    registrableDomain: parts.slice(-2).join('.'),
+    tld,
+    subdomain: parts.slice(0, -2).join('.')
+  };
+}
 
 // ============================================================================
 // Milestone 4: Batch Processing & Async Jobs
