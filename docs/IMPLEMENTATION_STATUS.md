@@ -5,7 +5,7 @@
 **Current Milestone:** Semester 1 Presentation & Evaluation (Months 1–5)  
 **Authoritative Audit Document:** [`docs/SEMESTER_MILESTONE_AUDIT.md`](SEMESTER_MILESTONE_AUDIT.md)  
 **Two-Semester Roadmap:** [`docs/ROADMAP.md`](ROADMAP.md)  
-**Monorepo Verification:** **262 / 262 Automated Tests Passing (100%)** • **Clean Production Builds (0 Errors)**  
+**Monorepo Verification:** **285 / 285 Automated Tests Passing (100%)** • **Clean Production Builds (0 Errors)**  
 
 ---
 
@@ -80,11 +80,11 @@ Enterprise SOC modules developed during exploratory iterations are **removed fro
 ================================================================================
 Workspace                   Test Runner    Suites    Passed    Failed   Pass Rate
 --------------------------------------------------------------------------------
-@phishnetra/api (Express)   Jest           29        202       0        100.0%
+@phishnetra/api (Express)   Jest           29        204       0        100.0%
 @phishnetra/extension (MV3) Jest            2         12       0        100.0%
-services/ml (FastAPI)       Pytest          9         67       0        100.0%
+services/ml (FastAPI)       Pytest          9         69       0        100.0%
 --------------------------------------------------------------------------------
-TOTAL MONOREPO TESTS                       40        281       0        100.0%
+TOTAL MONOREPO TESTS                       40        285       0        100.0%
 ================================================================================
 Production Build Verification:
   - @phishnetra/shared:    CLEAN (tsc)

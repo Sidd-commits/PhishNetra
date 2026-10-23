@@ -22,7 +22,7 @@ KNOWN_BRANDS = {
         "domains": ["google.com", "gmail.com", "youtube.com", "google.co.in", "google.co.uk", "google.ca", "google.de", "google.fr", "1e100.net", "googleapis.com", "gstatic.com", "googleusercontent.com"]
     },
     "Apple": {
-        "keywords": ["apple", "icloud", "apple id", "itunes", "app store"],
+        "keywords": ["apple id", "icloud", "apple account", "apple login", "apple security", "itunes"],
         "domains": ["apple.com", "icloud.com"]
     },
     "Amazon": {
@@ -111,6 +111,19 @@ class BrandConsistencyAnalyzer:
         clean_host, reg_domain, _, _ = extract_domain_parts(hostname)
         return reg_domain or clean_host
 
+    # Standard benign ecosystem integration patterns to scrub from visible text
+    ECOSYSTEM_IGNORE_PATTERNS = [
+        re.compile(r"\b(?:apple\s+)?app\s+store\b", re.IGNORECASE),
+        re.compile(r"\bgoogle\s+play(?:\s+store)?\b", re.IGNORECASE),
+        re.compile(r"\bplay\s+store\b", re.IGNORECASE),
+        re.compile(r"\b(?:sign|log)\s*in\s+with\s+(?:google|apple|microsoft|facebook)\b", re.IGNORECASE),
+        re.compile(r"\b(?:continue|connect)\s+with\s+(?:google|apple|microsoft|facebook)\b", re.IGNORECASE),
+        re.compile(r"\bfollow\s+(?:us\s+)?on\s+(?:facebook|instagram|twitter|youtube|linkedin)\b", re.IGNORECASE),
+        re.compile(r"\b(?:powered\s+by|hosted\s+on)\s+(?:aws|azure|google|microsoft)\b", re.IGNORECASE),
+        re.compile(r"\bprotected\s+by\s+(?:recaptcha|cloudflare|hcaptcha)\b", re.IGNORECASE),
+        re.compile(r"\brecaptcha\b", re.IGNORECASE)
+    ]
+
     @classmethod
     def analyze(cls, base_url: str, title: str, visible_text: str, forms: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], float]:
         """
@@ -125,52 +138,77 @@ class BrandConsistencyAnalyzer:
         target_reg_domain = cls.get_registrable_domain(host)
 
         corpus_title = title.lower()
-        corpus_text = visible_text.lower()
+        cleaned_text = visible_text.lower()
+        for pattern in cls.ECOSYSTEM_IGNORE_PATTERNS:
+            cleaned_text = pattern.sub(" ", cleaned_text)
+
         corpus_forms = " ".join([f.get("description", "") for f in forms]).lower()
-        combined_corpus = f"{corpus_title} {corpus_text} {corpus_forms}"
+        combined_corpus = f"{corpus_title} {cleaned_text} {corpus_forms}"
+
+        # Self-domain branding detection (e.g. 'internshala' in title of 'internshala.com')
+        domain_brand_token = target_reg_domain.split(".")[0] if target_reg_domain else ""
+        has_self_branding = bool(len(domain_brand_token) >= 3 and domain_brand_token in corpus_title)
+        is_institutional = any(target_reg_domain.endswith(ext) for ext in [".edu", ".ac.in", ".edu.in", ".gov", ".gov.in", ".ac.uk", ".edu.au"])
 
         brand_findings: List[Dict[str, Any]] = []
 
         for brand_name, brand_data in KNOWN_BRANDS.items():
             matched_sources = []
             brand_hits = 0
+            has_title_hit = False
+            has_form_hit = False
 
             for kw in brand_data["keywords"]:
                 pattern = r"\b" + re.escape(kw) + r"\b"
                 if re.search(pattern, corpus_title):
                     matched_sources.append(f"Title contains '{kw}'")
                     brand_hits += 3
+                    has_title_hit = True
                 if re.search(pattern, corpus_forms):
                     matched_sources.append(f"Form contains '{kw}'")
                     brand_hits += 2
-                if re.search(pattern, corpus_text):
+                    has_form_hit = True
+                if re.search(pattern, cleaned_text):
+                    matched_sources.append(f"Text contains '{kw}'")
                     brand_hits += 1
 
-            if brand_hits >= 2:
-                # Brand is claimed/referenced on the page
-                is_authentic = any(
-                    host == d or host.endswith("." + d) or target_reg_domain == d or target_reg_domain.endswith("." + d)
-                    for d in brand_data["domains"]
-                )
+            is_authentic = any(
+                host == d or host.endswith("." + d) or target_reg_domain == d or target_reg_domain.endswith("." + d)
+                for d in brand_data["domains"]
+            )
 
-                is_mismatch = not is_authentic
-                confidence = min(1.0, 0.5 + (brand_hits * 0.1))
+            if is_authentic:
+                if brand_hits >= 1 or has_title_hit:
+                    brand_findings.append({
+                        "claimedBrand": brand_name,
+                        "authenticDomain": brand_data["domains"][0],
+                        "actualDomain": target_reg_domain,
+                        "isMismatch": False,
+                        "confidence": 1.0,
+                        "matchSources": matched_sources,
+                        "description": f"Page references '{brand_name}' on verified authentic domain '{target_reg_domain}'."
+                    })
+            else:
+                # Unrelated domain: evaluate whether this is a genuine impersonation claim
+                # Real brand impersonation requires claiming the brand in the title or authentication form,
+                # or overwhelming text mentions on a non-institutional site without self-branding.
+                is_mismatch = False
+                if has_title_hit or has_form_hit:
+                    is_mismatch = True
+                elif brand_hits >= 5 and not has_self_branding and not is_institutional:
+                    is_mismatch = True
 
-                desc = (
-                    f"Page strongly references '{brand_name}' but is hosted on unrelated domain '{target_reg_domain}' (Expected: {brand_data['domains'][0]})."
-                    if is_mismatch
-                    else f"Page references '{brand_name}' on verified authentic domain '{target_reg_domain}'."
-                )
-
-                brand_findings.append({
-                    "claimedBrand": brand_name,
-                    "authenticDomain": brand_data["domains"][0],
-                    "actualDomain": target_reg_domain,
-                    "isMismatch": is_mismatch,
-                    "confidence": round(confidence, 2),
-                    "matchSources": matched_sources,
-                    "description": desc
-                })
+                if is_mismatch:
+                    confidence = min(1.0, 0.5 + (brand_hits * 0.1))
+                    brand_findings.append({
+                        "claimedBrand": brand_name,
+                        "authenticDomain": brand_data["domains"][0],
+                        "actualDomain": target_reg_domain,
+                        "isMismatch": True,
+                        "confidence": round(confidence, 2),
+                        "matchSources": matched_sources,
+                        "description": f"Page strongly references '{brand_name}' but is hosted on unrelated domain '{target_reg_domain}' (Expected: {brand_data['domains'][0]})."
+                    })
 
         # Phishing Keywords Categorization
         keyword_findings: List[Dict[str, Any]] = []

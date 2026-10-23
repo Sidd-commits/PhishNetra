@@ -134,3 +134,25 @@ def test_content_risk_model_safe_page_with_helper_iframe():
     # Helper iframe on clean page must not receive aggressive 20+ score
     assert score <= 10.0
     assert prob < 0.15
+
+
+def test_brand_analyzer_internshala_ecosystem_badges_not_mismatch():
+    brand_findings, _, _ = BrandConsistencyAnalyzer.analyze(
+        base_url="https://internshala.com/chat/c-125923166?filter=all",
+        title="Chat | Internshala",
+        visible_text="Welcome to Internshala chat. Download our mobile app from the Apple App Store or Google Play Store. Apply now.",
+        forms=[{"description": "Internshala user login form", "inputs": [{"type": "password"}]}]
+    )
+    # Must NOT flag Apple or Google brand mismatch due to app store download badges
+    assert not any(b["isMismatch"] for b in brand_findings)
+
+
+def test_brand_analyzer_college_erp_portal_not_mismatch():
+    brand_findings, _, _ = BrandConsistencyAnalyzer.analyze(
+        base_url="https://erp.iitd.ac.in/login",
+        title="IIT Delhi ERP Student Portal - Login",
+        visible_text="Welcome to IIT Delhi ERP. Log in with your roll number and password. For institutional email, please access Microsoft Office 365 or Outlook web portal.",
+        forms=[{"description": "Student roll number and password form", "inputs": [{"type": "password"}]}]
+    )
+    # Must NOT flag Microsoft brand mismatch on institutional college domain
+    assert not any(b["isMismatch"] for b in brand_findings)

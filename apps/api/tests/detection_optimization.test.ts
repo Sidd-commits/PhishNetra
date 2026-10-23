@@ -436,6 +436,288 @@ describe('Phase 8: Detection Optimization & Regression Suite', () => {
       expect(evalResult.verdict).toBe('PHISHING');
       expect(evalResult.riskScore).toBeGreaterThanOrEqual(80.0);
     });
+
+    it('should classify Internshala with app store references and same-origin login as SAFE with LOW risk score', () => {
+      const evalResult = riskEngine.evaluateMultiLayer({
+        urlLayer: {
+          status: 'SUCCESS',
+          canonicalUrl: 'https://internshala.com/chat/c-125923166?filter=all',
+          hostname: 'internshala.com',
+          path: '/chat/c-125923166',
+          query: 'filter=all',
+          isShortener: false,
+          shortenerProvider: null,
+          isPunycode: false,
+          unicodeHostname: null,
+          hasUserInfo: false,
+          hasCustomPort: false,
+          customPort: null,
+          obfuscatedEncodings: [],
+          digitRatio: 0,
+          specialCharRatio: 0,
+          hyphenRatio: 0,
+          entropy: 3.2,
+          features: {
+            url_length: 53,
+            hostname_length: 15,
+            path_length: 17,
+            query_length: 10,
+            subdomain_count: 0,
+            has_ip_address: 0,
+            has_https: 1,
+            special_char_count: 5,
+            digit_count: 9,
+            hyphen_count: 1,
+            at_symbol_count: 0,
+            double_slash_in_path: 0,
+            encoded_char_count: 0,
+            suspicious_keyword_count: 0,
+            entropy: 3.2,
+            tld_in_subdomain: 0,
+            port_in_url: 0,
+            tld_length: 3
+          }
+        },
+        domainLayer: {
+          status: 'SUCCESS',
+          domain: 'internshala.com',
+          registrableDomain: 'internshala.com',
+          tld: 'com',
+          subdomain: '',
+          registrar: 'GoDaddy',
+          creationDate: '2010-09-01T00:00:00Z',
+          expirationDate: '2028-09-01T00:00:00Z',
+          domainAgeDays: 5200,
+          domainAgeCategory: '> 365 days',
+          isPrivacyProtected: false,
+          rawStatus: 'ACTIVE'
+        },
+        dnsLayer: {
+          status: 'SUCCESS',
+          resolvedIps: ['104.26.12.34', '104.26.13.34'],
+          ipv4Count: 2,
+          ipv6Count: 2,
+          nameservers: ['ns1.cloudflare.com', 'ns2.cloudflare.com'],
+          mxRecords: ['aspmx.l.google.com'],
+          cnameRecords: [],
+          txtRecords: [],
+          hasMx: true,
+          ipDetails: []
+        },
+        tlsLayer: {
+          status: 'SUCCESS',
+          hasTls: true,
+          issuer: 'Cloudflare Inc ECC CA-3',
+          subject: 'internshala.com',
+          validFrom: '2026-01-01',
+          validTo: '2027-01-01',
+          daysUntilExpiry: 180,
+          certificateValid: true,
+          certificateExpired: false,
+          hostnameMatches: true,
+          sans: ['internshala.com', '*.internshala.com'],
+          tlsVersion: 'TLSv1.3',
+          zeroTrustWarning: 'Transport valid'
+        },
+        reputationLayer: {
+          status: 'SUCCESS',
+          isListedMalicious: false,
+          reputationScore: 0,
+          providers: []
+        },
+        mlLayer: {
+          status: 'SUCCESS',
+          phishingProbability: 0.031,
+          confidence: 0.97,
+          predictedLabel: 0,
+          modelVersion: 'v1.0.0-optimized',
+          inferenceTimeMs: 12.0
+        },
+        pageLayer: {
+          status: 'COMPLETED',
+          requestedUrl: 'https://internshala.com/chat/c-125923166?filter=all',
+          finalUrl: 'https://internshala.com/chat/c-125923166?filter=all',
+          redirectCount: 0,
+          redirectChain: [],
+          forms: [
+            {
+              id: 'login_form',
+              name: 'login',
+              action: '/login-user',
+              actionResolved: 'https://internshala.com/login-user',
+              method: 'POST',
+              target: '',
+              isCrossOrigin: false,
+              isIpAction: false,
+              hasPasswordField: true,
+              hasEmailField: true,
+              hasCreditCardField: false,
+              hasOtpField: false,
+              passwordFieldCount: 1,
+              inputCount: 2,
+              description: 'Internshala user login form'
+            }
+          ],
+          iframes: [{ src: 'https://www.googletagmanager.com/ns.html', isCrossOrigin: true, isHidden: true }],
+          scripts: [],
+          keywords: [],
+          brandFindings: [],
+          urgencyScore: 0.0,
+          contentRiskScore: 5.0,
+          phishingProbability: 0.05,
+          confidence: 0.90,
+          error: null,
+          blockReason: null,
+          acquisitionTimeMs: 320
+        },
+        layerEvidences: []
+      });
+
+      expect(evalResult.verdict).toBe('SAFE');
+      expect(evalResult.riskLevel).toBe('LOW');
+      expect(evalResult.riskScore).toBeLessThan(RISK_THRESHOLDS.SAFE_MAX);
+    });
+
+    it('should classify accredited College ERP portal with student login form as SAFE with LOW risk score', () => {
+      const evalResult = riskEngine.evaluateMultiLayer({
+        urlLayer: {
+          status: 'SUCCESS',
+          canonicalUrl: 'https://erp.iitd.ac.in/login',
+          hostname: 'erp.iitd.ac.in',
+          path: '/login',
+          query: '',
+          isShortener: false,
+          shortenerProvider: null,
+          isPunycode: false,
+          unicodeHostname: null,
+          hasUserInfo: false,
+          hasCustomPort: false,
+          customPort: null,
+          obfuscatedEncodings: [],
+          digitRatio: 0,
+          specialCharRatio: 0,
+          hyphenRatio: 0,
+          entropy: 3.1,
+          features: {
+            url_length: 27,
+            hostname_length: 14,
+            path_length: 6,
+            query_length: 0,
+            subdomain_count: 1,
+            has_ip_address: 0,
+            has_https: 1,
+            special_char_count: 3,
+            digit_count: 0,
+            hyphen_count: 0,
+            at_symbol_count: 0,
+            double_slash_in_path: 0,
+            encoded_char_count: 0,
+            suspicious_keyword_count: 1,
+            entropy: 3.1,
+            tld_in_subdomain: 0,
+            port_in_url: 0,
+            tld_length: 5
+          }
+        },
+        domainLayer: {
+          status: 'SUCCESS',
+          domain: 'erp.iitd.ac.in',
+          registrableDomain: 'iitd.ac.in',
+          tld: 'ac.in',
+          subdomain: 'erp',
+          registrar: 'ERNET India',
+          creationDate: '2000-01-01T00:00:00Z',
+          expirationDate: '2030-01-01T00:00:00Z',
+          domainAgeDays: 9000,
+          domainAgeCategory: '> 365 days',
+          isPrivacyProtected: false,
+          rawStatus: 'ACTIVE'
+        },
+        dnsLayer: {
+          status: 'SUCCESS',
+          resolvedIps: ['14.139.45.10'],
+          ipv4Count: 1,
+          ipv6Count: 0,
+          nameservers: ['ns1.iitd.ac.in', 'ns2.iitd.ac.in'],
+          mxRecords: ['mail.iitd.ac.in'],
+          cnameRecords: [],
+          txtRecords: [],
+          hasMx: true,
+          ipDetails: []
+        },
+        tlsLayer: {
+          status: 'SUCCESS',
+          hasTls: true,
+          issuer: 'DigiCert Global Root CA',
+          subject: 'erp.iitd.ac.in',
+          validFrom: '2026-01-01',
+          validTo: '2027-01-01',
+          daysUntilExpiry: 200,
+          certificateValid: true,
+          certificateExpired: false,
+          hostnameMatches: true,
+          sans: ['erp.iitd.ac.in', '*.iitd.ac.in'],
+          tlsVersion: 'TLSv1.3',
+          zeroTrustWarning: 'Transport valid'
+        },
+        reputationLayer: {
+          status: 'SUCCESS',
+          isListedMalicious: false,
+          reputationScore: 0,
+          providers: []
+        },
+        mlLayer: {
+          status: 'SUCCESS',
+          phishingProbability: 0.018,
+          confidence: 0.98,
+          predictedLabel: 0,
+          modelVersion: 'v1.0.0-optimized',
+          inferenceTimeMs: 11.0
+        },
+        pageLayer: {
+          status: 'COMPLETED',
+          requestedUrl: 'https://erp.iitd.ac.in/login',
+          finalUrl: 'https://erp.iitd.ac.in/login',
+          redirectCount: 0,
+          redirectChain: [],
+          forms: [
+            {
+              id: 'student_auth',
+              name: 'loginForm',
+              action: '/auth/verify',
+              actionResolved: 'https://erp.iitd.ac.in/auth/verify',
+              method: 'POST',
+              target: '',
+              isCrossOrigin: false,
+              isIpAction: false,
+              hasPasswordField: true,
+              hasEmailField: true,
+              hasCreditCardField: false,
+              hasOtpField: false,
+              passwordFieldCount: 1,
+              inputCount: 2,
+              description: 'IIT Delhi Student and Staff login form'
+            }
+          ],
+          iframes: [],
+          scripts: [],
+          keywords: [],
+          brandFindings: [],
+          urgencyScore: 0.0,
+          contentRiskScore: 5.0,
+          phishingProbability: 0.05,
+          confidence: 0.92,
+          error: null,
+          blockReason: null,
+          acquisitionTimeMs: 280
+        },
+        layerEvidences: []
+      });
+
+      expect(evalResult.verdict).toBe('SAFE');
+      expect(evalResult.riskLevel).toBe('LOW');
+      expect(evalResult.riskScore).toBeLessThanOrEqual(24.0);
+    });
   });
 
   describe('4. Threshold Boundary Determinism', () => {

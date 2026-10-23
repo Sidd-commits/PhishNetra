@@ -83,13 +83,16 @@ export class ContentLayer {
           confidence: 0.95
         });
       } else if (form.hasPasswordField) {
+        const isSuspiciousContext = hasBrandMismatch;
         evidence.push({
           layer: 'FORM',
           featureKey: 'credential_form',
           featureValue: `${form.passwordFieldCount} password field(s)`,
-          severity: 'MEDIUM',
-          description: `Page contains authentication form requesting user credentials (${form.description || 'Password input'}).`,
-          contribution: 0.15,
+          severity: isSuspiciousContext ? 'HIGH' : 'INFO',
+          description: isSuspiciousContext
+            ? `Suspicious: Form requests password credentials on an unverified brand impersonation page.`
+            : `Page provides standard same-origin user authentication form (${form.description || 'Password input'}).`,
+          contribution: isSuspiciousContext ? 0.25 : 0.0,
           source: 'Form_Analyzer',
           confidence: 0.90
         });
@@ -170,14 +173,32 @@ export class ContentLayer {
     }
 
     // 7. Hidden Iframe Evidence
-    const hiddenIframes = (pageResult.iframes || []).filter(ifr => ifr.isHidden);
-    if (hiddenIframes.length > 0) {
+    const BENIGN_IFRAME_SOURCES = [
+      'googletagmanager.com',
+      'google.com/recaptcha',
+      'recaptcha.net',
+      'challenges.cloudflare.com',
+      'accounts.google.com',
+      'login.microsoftonline.com',
+      'facebook.com/tr',
+      'doubleclick.net',
+      'analytics'
+    ];
+
+    const suspiciousHiddenIframes = (pageResult.iframes || []).filter(ifr => {
+      if (!ifr.isHidden) return false;
+      const src = (ifr.src || '').toLowerCase();
+      if (!src || src.startsWith('about:blank') || src.startsWith('javascript:')) return false;
+      return !BENIGN_IFRAME_SOURCES.some(service => src.includes(service));
+    });
+
+    if (suspiciousHiddenIframes.length > 0) {
       evidence.push({
         layer: 'CONTENT',
         featureKey: 'hidden_iframe_detected',
-        featureValue: `${hiddenIframes.length} hidden iframe(s)`,
+        featureValue: `${suspiciousHiddenIframes.length} hidden iframe(s)`,
         severity: 'HIGH',
-        description: `Page embeds ${hiddenIframes.length} hidden or zero-dimension iframe(s) capable of silent payload loading.`,
+        description: `Page embeds ${suspiciousHiddenIframes.length} hidden or zero-dimension iframe(s) capable of silent payload loading.`,
         contribution: 0.20,
         source: 'DOM_Analyzer',
         confidence: 0.90

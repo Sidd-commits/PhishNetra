@@ -225,14 +225,33 @@ export class RiskEngine {
       compositeScore += score * normalizedWeight;
     }
 
+    // Check if domain is an accredited educational or governmental institutional domain
+    const targetDomain = domainLayer.registrableDomain || domainLayer.domain || urlLayer.hostname || '';
+    const isInstitutionalDomain = Boolean(
+      targetDomain.endsWith('.edu') ||
+      targetDomain.endsWith('.ac.in') ||
+      targetDomain.endsWith('.edu.in') ||
+      targetDomain.endsWith('.gov') ||
+      targetDomain.endsWith('.gov.in') ||
+      targetDomain.endsWith('.ac.uk') ||
+      targetDomain.endsWith('.edu.au')
+    );
+
     // --- Critical Override Rules (Zero-Trust Synthesis) ---
     // 1. Homoglyph Brand Spoofing (e.g. xn--gogle-pqa.com)
     if (hasHomoglyphBrandSpoof) {
       compositeScore = Math.max(compositeScore, 85);
     }
     // 2. Brand Impersonation Mismatch
+    // Only force critical score if brand mismatch is on an unverified domain (not an established or institutional domain)
+    // or if corroborated by credential harvest forms / young domain
     if (hasBrandMismatch) {
-      compositeScore = Math.max(compositeScore, 82);
+      const isEstablishedDomain = Boolean(domainLayer.domainAgeDays && domainLayer.domainAgeDays > 180);
+      if (!isInstitutionalDomain && (!isEstablishedDomain || hasCrossOriginCredentialForm || hasHighRiskTld)) {
+        compositeScore = Math.max(compositeScore, 82);
+      } else if (!isInstitutionalDomain) {
+        compositeScore = Math.max(compositeScore, 45); // Moderate suspicious penalty for established domain
+      }
     }
     // 3. Combosquatting on high-abuse TLD
     if (hasHighRiskTld && urlLayer.features.tld_in_subdomain === 1) {
@@ -255,7 +274,7 @@ export class RiskEngine {
       compositeScore = Math.max(compositeScore, 95);
     }
 
-    // --- Negative Risk Dampener for Verified Authentic Brands ---
+    // --- Negative Risk Dampener for Verified Authentic Brands & Accredited Institutions ---
     const hasVerifiedAuthenticBrand = Boolean(
       pageLayer &&
       pageLayer.status === 'COMPLETED' &&
@@ -265,6 +284,9 @@ export class RiskEngine {
     if (hasVerifiedAuthenticBrand && !hasCrossOriginCredentialForm && !reputationLayer.isListedMalicious && !hasPrivateIp && !hasHomoglyphBrandSpoof) {
       // Clean authentic brand page; dampen residual background heuristic noise
       compositeScore = Math.min(compositeScore, 18.0);
+    } else if (isInstitutionalDomain && !hasCrossOriginCredentialForm && !reputationLayer.isListedMalicious && !hasPrivateIp && !hasHomoglyphBrandSpoof) {
+      // Accredited educational/government portal with standard same-origin login
+      compositeScore = Math.min(compositeScore, 24.0);
     }
 
     // Fail-safe protection against NaN or non-finite values (never fail open)

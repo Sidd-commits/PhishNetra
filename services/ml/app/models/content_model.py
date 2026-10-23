@@ -26,11 +26,14 @@ class ContentRiskModel:
 
         # 2. Form & Credential Theft Signals
         if features.get("has_login_form", 0) == 1:
-            score += 15.0
             if features.get("external_form_actions", 0) > 0:
                 score += 35.0  # Credentials submitted to 3rd party domain
+            elif features.get("brand_domain_mismatch", 0) == 1:
+                score += 20.0  # Login form on a brand mismatch page
+            else:
+                score += 5.0   # Standard same-origin login form
 
-        if features.get("password_inputs", 0) >= 2:
+        if features.get("password_inputs", 0) >= 2 and (features.get("external_form_actions", 0) > 0 or features.get("brand_domain_mismatch", 0) == 1):
             score += 10.0
 
         # 3. Hidden & Cross-Origin Iframes

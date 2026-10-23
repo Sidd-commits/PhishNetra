@@ -4,7 +4,7 @@
 
 [![Academic Classification](https://img.shields.io/badge/Academic%20Project-Two--Semester%20Major%20Project-cyan.svg)](docs/PROJECT_SCOPE.md)
 [![Milestone](https://img.shields.io/badge/Milestone-Semester%201%20Deliverable%20Verified-blue.svg)](docs/SEMESTER_MILESTONE_AUDIT.md)
-[![Automated Tests](https://img.shields.io/badge/Tests-281%2F281%20Passing%20(100%25)-brightgreen.svg)](tests/)
+[![Automated Tests](https://img.shields.io/badge/Tests-285%2F285%20Passing%20(100%25)-brightgreen.svg)](tests/)
 [![Node.js](https://img.shields.io/badge/Node.js-v20+-green.svg)](https://nodejs.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111+-009688.svg)](https://fastapi.tiangolo.com/)
@@ -47,7 +47,7 @@ PhishNetra is developed as a **two-semester academic major project spanning appr
 |  • Email Attachment Link Extraction Engine (Pure-JS Safe Parsers: PDF, HTML, DOCX, TXT, EML)     |
 |  • Chrome Manifest V3 Browser Extension Prototype (Sub-5ms Heuristics + DOM Interstitial Barrier) |
 |  • Unified Academic Security Console (React 18 + Vite Dashboard, Scanners, Telemetry History)     |
-|  VERIFICATION: 281/281 Automated Tests Passing (100%) • 4/4 Workspaces Clean Production Builds    |
+|  VERIFICATION: 285/285 Automated Tests Passing (100%) • 4/4 Workspaces Clean Production Builds    |
 +---------------------------------------------------------------------------------------------------+
 |  SEMESTER 2 (Months 6 → 10): Empirical Evaluation, Hardening & Academic Thesis [PLANNED ROADMAP] |
 |  • Benchmark Dataset Evaluation (Precision, Recall, F1, ROC-AUC on PhishTank, Alexa Top 1M)      |
@@ -406,11 +406,11 @@ The frontend is a fast, responsive Single Page Application built with **React 18
 ================================================================================
 Workspace                   Runner         Suites      Tests Passed     Status
 --------------------------------------------------------------------------------
-@phishnetra/api (Express)   Jest           29          202 / 202        100% PASS
+@phishnetra/api (Express)   Jest           29          204 / 204        100% PASS
 @phishnetra/extension (MV3) Jest            2           12 / 12        100% PASS
-services/ml (FastAPI)       Pytest          9           67 / 67        100% PASS
+services/ml (FastAPI)       Pytest          9           69 / 69        100% PASS
 --------------------------------------------------------------------------------
-TOTAL MONOREPO TESTS                       40          281 / 281        100% PASS
+TOTAL MONOREPO TESTS                       40          285 / 285        100% PASS
 ================================================================================
 Production Build Verification:
   • @phishnetra/shared:    CLEAN (tsc)
@@ -425,13 +425,13 @@ Production Build Verification:
 # Run all tests across the monorepo (Node.js + Python ML)
 npm run test:all
 
-# Run backend API suites (202 tests across 29 suites)
+# Run backend API suites (204 tests across 29 suites)
 npm run test:api
 
 # Run browser extension unit suites (12 tests across 2 suites)
 npm run test:extension
 
-# Run Python ML test suites (67 tests across 9 suites)
+# Run Python ML test suites (69 tests across 9 suites)
 npm run test:ml
 ```
 
@@ -515,7 +515,7 @@ The project progression adheres to the following two-semester milestone schedule
 
 | Milestone | Target | Focus Area | Status | Deliverables |
 | :--- | :--- | :--- | :---: | :--- |
-| **Semester 1: Core Prototype** | Months 1–5 | Multi-Layer Pipeline, Baseline ML, Attachment Link Slice, MV3 Extension Prototype, Academic UI | **VERIFIED** | 281 tests passing, demonstrable core workflow. |
+| **Semester 1: Core Prototype** | Months 1–5 | Multi-Layer Pipeline, Baseline ML, Attachment Link Slice, MV3 Extension Prototype, Academic UI | **VERIFIED** | 285 tests passing, demonstrable core workflow. |
 | **Semester 2: Benchmark Evaluation** | Month 6 | Standard Benchmark Datasets (PhishTank, Alexa 1M, Mendeley); Precision/Recall/F1/AUC | **PLANNED** | Documented dataset splits and comparative metrics. |
 | **Semester 2: Extension Hardening** | Month 7 | `chrome.declarativeNetRequest` dynamic rulesets to eliminate first-byte leakage; Firefox/Edge | **PLANNED** | True pre-navigation blocking & cross-browser support. |
 | **Semester 2: Extended Formats** | Month 8 | OpenXML XLSX/PPTX, RTF link extraction; defanged link unmasking | **PLANNED** | Expanded corporate attachment coverage. |

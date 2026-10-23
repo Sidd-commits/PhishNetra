@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { DomainIntelligence, EvidenceItem } from '@phishnetra/shared';
+import { DomainIntelligence, EvidenceItem, extractDomainParts } from '@phishnetra/shared';
 import { cache, CacheManager } from '../cache/CacheManager';
 
 export class DomainLayer {
@@ -35,7 +35,7 @@ export class DomainLayer {
     }
 
     // Parse domain parts
-    const { domain, registrableDomain, tld, subdomain } = this.parseDomainParts(hostname);
+    const { domain, registrableDomain, tld, subdomain } = extractDomainParts(hostname);
 
     const cacheKey = `domain:${registrableDomain}`;
     return cache.wrap(cacheKey, async () => {
@@ -178,31 +178,7 @@ export class DomainLayer {
     tld: string;
     subdomain: string;
   } {
-    const parts = hostname.toLowerCase().split('.');
-    if (parts.length <= 1) {
-      return { domain: hostname, registrableDomain: hostname, tld: '', subdomain: '' };
-    }
-
-    const tld = parts[parts.length - 1];
-
-    // Handle common double TLDs (e.g. co.uk, com.au, co.in)
-    let registrableDomain = hostname;
-    let subdomain = '';
-
-    if (parts.length >= 3 && ['co', 'com', 'org', 'net', 'edu', 'gov'].includes(parts[parts.length - 2])) {
-      registrableDomain = parts.slice(-3).join('.');
-      subdomain = parts.slice(0, -3).join('.');
-    } else if (parts.length >= 2) {
-      registrableDomain = parts.slice(-2).join('.');
-      subdomain = parts.slice(0, -2).join('.');
-    }
-
-    return {
-      domain: hostname,
-      registrableDomain,
-      tld,
-      subdomain
-    };
+    return extractDomainParts(hostname);
   }
 }
 
