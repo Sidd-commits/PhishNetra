@@ -10,7 +10,7 @@
     "prisma:generate": "prisma generate --schema=../../prisma/schema.prisma",
     "prisma:migrate": "prisma migrate dev --schema=../../prisma/schema.prisma",
     "prisma:push": "prisma db push --schema=../../prisma/schema.prisma",
-    "test": "jest --detectOpenHandles"
+    "test": "jest --detectOpenHandles --runInBand"
   },
   "dependencies": {
     "@phishnetra/shared": "*",
