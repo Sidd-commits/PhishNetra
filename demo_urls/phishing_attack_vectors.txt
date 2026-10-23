@@ -1,0 +1,23 @@
+http://xn--ggle-55da.com/login # Cyrillic homoglyph spoofing "google.com" (xn--ggle-55da.com)
+http://xn--pple-43d.com/appleid/verify # Cyrillic homoglyph lookalike for "apple.com" (xn--pple-43d.com)
+http://xn--microsft-55a.com/login.srf # Punycode omission and Cyrillic character substitution for Microsoft
+http://xn--paypl-era.com/webapps/mpp/home # Cyrillic homoglyph mimicking "paypal.com"
+https://paypal-security-verification.xyz/login # Brand keyword + security keywords on untrusted .xyz TLD
+http://chase-online-account-verify.top/signin.php # Financial brand + multiple authentication tokens on .top
+http://appleid-support-recover-locked.icu/auth # Brand identity spoofing with urgency tags on .icu
+http://microsoft-office365-password-reset.live/login # M365 credential harvesting lure on .live
+http://netflix-billing-payment-update.xyz/membership # Streaming payment update phishing on .xyz
+http://hdfc-netbanking-alert-pan-update.online/auth # Indian banking brand combosquatting with PAN-update urgency
+http://sbi-yono-kyc-verification.top/portal # YONO banking mobile app credential harvesting on .top
+https://login.microsoftonline.com.account-auth-security.xyz/common/oauth2 # Legitimate FQDN prepended as deep subdomain of attacker-controlled root
+https://paypal.com.us.verify-identity.account-check.live/webapps/mpp # Multi-level brand subdomain stacking tricking visual perception
+http://accounts.google.com.service-auth-center.xyz/signin/v2/identifier # Google OAuth login path disguised under nested malicious domain
+https://www.paypal.com@phish-login-credentials.net/signin # RFC 3986 userinfo @ delimiter directing connection to phish-login-credentials.net
+https://login.microsoft.com@cloud-identity-harvest.xyz/login.srf # Userinfo authority deception injection masking real host
+http://security-update-center.org/%2e%2e/%2flogin%2ephp # Hex percent-encoded dot-slash path traversal sequences
+http://account-restore.net//secure//login.php # Double-slash path normalization evasion attempt
+http://169.254.169.254/latest/meta-data/iam/security-credentials/ # AWS/GCP/Azure link-local cloud instance metadata theft attempt
+http://192.168.1.1/admin-setup.php # RFC 1918 Class C private local network administration probe
+http://127.0.0.1:8000/api/v1/predict/kill # Loopback interface internal microservice port scanning / SSRF probe
+https://auth-sec-verify-microsoft.account-portal.xyz/login # Reverse proxy session-cookie stealer targeting enterprise SSO (Evilginx profile)
+https://okta-sso-verify-identity.auth-token.live/login/default # Okta enterprise workforce identity provider reverse proxy clone

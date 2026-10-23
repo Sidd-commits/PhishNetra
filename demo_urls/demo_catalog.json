@@ -1,0 +1,1128 @@
+{
+  "metadata": {
+    "generatedAt": "2026-10-23T18:41:59.435Z",
+    "project": "PhishNetra — MultiLayered AI-Driven Zero-Trust Phishing Detection",
+    "totalSafeUrls": 45,
+    "totalSuspiciousUrls": 20,
+    "totalPhishingVectors": 23,
+    "totalLivePhishingUrls": 300,
+    "grandTotal": 388
+  },
+  "safe": [
+    {
+      "url": "https://internshala.com/chat/c-125923166?filter=all",
+      "category": "Academic / Internship",
+      "notes": "Approved internship portal; ecosystem badge dampener active (Risk < 10)"
+    },
+    {
+      "url": "https://internshala.com/student/dashboard",
+      "category": "Academic / Internship",
+      "notes": "Student dashboard with login form"
+    },
+    {
+      "url": "https://erp.iitd.ac.in/login.htm",
+      "category": "Academic / ERP",
+      "notes": "IIT Delhi student portal; institutional registrar dampener (.ac.in)"
+    },
+    {
+      "url": "https://www.iitb.ac.in/en/academics/academic-calendar",
+      "category": "Academic / University",
+      "notes": "IIT Bombay official portal"
+    },
+    {
+      "url": "https://nptel.ac.in/courses",
+      "category": "Academic / E-Learning",
+      "notes": "NPTEL online certification courses"
+    },
+    {
+      "url": "https://www.mit.edu/education/",
+      "category": "Academic / Global",
+      "notes": "MIT official edu domain"
+    },
+    {
+      "url": "https://online.stanford.edu/courses",
+      "category": "Academic / Global",
+      "notes": "Stanford University online portal"
+    },
+    {
+      "url": "https://www.ox.ac.uk/admissions",
+      "category": "Academic / Global",
+      "notes": "University of Oxford admissions"
+    },
+    {
+      "url": "https://www.google.com/search?q=cybersecurity+phishing+defense",
+      "category": "Search & Cloud",
+      "notes": "Google search engine"
+    },
+    {
+      "url": "https://gemini.google.com/app",
+      "category": "Search & Cloud",
+      "notes": "Google Gemini AI portal"
+    },
+    {
+      "url": "https://mail.google.com/mail/u/0/#inbox",
+      "category": "Email & Productivity",
+      "notes": "Gmail webmail"
+    },
+    {
+      "url": "https://github.com/login",
+      "category": "Developer Platform",
+      "notes": "GitHub login page"
+    },
+    {
+      "url": "https://aws.amazon.com/console/",
+      "category": "Cloud Infrastructure",
+      "notes": "Amazon Web Services console"
+    },
+    {
+      "url": "https://portal.azure.com/",
+      "category": "Cloud Infrastructure",
+      "notes": "Microsoft Azure portal"
+    },
+    {
+      "url": "https://cloud.google.com/security",
+      "category": "Cloud Infrastructure",
+      "notes": "Google Cloud Platform security center"
+    },
+    {
+      "url": "https://www.microsoft.com/en-us/security",
+      "category": "Enterprise Security",
+      "notes": "Microsoft Security home"
+    },
+    {
+      "url": "https://appleid.apple.com/sign-in",
+      "category": "Authentication & ID",
+      "notes": "Official Apple ID authentication"
+    },
+    {
+      "url": "https://dash.cloudflare.com/login",
+      "category": "CDN & Security",
+      "notes": "Cloudflare dashboard"
+    },
+    {
+      "url": "https://registry.npmjs.org/",
+      "category": "Package Registry",
+      "notes": "NPM official package registry"
+    },
+    {
+      "url": "https://pypi.org/project/fastapi/",
+      "category": "Package Registry",
+      "notes": "Python package index"
+    },
+    {
+      "url": "https://www.paypal.com/signin",
+      "category": "Banking & Payments",
+      "notes": "Official PayPal authentication"
+    },
+    {
+      "url": "https://www.chase.com/",
+      "category": "Banking & Payments",
+      "notes": "Chase online banking"
+    },
+    {
+      "url": "https://www.bankofamerica.com/",
+      "category": "Banking & Payments",
+      "notes": "Bank of America online banking"
+    },
+    {
+      "url": "https://www.wellsfargo.com/",
+      "category": "Banking & Payments",
+      "notes": "Wells Fargo banking"
+    },
+    {
+      "url": "https://dashboard.stripe.com/login",
+      "category": "FinTech & Payments",
+      "notes": "Stripe merchant dashboard"
+    },
+    {
+      "url": "https://www.onlinesbi.sbi/",
+      "category": "Banking & Payments",
+      "notes": "State Bank of India official portal"
+    },
+    {
+      "url": "https://netbanking.hdfcbank.com/netbanking/",
+      "category": "Banking & Payments",
+      "notes": "HDFC Bank official netbanking"
+    },
+    {
+      "url": "https://infinity.icicibank.com/corp/AuthenticationController",
+      "category": "Banking & Payments",
+      "notes": "ICICI Bank official internet banking"
+    },
+    {
+      "url": "https://razorpay.com/payment-gateway/",
+      "category": "FinTech & Payments",
+      "notes": "Razorpay payment gateway"
+    },
+    {
+      "url": "https://www.amazon.com/gp/css/order-history",
+      "category": "E-Commerce",
+      "notes": "Amazon order management"
+    },
+    {
+      "url": "https://www.amazon.in/",
+      "category": "E-Commerce",
+      "notes": "Amazon India"
+    },
+    {
+      "url": "https://www.flipkart.com/account/orders",
+      "category": "E-Commerce",
+      "notes": "Flipkart customer orders"
+    },
+    {
+      "url": "https://www.netflix.com/login",
+      "category": "Streaming & Media",
+      "notes": "Netflix account login"
+    },
+    {
+      "url": "https://open.spotify.com/",
+      "category": "Streaming & Media",
+      "notes": "Spotify web player"
+    },
+    {
+      "url": "https://store.steampowered.com/",
+      "category": "Gaming Platform",
+      "notes": "Steam game distribution"
+    },
+    {
+      "url": "https://incometax.gov.in/iec/foportal/",
+      "category": "Government / India",
+      "notes": "Income Tax Department of India"
+    },
+    {
+      "url": "https://uidai.gov.in/my-aadhaar/",
+      "category": "Government / India",
+      "notes": "UIDAI Aadhaar portal"
+    },
+    {
+      "url": "https://epfindia.gov.in/site_en/index.php",
+      "category": "Government / India",
+      "notes": "Employees Provident Fund Organization"
+    },
+    {
+      "url": "https://www.gov.uk/browse/tax",
+      "category": "Government / UK",
+      "notes": "UK Government official portal"
+    },
+    {
+      "url": "https://www.usa.gov/taxes",
+      "category": "Government / US",
+      "notes": "US Government official portal"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Phishing",
+      "category": "Knowledge & Reference",
+      "notes": "Wikipedia phishing article"
+    },
+    {
+      "url": "https://stackoverflow.com/questions/tagged/javascript",
+      "category": "Developer Knowledge",
+      "notes": "Stack Overflow technical Q&A"
+    },
+    {
+      "url": "https://news.ycombinator.com/",
+      "category": "Technology News",
+      "notes": "Hacker News"
+    },
+    {
+      "url": "https://www.reuters.com/technology/cybersecurity/",
+      "category": "News Media",
+      "notes": "Reuters Cybersecurity News"
+    },
+    {
+      "url": "https://csrc.nist.gov/publications/detail/sp/800-63/3/final",
+      "category": "Standards & Security",
+      "notes": "NIST Digital Identity Guidelines"
+    }
+  ],
+  "suspicious": [
+    {
+      "url": "https://bit.ly/3xSampleTestLink",
+      "category": "URL Shortener",
+      "notes": "Generic URL shortener concealing target destination"
+    },
+    {
+      "url": "https://tinyurl.com/auth-verify-account",
+      "category": "URL Shortener",
+      "notes": "Shortened URL with credential keyword in alias"
+    },
+    {
+      "url": "https://t.co/xyzSample99",
+      "category": "Social Shortener",
+      "notes": "Twitter/X outbound redirect wrapper"
+    },
+    {
+      "url": "https://is.gd/update_security_2026",
+      "category": "URL Shortener",
+      "notes": "Shortener with urgent security keyword"
+    },
+    {
+      "url": "http://auth-worker-node.duckdns.org/sync",
+      "category": "Dynamic DNS",
+      "notes": "DuckDNS free dynamic DNS hostname"
+    },
+    {
+      "url": "http://temp-portal-2026.no-ip.biz/login",
+      "category": "Dynamic DNS",
+      "notes": "No-IP free dynamic DNS hostname"
+    },
+    {
+      "url": "https://sub-node-gateway.ngrok-free.app/",
+      "category": "Tunneling Proxy",
+      "notes": "Ngrok ephemeral tunnel host"
+    },
+    {
+      "url": "https://test-auth-preview.vercel.app/admin",
+      "category": "Free Hosting",
+      "notes": "Free serverless deployment with admin endpoint"
+    },
+    {
+      "url": "https://storage.googleapis.com/public-doc-bucket-001/invoice.pdf",
+      "category": "Public Cloud Storage",
+      "notes": "Public Google Cloud Storage bucket hosting PDF"
+    },
+    {
+      "url": "https://s3.amazonaws.com/temp-user-shares/document.docx",
+      "category": "Public Cloud Storage",
+      "notes": "Public AWS S3 bucket file share"
+    },
+    {
+      "url": "http://urgent-notification-update.top/read.php",
+      "category": "Unusual TLD",
+      "notes": "Low-reputation .top TLD with urgency phrasing"
+    },
+    {
+      "url": "http://portal-secure-verification.work/notice",
+      "category": "Unusual TLD",
+      "notes": "Low-reputation .work TLD"
+    },
+    {
+      "url": "http://account-center-maintenance.cc/status",
+      "category": "Unusual TLD",
+      "notes": "High-abuse ccTLD .cc"
+    },
+    {
+      "url": "http://customer-support-desk-2026.buzz/index.html",
+      "category": "Unusual TLD",
+      "notes": "High-abuse .buzz generic TLD"
+    },
+    {
+      "url": "https://app-auth-session-sync.online/portal",
+      "category": "Generic TLD",
+      "notes": "Multiple hyphenated keyword domains"
+    },
+    {
+      "url": "https://verify-client-portal.site/web/verify",
+      "category": "Generic TLD",
+      "notes": "Repetitive authentication keyword structuring"
+    },
+    {
+      "url": "http://login-notice-bulletin.icu/details",
+      "category": "High-Abuse TLD",
+      "notes": "Low-cost .icu TLD"
+    },
+    {
+      "url": "https://update-account-info.rest/client",
+      "category": "Uncommon TLD",
+      "notes": "Uncommon .rest TLD"
+    },
+    {
+      "url": "http://service-alert-center.live/bulletin",
+      "category": "Generic TLD",
+      "notes": "Generic .live domain"
+    },
+    {
+      "url": "https://portal-account-validate.monster/auth",
+      "category": "High-Abuse TLD",
+      "notes": "High-abuse .monster TLD"
+    }
+  ],
+  "phishingAttackVectors": [
+    {
+      "url": "http://xn--ggle-55da.com/login",
+      "category": "Homoglyph / Punycode",
+      "targetBrand": "Google",
+      "vector": "Cyrillic homoglyph spoofing \"google.com\" (xn--ggle-55da.com)",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "80-100"
+    },
+    {
+      "url": "http://xn--pple-43d.com/appleid/verify",
+      "category": "Homoglyph / Punycode",
+      "targetBrand": "Apple",
+      "vector": "Cyrillic homoglyph lookalike for \"apple.com\" (xn--pple-43d.com)",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "80-100"
+    },
+    {
+      "url": "http://xn--microsft-55a.com/login.srf",
+      "category": "Homoglyph / Punycode",
+      "targetBrand": "Microsoft",
+      "vector": "Punycode omission and Cyrillic character substitution for Microsoft",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "80-100"
+    },
+    {
+      "url": "http://xn--paypl-era.com/webapps/mpp/home",
+      "category": "Homoglyph / Punycode",
+      "targetBrand": "PayPal",
+      "vector": "Cyrillic homoglyph mimicking \"paypal.com\"",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "80-100"
+    },
+    {
+      "url": "https://paypal-security-verification.xyz/login",
+      "category": "Combosquatting",
+      "targetBrand": "PayPal",
+      "vector": "Brand keyword + security keywords on untrusted .xyz TLD",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "75-95"
+    },
+    {
+      "url": "http://chase-online-account-verify.top/signin.php",
+      "category": "Combosquatting",
+      "targetBrand": "Chase",
+      "vector": "Financial brand + multiple authentication tokens on .top",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "80-95"
+    },
+    {
+      "url": "http://appleid-support-recover-locked.icu/auth",
+      "category": "Combosquatting",
+      "targetBrand": "Apple",
+      "vector": "Brand identity spoofing with urgency tags on .icu",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "80-95"
+    },
+    {
+      "url": "http://microsoft-office365-password-reset.live/login",
+      "category": "Combosquatting",
+      "targetBrand": "Microsoft",
+      "vector": "M365 credential harvesting lure on .live",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "80-95"
+    },
+    {
+      "url": "http://netflix-billing-payment-update.xyz/membership",
+      "category": "Combosquatting",
+      "targetBrand": "Netflix",
+      "vector": "Streaming payment update phishing on .xyz",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "75-90"
+    },
+    {
+      "url": "http://hdfc-netbanking-alert-pan-update.online/auth",
+      "category": "Combosquatting",
+      "targetBrand": "HDFC Bank",
+      "vector": "Indian banking brand combosquatting with PAN-update urgency",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "80-95"
+    },
+    {
+      "url": "http://sbi-yono-kyc-verification.top/portal",
+      "category": "Combosquatting",
+      "targetBrand": "SBI",
+      "vector": "YONO banking mobile app credential harvesting on .top",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "80-95"
+    },
+    {
+      "url": "https://login.microsoftonline.com.account-auth-security.xyz/common/oauth2",
+      "category": "Subdomain Stacking",
+      "targetBrand": "Microsoft",
+      "vector": "Legitimate FQDN prepended as deep subdomain of attacker-controlled root",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "85-100"
+    },
+    {
+      "url": "https://paypal.com.us.verify-identity.account-check.live/webapps/mpp",
+      "category": "Subdomain Stacking",
+      "targetBrand": "PayPal",
+      "vector": "Multi-level brand subdomain stacking tricking visual perception",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "85-100"
+    },
+    {
+      "url": "http://accounts.google.com.service-auth-center.xyz/signin/v2/identifier",
+      "category": "Subdomain Stacking",
+      "targetBrand": "Google",
+      "vector": "Google OAuth login path disguised under nested malicious domain",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "85-100"
+    },
+    {
+      "url": "https://www.paypal.com@phish-login-credentials.net/signin",
+      "category": "Userinfo Delimiter Trick",
+      "targetBrand": "PayPal",
+      "vector": "RFC 3986 userinfo @ delimiter directing connection to phish-login-credentials.net",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "80-95"
+    },
+    {
+      "url": "https://login.microsoft.com@cloud-identity-harvest.xyz/login.srf",
+      "category": "Userinfo Delimiter Trick",
+      "targetBrand": "Microsoft",
+      "vector": "Userinfo authority deception injection masking real host",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "80-95"
+    },
+    {
+      "url": "http://security-update-center.org/%2e%2e/%2flogin%2ephp",
+      "category": "Path Obfuscation",
+      "targetBrand": "Generic",
+      "vector": "Hex percent-encoded dot-slash path traversal sequences",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "70-90"
+    },
+    {
+      "url": "http://account-restore.net//secure//login.php",
+      "category": "Path Obfuscation",
+      "targetBrand": "Generic",
+      "vector": "Double-slash path normalization evasion attempt",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "70-85"
+    },
+    {
+      "url": "http://169.254.169.254/latest/meta-data/iam/security-credentials/",
+      "category": "SSRF Attack",
+      "targetBrand": "AWS / Cloud",
+      "vector": "AWS/GCP/Azure link-local cloud instance metadata theft attempt",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "90-100"
+    },
+    {
+      "url": "http://192.168.1.1/admin-setup.php",
+      "category": "SSRF Attack",
+      "targetBrand": "Internal Router",
+      "vector": "RFC 1918 Class C private local network administration probe",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "90-100"
+    },
+    {
+      "url": "http://127.0.0.1:8000/api/v1/predict/kill",
+      "category": "SSRF Attack",
+      "targetBrand": "Localhost Service",
+      "vector": "Loopback interface internal microservice port scanning / SSRF probe",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "90-100"
+    },
+    {
+      "url": "https://auth-sec-verify-microsoft.account-portal.xyz/login",
+      "category": "AiTM Proxy Lure",
+      "targetBrand": "Microsoft",
+      "vector": "Reverse proxy session-cookie stealer targeting enterprise SSO (Evilginx profile)",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "85-100"
+    },
+    {
+      "url": "https://okta-sso-verify-identity.auth-token.live/login/default",
+      "category": "AiTM Proxy Lure",
+      "targetBrand": "Okta",
+      "vector": "Okta enterprise workforce identity provider reverse proxy clone",
+      "expectedVerdict": "PHISHING",
+      "expectedScoreRange": "85-100"
+    }
+  ],
+  "liveFeedPhishing": [
+    {
+      "url": "https://www.in-patrika.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://amiable-someone-703260.framer.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://9ervp-qmf-k9yx8-d15udr-omxlc.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://sp28ct-gurem-biz-qazel-zotek.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://hopeful-package-333853.framer.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://sp30ct10-zulreko-biz-kuremi.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://653-f66w-ecv-90xi-rp3ec-ev79.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://amt-hbegzz-vl70jk-gbb-y48ck.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://gcc-7f9acq-ppx1t-efke-945.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://sp30ct10-ravkilo-biz-zumeti.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://du8d-0fiet-c1s5-8qwt5-r1f.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://sp30ct10-rumvemi-biz-zakaro.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://qlq3f-9pwx8-xv2-621ljm-5b49o.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://sp30ct10-varkilo-biz-kumaro.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://sp30ct10-kavzuni-biz-munelo.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://68v-sr5v7-tjp9z-6t99-cy1.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://sp30ct10-varkilo-biz-kuneti.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://sp29ct-vemru-biz-felti-korak.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://sp20ct10-davleko-biz-zunima.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://sp30ct10-zulvemi-biz-zaneti.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://zbe6-8hqp-x6mwg0-1iefur-p6e.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://l0qz3-3zztuy-ikl-3fftz-kep.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://sp30ct10-lorvako-biz-zunati.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://www.enjoygm.com/top-up/mobile-legends/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://materimelos40.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://help-36262377.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://facebook-xi-coral.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://txorvila-kost748291536.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://ukbuvoices.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://www.beta-instagram.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://infoundianshopee7.blogspot.com/?google_abuse=GOOGLE_ABUSE_EXEMPTION%3DID%3D1edd140795484259:TM%3D1791591055:C%3D%3E:IP%3D2800:ba0:18a:b1::5910-:S%3DjApk4f2YDQf3z-tqhHAW5g;%2Bpath%3D/;%2Bdomain%3Dgoogle.com;%2Bexpires%3DSat",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://2310fr-h15qf7hb.4everland.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://trust-wallet-login.vercel.app/staking",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://main--b-ridge.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://www.mismates27272.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://mismates27272.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://www.project-0mgdh.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://roblox.com.gr/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://www.pdf-viewer-five-virid.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://www.messenger-clone-attempt2.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://web-iostarrt.github.io/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://messenger-clone-attempt2.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://fun-aim-894716.framer.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://gregarious-platforms-939712.framer.app/home-2",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://coda-topup.event-en.de/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://webdev-shivang.github.io/Amazon-clone/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://gregarious-platforms-939712.framer.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://autumn-bread-26ff.edgardowillisaed508r5g4.workers.dev/support.account/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://ninakkrc.github.io/Facebook/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://pageupgrade-verifysupportpage.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://desjardins-securities-app.com/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://www.phantom-cash.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://www.adoobe.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://preview.389154.com/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://packscan.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://clinicadeolhosuchoa.com.br/67770/redirecteng.php/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://sultoneff.id/wp-admin/owa_logon/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://airbnb-app-sepia.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://www.airbnb-app-sepia.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://3c87ca87e7d22988.pull-whatapp.hl.cn/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://e404c72f316821d6.pull-whatapp.hl.cn/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://1b3dd3751de5b9e4.pull-whatapp.hl.cn/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://d5f9828f36bd4ccf.pull-whatapp.hl.cn/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://0fd1053acefe1aa5.pwd-whatapp.hl.cn/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://e109185773fcfd8e.pull-whatapp.hl.cn/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://412cc7fd7a688255.pwd-whatapp.hl.cn/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://www.roblox.ss/communities/2886525628/Robux-Studios",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://areacliente-aggiornamentisicurezza.galasc.org/a/web/login.php",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://medintl.org/ausbildu-dentistry",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://adoobe.vercel.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://sp28ct-hurem-biz-qavel-vitek.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://sp28ct-funel-biz-qazev-ranek.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://sp20ct10-ravreko-biz-zunali.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://app-9cd38923-8b54-46db-8d2b-b2c5cbcfed8d.cleverapps.io/cc/login.php",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://spoo.me/Correos10",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://sp26ct-norev-biz-qazum-zelok.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://fenaqrix-biz-ploqavemi-f4t7dy38.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://sp28ct-dunor-biz-zavel-qitek.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://nlgjh83-dzkpm104vzk-8m3l5g-rtv28.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://wlzgb2b68dr-pynkjpli-1l2j6g-wlq29c.pages.dev/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://tokennix-cdn24-hk54.lol/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://facebookdatingonfacebook.blogspot.com/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://witty-booking-941841.framer.app/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://sahabuddinm2005-boop.github.io/Amazon_clone/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://www.advancedpoultrv.com/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://instagramcheck.blogspot.com/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://www.instagramcheck.blogspot.com/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://799de6324a2a3bc2.pull-whatapp.hl.cn/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://3f53be548b1c4f22.pull-whatapp.hl.cn/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://7120bfa894572a28.pull-whatapp.hl.cn/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://281849ade0d032d6.pull-whatapp.hl.cn/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://dd49e9fdeb1451cc.pwd-whatapp.hl.cn/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://a2cd7724f9a53e2f.pull-whatapp.hl.cn/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://d9950a7ddeca3961.pwd-whatapp.hl.cn/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://d6b87b15983c3fd6.pwd-whatapp.hl.cn/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://859d25c84d36eb5b.pull-whatapp.hl.cn/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://1xlite-26582.pro/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://posttp.com/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "http://busardoh.com/wp-content/lblogin/login",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    },
+    {
+      "url": "https://auth-index-crypto.webflow.io/",
+      "sourceFeed": "OpenPhish Community Feed",
+      "expectedVerdict": "PHISHING",
+      "expectedRiskRange": "70-100"
+    }
+  ]
+}
