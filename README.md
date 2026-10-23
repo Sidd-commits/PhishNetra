@@ -14,58 +14,74 @@
 
 ---
 
-## 1. Executive Summary & Academic Project Scope
+## 1. Executive Summary & Academic Project Abstract
 
-**PhishNetra** is an integrated cybersecurity research and engineering framework designed to overcome the critical limitations of conventional, reactive phishing defenses. Modern phishing campaigns rely on fast-flux DNS, freshly registered lookalike domains, subtle Unicode homoglyphs, and evasive delivery vectors—notably **embedded URLs inside email attachments (PDF, HTML, DOCX, TXT, EML)**—that bypass static URL blacklists due to multi-hour or multi-day indexing dwell times.
+**PhishNetra** is an integrated cybersecurity research and engineering framework designed to address the systemic vulnerabilities of conventional phishing defenses. Traditional threat detection mechanisms rely predominantly on static URL blacklists, reputation feeds, and post-incident crowdsourced reporting. In modern adversary campaigns, these reactive defenses fail due to three critical attack innovations:
 
-PhishNetra is developed as a **two-semester academic major project spanning approximately ten months**:
+1. **Ephemeral Infrastructure & Fast-Flux DNS:** Attackers register disposable lookalike domains that operate for only a few hours before migrating IP addresses, rendering static blacklists ineffective due to multi-hour or multi-day indexing dwell times.
+2. **Subtle Lexical & Homoglyph Evasions:** Internationalized Domain Names (IDNs) and lookalike Unicode substitutions (e.g., Cyrillic homoglyphs) visually mimic legitimate brand domains while resolving to malicious server infrastructure.
+3. **Evasive Delivery Vectors (Attachment Phishing):** Adversaries increasingly embed credential-harvesting hyperlinks within innocent-looking email attachments (PDF invoices, HTML verification notices, DOCX manifests, plain-text security alerts) to bypass standard mail gateway URL filters.
+
+To solve these challenges, PhishNetra introduces a **Zero-Trust evaluation model**: *no destination is trusted based on a single benign signal*. A website with an active, valid TLS certificate from a trusted authority is not classified as safe if its domain registration age is less than 48 hours, its lexical entropy indicates algorithmic randomness, its form actions transmit credentials to an external server, or its layout mimics an enterprise brand catalog.
+
+PhishNetra combines:
+- An **8-Layer Zero-Trust Threat Analysis Pipeline** operating on normalized destination targets.
+- A **Calibrated Baseline Machine Learning Classifier** (Random Forest, sub-5ms latency) equipped with **Tree-SHAP explainability** to expose feature-level attribution.
+- A **Safe Email Attachment Link Extraction Engine** that parses document streams in memory without code execution.
+- A **Chrome Manifest V3 Browser Extension** providing instantaneous client-side heuristic scoring and an **un-bypassable DOM security barrier overlay** (`interstitial.ts`).
+- An **Academic Web Security Console** providing SOC analysts and academic evaluators with live scanning, telemetry history, domain dossier investigations, and queue processing.
+
+---
+
+## 2. Academic Project Scope & Two-Semester Lifecycle
+
+PhishNetra is developed as a **two-semester academic major project spanning approximately ten months**. To maintain strict scientific integrity and defensibility before academic review panels, the project roadmap replaces all commercial enterprise sprint models with a clear, honest academic milestone division:
 
 ```
 +---------------------------------------------------------------------------------------------------+
 |                               PHISHNETRA TWO-SEMESTER TIMELINE                                     |
 +---------------------------------------------------------------------------------------------------+
 |  SEMESTER 1 (Months 1 → 5): Core Research Prototype & Proof of Concept [DELIVERED & VERIFIED]    |
-|  • Multi-Layer Zero-Trust URL Threat Pipeline (Lexical, RDAP Age, DNS, TLS, Feeds, ML)            |
+|  • Multi-Layer Zero-Trust URL Threat Pipeline (Canonicalization, Lexical, RDAP, DNS, TLS, Feeds)    |
 |  • Calibrated Baseline Machine Learning Classifier (Random Forest + Tree-SHAP Explainability)     |
-|  • Email Attachment Link Extraction Vertical Slice (PDF, HTML, DOCX, TXT, EML)                     |
-|  • Chrome Manifest V3 Browser Extension Prototype (<5ms Heuristics + DOM Interstitial Barrier)    |
+|  • Email Attachment Link Extraction Engine (Pure-JS Safe Parsers: PDF, HTML, DOCX, TXT, EML)     |
+|  • Chrome Manifest V3 Browser Extension Prototype (Sub-5ms Heuristics + DOM Interstitial Barrier) |
 |  • Unified Academic Security Console (React 18 + Vite Dashboard, Scanners, Telemetry History)     |
 |  VERIFICATION: 262/262 Automated Tests Passing (100%) • 4/4 Workspaces Clean Production Builds    |
 +---------------------------------------------------------------------------------------------------+
 |  SEMESTER 2 (Months 6 → 10): Empirical Evaluation, Hardening & Academic Thesis [PLANNED ROADMAP] |
-|  • Comprehensive Benchmark Dataset Evaluation (Precision, Recall, F1, ROC-AUC on PhishTank/Alexa) |
-|  • Extension Lifecycle Hardening (chrome.declarativeNetRequest Rulesets, Zero First-Byte Leakage) |
-|  • Extended File Format Coverage (OpenXML XLSX/PPTX, RTF, Redirect Chain Unmasking)               |
+|  • Benchmark Dataset Evaluation (Precision, Recall, F1, ROC-AUC on PhishTank, Alexa Top 1M)      |
+|  • Extension Lifecycle Hardening (chrome.declarativeNetRequest Dynamic Rulesets, Zero Leakage)   |
+|  • Extended File Ingestion Coverage (OpenXML XLSX/PPTX, RTF, Multi-Hop Redirect Chain Unmasking)   |
 |  • Computer Vision Logo Similarity Prototype (YOLO/CLIP Visual Brand Matching vs DOM Forms)       |
-|  • Dynamic Layer Weight Calibration via Validation Loss & End-to-End Latency Profiling            |
-|  • Academic Thesis Dissertation, Usability Evaluation on Warning Compliance & Final Defense        |
+|  • Dynamic Layer Weight Calibration via Validation Loss & End-to-End Latency Benchmarking        |
+|  • Academic Project Thesis Dissertation, Warning Compliance Usability Study, and Final Defense     |
 +---------------------------------------------------------------------------------------------------+
 ```
 
----
-
-## 2. Research Problem & Engineering Objectives
-
-PhishNetra addresses six fundamental research and engineering questions:
-
-1. **Is the target URL suspicious or malicious?**  
-   Evaluated deterministically across lexical entropy, token structures, domain age, DNS infrastructure anomalies, TLS certificate validity, and machine learning inference.
-2. **What concrete evidence justifies the verdict?**  
-   Synthesized through an explainable Zero-Trust evidence engine attributing individual layer scores, confidence ratings, and Tree-SHAP feature contributions.
-3. **Does the rendered webpage exhibit credential-harvesting indicators?**  
-   Inspected in an isolated, SSRF-protected sandboxed fetcher evaluating cross-origin form actions, raw IP form destinations, and a 15-enterprise brand catalog for `BRAND_DOMAIN_MISMATCH`.
-4. **Does an email attachment contain hidden phishing destinations?**  
-   Safely parsed in memory using declarative pure-JavaScript string and stream decoders (PDF, HTML, DOCX, TXT, EML) without executing active code, followed by automated multi-layer evaluation of extracted links.
-5. **Can the browser extension protect the user before credentials are stolen?**  
-   Engineered as a Manifest V3 extension executing instant sub-5ms local heuristics, dynamic toolbar badge signaling, and an un-bypassable DOM security barrier overlay (`interstitial.ts`).
-6. **What actionable choices does the user have upon threat interception?**  
-   Enforces three conscious, non-silent choices: **Return to Safety (Recommended)**, **Inspect SOC Evidence (Deep Link to Web Console)**, or **Conscious Session Bypass**.
+### Scope Boundary & Enterprise Module Deferral
+Earlier exploratory development produced draft enterprise concepts (e.g., Autonomous SOAR Playbooks, Remote Browser Isolation (RBI), TAXII 2.1 Threat Exchange, BGP Route Hijack Radar, and FIDO2 Admin). While backend routes and tests for these capabilities remain preserved in the codebase for architectural continuity, **they are explicitly excluded from the academic evaluation scope** to keep the research tightly focused on client-side and endpoint phishing mitigation.
 
 ---
 
-## 3. Operational System Architecture (Semester 1 Baseline)
+## 3. Research Questions & Engineering Objectives
 
-All inputs—direct URL submissions, batch jobs, email attachments, and real-time browser extension requests—flow through a unified, shared canonicalization and multi-layer Zero-Trust evaluation pipeline:
+PhishNetra systematically investigates six core research and engineering questions:
+
+| # | Research / Engineering Question | Methodological Resolution in PhishNetra |
+| :-: | :--- | :--- |
+| **RQ1** | **Can multi-signal inspection detect phishing URLs that bypass single-signal blacklists?** | Implemented through an 8-layer parallel analysis engine evaluating lexical structures, RDAP registration age, passive DNS anomalies, TLS certificates, and brand catalog mismatches. |
+| **RQ2** | **How can machine learning predictions be made explainable to non-expert users and SOC analysts?** | Integrated Tree-SHAP (SHapley Additive exPlanations) alongside a Random Forest classifier to compute deterministic feature impact scores and synthesize natural-language rationales. |
+| **RQ3** | **How can hidden phishing hyperlinks inside email attachments be analyzed safely without triggering malware execution?** | Developed in-memory, pure-JavaScript regular expression and XML stream decoders for PDF, HTML, DOCX, TXT, and EML files with a 10MB limit and zero code execution. |
+| **RQ4** | **Can real-time browser-level protection be achieved under Google Chrome's Manifest V3 constraints?** | Engineered a two-tier defense: sub-5ms client-side heuristics in the background service worker, coupled with asynchronous API lookups and proactive `CHECK_PAGE_THREAT` messaging. |
+| **RQ5** | **How can dangerous credential theft be halted without violating user agency?** | Implemented an un-bypassable DOM Interstitial Barrier overlay (`interstitial.ts`, `z-index: 2147483647`) that freezes interaction and mandates a conscious choice: *Return to Safety*, *Inspect SOC Evidence*, or *Conscious Bypass*. |
+| **RQ6** | **How can server infrastructure remain immune to adversarial SSRF and DNS rebinding attacks?** | Enforced pre-flight IP socket filtering blocking private subnets (RFC 1918), loopback, link-local, cloud instance metadata (`169.254.169.254`), and capped redirect chains at 5 hops. |
+
+---
+
+## 4. Operational System Architecture
+
+All inputs—whether submitted via the interactive Web Console, the Chrome extension, the bulk batch queue, or file uploads—traverse a unified evaluation lifecycle:
 
 ```text
                                ┌────────────────────────────────────────────────────────┐
@@ -78,9 +94,10 @@ All inputs—direct URL submissions, batch jobs, email attachments, and real-tim
          ┌─────────────────────────────┐                                       ┌─────────────────────────────┐
          │ React Security Console      │                                       │ Chrome Extension (MV3)      │
          │ • Dashboard Overview        │                                       │ • tabs.onUpdated Hook       │
-         │ • Live URL Scanner          │                                       │ • Sub-5ms Local Heuristics  │
+         │ • Live URL Threat Scanner   │                                       │ • Sub-5ms Local Heuristics  │
          │ • Attachment Link Scanner   │                                       │ • CHECK_PAGE_THREAT Query   │
-         │ • Telemetry History         │                                       │ • DOM Interstitial Barrier  │
+         │ • Domain Dossier & Typos    │                                       │ • DOM Interstitial Barrier  │
+         │ • Batch Processing & History│                                       │   (z-index: 2147483647)     │
          └──────────────┬──────────────┘                                       └──────────────┬──────────────┘
                         │                                                                     │
                         └──────────────────────────────────┬──────────────────────────────────┘
@@ -119,63 +136,64 @@ All inputs—direct URL submissions, batch jobs, email attachments, and real-tim
 
 ---
 
-## 4. Repository Monorepo Structure
+## 5. Repository Monorepo Structure
 
 ```text
 PhishNetra/
 │
 ├── apps/
-│   ├── api/                     # Node.js + Express + TypeScript Backend Core
-│   │   ├── src/controllers/     # REST Controllers (Analysis, Ingest, Domains, Queue, Auth, Reports)
-│   │   ├── src/services/        # Multi-Layer Threat Pipeline & Attachment Parsers
-│   │   │   ├── analysis/        # Canonicalization, Lexical, DNS, TLS, RDAP, Reputation, Typosquatting
-│   │   │   ├── ingestion/       # Safe pure-JS attachment link extraction (PDF/HTML/DOCX/TXT/EML)
-│   │   │   └── risk/            # Zero-Trust Risk Engine & Evidence Engine
-│   │   └── tests/               # 192 Jest + Supertest automated suites (100% passing)
+│   ├── api/                          # Node.js + Express + TypeScript Backend Core
+│   │   ├── src/controllers/          # REST Endpoints (Analyze, Ingest, Domains, Queue, Auth, Reports)
+│   │   ├── src/services/             # Threat Pipeline & Ingestion Services
+│   │   │   ├── analysis/             # Canonicalization, Lexical, DNS, TLS, RDAP, Reputation, Typos
+│   │   │   ├── ingestion/            # Safe pure-JS attachment link extraction (PDF/HTML/DOCX/TXT/EML)
+│   │   │   ├── queue/                # BullMQ asynchronous batch job queue worker
+│   │   │   └── risk/                 # Zero-Trust Risk Engine & Tree-SHAP Evidence Synthesizer
+│   │   └── tests/                    # 192 Jest automated unit/integration tests (100% passing)
 │   │
-│   ├── web/                     # React 18 + Vite + Tailwind CSS Security Console
-│   │   ├── src/pages/           # Dashboard, Analyze, Attachments, Domains, Batch, History, Settings, Extension
-│   │   ├── src/components/      # Multi-Layer Breakdown, Gauge, Evidence Tables, Interstitial Preview
-│   │   └── src/services/        # Typed API client with JWT & API key support
+│   ├── web/                          # React 18 + Vite + Tailwind CSS Security Console
+│   │   ├── src/pages/                # Dashboard, Analyze, Attachments, Domains, Batch, History, Settings
+│   │   ├── src/components/           # Navbar, Risk Gauge, Multi-Layer Breakdown, Interstitial Modal
+│   │   └── src/services/             # Axios API client with token & API-key authentication
 │   │
-│   └── extension/               # Chrome Manifest V3 Browser Extension
-│       ├── src/background/      # Service worker, sub-5ms local heuristics, badge manager, tab state map
-│       ├── src/content/         # Content script, un-bypassable DOM interstitial barrier, warning banner
-│       ├── src/popup/           # Extension toolbar popup UI, live tab inspection, whitelist toggle
-│       └── tests/               # 12 Jest unit tests (100% passing)
+│   └── extension/                    # Chrome Manifest V3 Browser Extension
+│       ├── src/background/           # Service worker, sub-5ms local heuristics, badge manager, tab state
+│       ├── src/content/              # Content script, un-bypassable DOM interstitial barrier, banner
+│       ├── src/popup/                # Extension toolbar popup UI, live tab inspection, whitelist toggle
+│       └── tests/                    # 12 Jest unit tests for local heuristics & storage (100% passing)
 │
 ├── services/
-│   └── ml/                      # Python 3.10 + FastAPI Machine Learning Microservice
-│       ├── app/api/             # Endpoints (/predict, /analyze-page, /explain, /health)
-│       ├── app/model/           # Random Forest classifier pipeline, model registry, versioning
-│       ├── app/features/        # Deterministic 18-feature lexical/syntactic extractor
-│       ├── app/analyzer/        # Sandboxed webpage DOM fetcher with strict SSRF immunity
-│       └── tests/               # 58 Pytest automated ML & SSRF test cases (100% passing)
+│   └── ml/                           # Python 3.10 + FastAPI Machine Learning Microservice
+│       ├── app/api/                  # REST Endpoints (/predict, /analyze-page, /explain, /health)
+│       ├── app/model/                # Calibrated Random Forest pipeline, registry, Tree-SHAP explainer
+│       ├── app/features/             # Deterministic 18-feature lexical extractor
+│       ├── app/analyzer/             # Webpage DOM fetcher with strict SSRF and redirect defenses
+│       └── tests/                    # 58 Pytest automated ML & SSRF test cases (100% passing)
 │
 ├── packages/
-│   └── shared/                  # Shared TypeScript types, Zod schemas, & constants
+│   └── shared/                       # Shared TypeScript definitions, Zod validation schemas, & constants
 │
-├── docs/                        # Authoritative Technical Documentation & Milestone Audits
-│   ├── SEMESTER_MILESTONE_AUDIT.md # Definitive capability audit & technical verification evidence
-│   ├── PROJECT_SCOPE.md         # Official scope & two-semester specifications
-│   ├── ROADMAP.md               # Two-semester academic roadmap & acceptance criteria
-│   ├── ARCHITECTURE.md          # System architecture (current baseline vs planned evolution)
-│   ├── API.md                   # REST API endpoint reference (in-scope vs deferred)
-│   ├── IMPLEMENTATION_STATUS.md # Current verification report (262 tests passing)
-│   └── SECURITY.md              # Zero-Trust invariants & vulnerability defenses
+├── docs/                             # Authoritative Academic Documentation Index
+│   ├── SEMESTER_MILESTONE_AUDIT.md   # Definitive capability audit & technical verification evidence
+│   ├── PROJECT_SCOPE.md              # Official scope & two-semester specifications
+│   ├── ROADMAP.md                    # Two-semester academic roadmap & acceptance criteria
+│   ├── ARCHITECTURE.md               # System architecture (current baseline vs planned evolution)
+│   ├── API.md                        # REST API endpoint reference
+│   ├── IMPLEMENTATION_STATUS.md      # Monorepo build and test verification report
+│   └── SECURITY.md                   # Zero-Trust invariants & vulnerability defenses
 │
 ├── prisma/
-│   └── schema.prisma            # Database schema (Users, Analyses, Evidence, BatchJobs, Reports)
+│   └── schema.prisma                 # Database schema (Analyses, Evidences, BatchJobs, Users, Reports)
 │
-├── package.json                 # Monorepo workspaces & build orchestration
-└── LICENSE                      # MIT License
+├── package.json                      # Monorepo workspaces & build orchestration scripts
+└── LICENSE                           # MIT License
 ```
 
 ---
 
-## 5. The Multi-Layer Zero-Trust Threat Engine (8 Layers)
+## 6. The Multi-Layer Zero-Trust Threat Engine (8 Layers)
 
-PhishNetra enforces a non-negotiable Zero-Trust invariant: **no single signal determines safety**. A destination with a valid TLS certificate and clean legacy blacklists will still be classified as **PHISHING** if domain age is fresh, DNS exhibits fast-flux routing, form actions point cross-origin, or brand mismatches are identified.
+PhishNetra enforces a non-negotiable Zero-Trust invariant: **no single signal determines safety**. Each incoming URL is evaluated across eight distinct structural, infrastructural, and behavioral layers:
 
 ```
 +-------+-----------------------------+--------------------------------------------------------------+
@@ -208,42 +226,63 @@ PhishNetra enforces a non-negotiable Zero-Trust invariant: **no single signal de
 +-------+-----------------------------+--------------------------------------------------------------+
 ```
 
+### Risk Engine Mathematical Formulation
+The composite risk score $S \in [0, 100]$ is computed as a normalized weighted sum of active layer scores:
+
+$$S = \frac{\sum_{i=1}^{n} w_i \cdot s_i}{\sum_{i=1}^{n} w_i}$$
+
+Where:
+- $w_i \ge 0$ is the configurable weight for layer $i$.
+- $s_i \in [0, 100]$ is the raw risk score output by layer $i$.
+- If an upstream layer fails or encounters a network timeout, its weight is gracefully excluded from the denominator to prevent score corruption or NaN propagation.
+
+### Verdict Tiers & Zero-Trust Overrides
+- **SAFE (Score: 0 – 39):** Minimal threat indicators detected.
+- **SUSPICIOUS (Score: 40 – 69):** Elevated anomaly score (e.g., brand keyword in path + novel domain age).
+- **PHISHING (Score: 70 – 100):** High-confidence threat detected.
+- **Deterministic Overrides:**
+  - If Layer 5 (Reputation) confirms an active blocklist hit $\implies S = 100$, Verdict = **PHISHING**.
+  - If Layer 2 (RDAP) detects registration age $< 48$ hours with brand lures $\implies S \ge 85$, Verdict = **PHISHING**.
+
 ---
 
-## 6. Baseline Machine Learning & SHAP Explainability
+## 7. Baseline Machine Learning & Tree-SHAP Explainability
 
 ### Model Specifications
 - **Algorithm:** Calibrated Random Forest Classifier (`scikit-learn`, 100 estimators, max depth 12).
-- **Service Tier:** Python 3.10 + FastAPI microservice (`services/ml`) operating at `http://127.0.0.1:8000`.
-- **Latency:** Sub-5ms inference per URL.
-- **Explainability:** Tree-SHAP (SHapley Additive exPlanations) computes individual feature importance values and produces natural-language explanations for SOC analysts and end users.
+- **Execution Tier:** Python 3.10 + FastAPI microservice (`services/ml`) operating on `http://127.0.0.1:8000`.
+- **Inference Latency:** Sub-5ms per URL.
+- **Explainability:** Integrated Tree-SHAP (`shap.TreeExplainer`) provides exact Shapley values to compute positive and negative feature contributions.
 
-### Deterministic Feature Vector (18 Features)
-1. `url_length`: Total character count of normalized URL.
-2. `hostname_length`: Length of fully qualified domain name.
-3. `path_length`: Character length of the URL path component.
-4. `count_dots`: Total count of period delimiters (`.`).
-5. `count_hyphens`: Count of hyphens (`-`) (frequently used in brand combosquatting).
-6. `count_at`: Presence of userinfo credential delimiter (`@`).
-7. `count_question`: Count of query parameters (`?`).
-8. `count_percent`: Count of percent-encoded characters (`%`).
-9. `count_digits`: Total numeric digit count in URL.
-10. `count_subdomains`: Depth of subdomain labels excluding TLD and `www`.
-11. `has_ip`: Binary flag indicating raw IPv4 address used as hostname.
-12. `shannon_entropy`: Information entropy of the hostname string (randomness metric).
-13. `is_punycode`: Detection of `xn--` internationalized homoglyph encoding.
-14. `suspicious_tld`: Match against known high-abuse TLDs.
-15. `brand_keyword_count`: Frequency of sensitive brand keywords (e.g., `paypal`, `login`, `bank`).
-16. `has_sensitive_keyword`: Binary flag indicating presence of security credential lures.
-17. `non_standard_port`: Detection of non-default HTTP/HTTPS ports.
-18. `path_depth`: Number of slash delimiters in the URL path.
+### Deterministic 18-Feature Vector
+
+| # | Feature Name | Description & Threat Significance |
+| :-: | :--- | :--- |
+| 1 | `url_length` | Total character count of normalized URL (phishing URLs frequently exceed 75 chars). |
+| 2 | `hostname_length` | Length of fully qualified domain name (flags lengthy subdomains). |
+| 3 | `path_length` | Character length of the URL path component. |
+| 4 | `count_dots` | Total count of period delimiters (`.`) (flags excessive subdomain nesting). |
+| 5 | `count_hyphens` | Frequency of hyphens (`-`) (commonly used in brand combosquatting, e.g., `paypal-verify`). |
+| 6 | `count_at` | Presence of userinfo credential delimiter (`@`) used to mask true destinations. |
+| 7 | `count_question` | Count of query parameters (`?`). |
+| 8 | `count_percent` | Count of percent-encoded characters (`%`) indicative of obfuscation. |
+| 9 | `count_digits` | Total numeric digit count in URL. |
+| 10 | `count_subdomains` | Depth of subdomain labels excluding TLD and `www`. |
+| 11 | `has_ip` | Binary flag (0 or 1) indicating raw IPv4 address used as hostname. |
+| 12 | `shannon_entropy` | Information entropy of hostname string: $H(X) = -\sum P(x) \log_2 P(x)$ (measures randomness). |
+| 13 | `is_punycode` | Detection of `xn--` internationalized homoglyph encoding. |
+| 14 | `suspicious_tld` | Match against known high-abuse top-level domains (`.xyz`, `.top`, `.click`, `.buzz`, etc.). |
+| 15 | `brand_keyword_count` | Frequency of sensitive brand keywords (e.g., `paypal`, `microsoft`, `apple`, `google`). |
+| 16 | `has_sensitive_keyword`| Binary flag indicating presence of security credential lures (`login`, `verify`, `billing`). |
+| 17 | `non_standard_port` | Detection of non-default HTTP/HTTPS ports (e.g., `:8080`, `:8888`, `:4444`). |
+| 18 | `path_depth` | Number of slash delimiters in the URL path. |
 
 ---
 
-## 7. Email Attachment Link Extraction Engine (Vertical Slice)
+## 8. Safe Email Attachment Link Extraction Engine
 
 ### The Evasive Attack Vector
-Adversaries increasingly deliver phishing lures inside email attachments rather than in the email body to bypass basic gateway filters. PhishNetra provides a safe, pure-JavaScript link extraction pipeline that unpacks supported formats without executing code.
+To bypass standard secure email gateways, adversaries frequently embed phishing hyperlinks inside business documents. PhishNetra provides a safe, pure-JavaScript link extraction pipeline that unpacks supported formats in memory:
 
 ```
 Uploaded Attachment (PDF / HTML / DOCX / TXT / EML)
@@ -287,12 +326,12 @@ Uploaded Attachment (PDF / HTML / DOCX / TXT / EML)
 ```
 
 ### Safety & Scope Boundaries
-- **Passive In-Memory Parsing:** Employs declarative regular expressions and XML decoders. **Never executes macros, active content, or shell scripts.**
-- **Scope Disclaimer:** PhishNetra evaluates embedded hyperlinks and target destination indicators. It does **not** constitute an operating-system sandbox or binary executable malware scanner.
+- **Declarative Non-Executable Parsing:** Relies on regular expressions and stream decoders. **Macros, active content, and shell scripts are never executed.**
+- **Academic Scope Disclaimer:** PhishNetra evaluates embedded hyperlinks and target destination indicators. It does **not** constitute an operating-system sandbox or binary executable malware scanner.
 
 ---
 
-## 8. Chrome Manifest V3 Browser Extension
+## 9. Chrome Manifest V3 Browser Extension
 
 The PhishNetra extension provides real-time browser-level threat mitigation:
 
@@ -330,13 +369,13 @@ The PhishNetra extension provides real-time browser-level threat mitigation:
 
 ---
 
-## 9. Academic Web Security Console (`apps/web`)
+## 10. Academic Web Security Console (`apps/web`)
 
 The frontend is a fast, responsive Single Page Application built with **React 18 + Vite + TypeScript + Tailwind CSS**:
 
 | Page / Route | Primary Capabilities |
 | :--- | :--- |
-| **Dashboard** ([`/dashboard`](http://localhost:5173/dashboard)) | Live telemetry overview, threat counters, active Zero-Trust status bar, recent analysis audit log. |
+| **Dashboard** ([`/dashboard`](http://localhost:5173/dashboard)) | Live telemetry overview, threat counters, active Zero-Trust defense status bar, recent analysis audit log. |
 | **URL Threat Scanner** ([`/analyze`](http://localhost:5173/analyze)) | Interactive URL evaluation with 8-layer breakdown, risk gauge, SHAP narrative, and raw feature viewer. |
 | **Attachment Scanner** ([`/attachments`](http://localhost:5173/attachments)) | Drag-and-drop file upload, 4 demo presets (PDF, HTML, DOCX, TXT), extracted link breakdown table. |
 | **Domain Dossier Hub** ([`/domains`](http://localhost:5173/domains)) | RDAP registration age timeline, nameservers, MX records, lookalike typosquatting generator. |
@@ -347,7 +386,7 @@ The frontend is a fast, responsive Single Page Application built with **React 18
 
 ---
 
-## 10. Zero-Trust Security Controls & Invariants
+## 11. Zero-Trust Security Controls & Invariants
 
 | Threat Vector | Mitigation Strategy & Verification |
 | :--- | :--- |
@@ -359,7 +398,7 @@ The frontend is a fast, responsive Single Page Application built with **React 18
 
 ---
 
-## 11. Verification & Test Suite Baseline
+## 12. Verification & Test Suite Baseline
 
 ```
 ================================================================================
@@ -381,9 +420,24 @@ Production Build Verification:
 ================================================================================
 ```
 
+### Running Test Suites
+```bash
+# Run all tests across the monorepo (Node.js + Python ML)
+npm run test:all
+
+# Run backend API suites (192 tests across 28 suites)
+npm run test:api
+
+# Run browser extension unit suites (12 tests across 2 suites)
+npm run test:extension
+
+# Run Python ML test suites (58 tests across 8 suites)
+npm run test:ml
+```
+
 ---
 
-## 12. Quickstart & Installation Guide
+## 13. Quickstart & Installation Guide
 
 ### Prerequisites
 - **Node.js**: `v20.0.0` or higher
@@ -436,7 +490,7 @@ npm run dev:extension
 
 ---
 
-## 13. Live Demonstration Protocol (Evaluation Walkthrough)
+## 14. Live Demonstration Protocol (Evaluation Walkthrough)
 
 Follow this 5-step sequence for an academic presentation or project evaluation:
 
@@ -455,7 +509,9 @@ Follow this 5-step sequence for an academic presentation or project evaluation:
 
 ---
 
-## 14. Two-Semester Academic Roadmap
+## 15. Two-Semester Academic Roadmap
+
+The project progression adheres to the following two-semester milestone schedule:
 
 | Milestone | Target | Focus Area | Status | Deliverables |
 | :--- | :--- | :--- | :---: | :--- |
@@ -468,18 +524,20 @@ Follow this 5-step sequence for an academic presentation or project evaluation:
 
 ---
 
-## 15. Authoritative Documentation Index
+## 16. Authoritative Documentation Index
+
+All technical specifications, evaluation audits, and architecture decisions are documented in the [`docs/`](docs/) directory:
 
 - [`docs/SEMESTER_MILESTONE_AUDIT.md`](docs/SEMESTER_MILESTONE_AUDIT.md) — Definitive capability audit and technical verification matrix
 - [`docs/PROJECT_SCOPE.md`](docs/PROJECT_SCOPE.md) — Official project scope & two-semester specifications
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — Comprehensive two-semester milestone roadmap
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — System architecture (Semester 1 baseline vs Semester 2 evolution)
-- [`docs/API.md`](docs/API.md) — REST API endpoint specification (in-scope vs deferred)
-- [`docs/IMPLEMENTATION_STATUS.md`](docs/IMPLEMENTATION_STATUS.md) — Implementation status report & build log
+- [`docs/API.md`](docs/API.md) — REST API endpoint specification
+- [`docs/IMPLEMENTATION_STATUS.md`](docs/IMPLEMENTATION_STATUS.md) — Monorepo build and test verification report
 - [`docs/SECURITY.md`](docs/SECURITY.md) — Threat model, SSRF defenses, and Zero-Trust invariants
 
 ---
 
-## 16. License
+## 17. License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
