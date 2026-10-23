@@ -84,10 +84,25 @@ async function processTabAnalysis(tabId: number, url: string, forceRefresh = fal
       return;
     }
 
+    const settings = await StorageService.getSettings();
+
     // 3. Fast Local Heuristic Pre-Evaluation
     const localHeuristics = evaluateLocalHeuristics(url);
     if (localHeuristics.isLikelyPhishing) {
       await BadgeManager.setRiskStatus(localHeuristics.score, 'PHISHING', tabId);
+      const isBypassedNow = await StorageService.hasTemporaryBypass(url);
+      if (!isBypassedNow) {
+        await triggerThreatInterstitial(
+          tabId,
+          url,
+          domain,
+          localHeuristics.score,
+          'PHISHING',
+          localHeuristics.reasons,
+          0.85,
+          settings.dashboardUrl
+        );
+      }
     } else {
       await BadgeManager.setScanning(tabId);
     }
@@ -100,8 +115,6 @@ async function processTabAnalysis(tabId: number, url: string, forceRefresh = fal
       status: 'PENDING',
       analyzedAt: Date.now()
     });
-
-    const settings = await StorageService.getSettings();
 
     try {
       let analysis: AnalysisResponse | null = null;
@@ -158,18 +171,16 @@ async function processTabAnalysis(tabId: number, url: string, forceRefresh = fal
         const bypassed = await StorageService.hasTemporaryBypass(url);
         if (!bypassed) {
           const evidenceDescriptions = analysis.evidence?.map((e) => e.description) || localHeuristics.reasons;
-          sendMessageToTab(tabId, {
-            type: 'SHOW_INTERSTITIAL',
-            payload: {
-              url,
-              domain,
-              compositeScore: riskScore,
-              riskLevel: verdict,
-              criticalIndicators: evidenceDescriptions,
-              aiConfidence: analysis.confidence ?? 0.85,
-              dashboardUrl: settings.dashboardUrl
-            }
-          });
+          await triggerThreatInterstitial(
+            tabId,
+            url,
+            domain,
+            riskScore,
+            verdict,
+            evidenceDescriptions,
+            analysis.confidence ?? 0.85,
+            settings.dashboardUrl
+          );
         }
       } else if (isSuspicious) {
         const bypassed = await StorageService.hasTemporaryBypass(url);
@@ -203,6 +214,19 @@ async function processTabAnalysis(tabId: number, url: string, forceRefresh = fal
       // Fall back to local heuristic status if backend is unreachable
       if (localHeuristics.isLikelyPhishing) {
         await BadgeManager.setRiskStatus(localHeuristics.score, 'PHISHING', tabId);
+        const bypassed = await StorageService.hasTemporaryBypass(url);
+        if (!bypassed) {
+          await triggerThreatInterstitial(
+            tabId,
+            url,
+            domain,
+            localHeuristics.score,
+            'PHISHING',
+            localHeuristics.reasons,
+            0.85,
+            settings.dashboardUrl
+          );
+        }
       } else if (localHeuristics.isSuspicious) {
         await BadgeManager.setRiskStatus(localHeuristics.score, 'SUSPICIOUS', tabId);
       } else {
@@ -218,6 +242,63 @@ async function processTabAnalysis(tabId: number, url: string, forceRefresh = fal
   } finally {
     if (inFlightAnalysisMap.get(tabId) === promise) {
       inFlightAnalysisMap.delete(tabId);
+    }
+  }
+}
+
+/**
+ * Triggers Threat Mitigation Interstitial Overlay.
+ * Tries in-DOM messaging first; if content script is unavailable (e.g. DNS NXDOMAIN, error page),
+ * navigates tab to the extension's dedicated interstitial threat barrier.
+ */
+async function triggerThreatInterstitial(
+  tabId: number,
+  url: string,
+  domain: string,
+  score: number,
+  verdict: string,
+  evidenceDescriptions: string[],
+  aiConfidence: number,
+  dashboardUrl: string
+): Promise<void> {
+  const payload = {
+    url,
+    domain,
+    compositeScore: score,
+    riskLevel: verdict,
+    criticalIndicators: evidenceDescriptions,
+    aiConfidence,
+    dashboardUrl
+  };
+
+  const interstitialUrl = chrome.runtime.getURL(
+    `src/interstitial/interstitial.html?url=${encodeURIComponent(url)}&domain=${encodeURIComponent(domain)}&score=${Math.round(score)}&level=${encodeURIComponent(verdict)}&confidence=${aiConfidence}&indicators=${encodeURIComponent(JSON.stringify(evidenceDescriptions))}&dashboardUrl=${encodeURIComponent(dashboardUrl)}`
+  );
+
+  let deliveredInDom = false;
+  if (typeof chrome !== 'undefined' && chrome.tabs) {
+    try {
+      await new Promise<void>((resolve) => {
+        chrome.tabs.sendMessage(tabId, { type: 'SHOW_INTERSTITIAL', payload }, () => {
+          if (!chrome.runtime.lastError) {
+            deliveredInDom = true;
+          }
+          resolve();
+        });
+      });
+    } catch {
+      // In-DOM script not yet ready or tab is on error page
+    }
+
+    if (!deliveredInDom) {
+      try {
+        const tab = await chrome.tabs.get(tabId);
+        if (tab && tab.url && !tab.url.includes('interstitial.html')) {
+          await chrome.tabs.update(tabId, { url: interstitialUrl });
+        }
+      } catch {
+        // Tab may have closed
+      }
     }
   }
 }

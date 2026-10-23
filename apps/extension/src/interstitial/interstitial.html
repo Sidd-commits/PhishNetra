@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhishNetra — Zero-Trust Threat Intercepted</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: radial-gradient(circle at 50% 20%, #1e1014 0%, #0a0a0f 80%);
+      color: #f3f4f6;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-y: auto;
+    }
+    .interstitial-card {
+      background: rgba(17, 24, 39, 0.95);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      box-shadow: 0 0 60px rgba(239, 68, 68, 0.25), inset 0 0 20px rgba(239, 68, 68, 0.1);
+      border-radius: 16px;
+      max-width: 680px;
+      width: 100%;
+      padding: 36px;
+      backdrop-filter: blur(16px);
+      text-align: left;
+      animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+      padding-bottom: 18px;
+      margin-bottom: 24px;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .shield-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(239,68,68,0.2) 0%, rgba(220,38,38,0.4) 100%);
+      border: 1px solid #ef4444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.35);
+    }
+    .subheading {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: #ef4444;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .main-heading {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+    }
+    .score-badge {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
+    }
+    .url-box {
+      background: rgba(31, 41, 55, 0.6);
+      border: 1px solid rgba(75, 85, 99, 0.4);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      word-break: break-all;
+    }
+    .url-label {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+    .url-text {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 14px;
+      color: #f87171;
+      font-weight: 600;
+    }
+    .rationale-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #e5e7eb;
+      margin-bottom: 20px;
+    }
+    .indicators-container {
+      margin-bottom: 24px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+      padding: 16px;
+      border-radius: 10px;
+    }
+    .indicators-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #9ca3af;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      letter-spacing: 0.05em;
+    }
+    .indicators-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .indicator-item {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: #d1d5db;
+      line-height: 1.4;
+    }
+    .indicator-x {
+      color: #ef4444;
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 1;
+    }
+    .actions-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 28px;
+    }
+    .btn-return {
+      background: #ef4444;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 14px 20px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+      transition: all 0.2s ease;
+    }
+    .btn-return:hover {
+      background: #dc2626;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+    }
+    .secondary-row {
+      display: flex;
+      gap: 12px;
+    }
+    .btn-inspect {
+      flex: 1;
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid #3b82f6;
+      color: #93c5fd;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .btn-inspect:hover {
+      background: rgba(59, 130, 246, 0.25);
+      color: #ffffff;
+    }
+    .btn-bypass {
+      background: transparent;
+      border: 1px solid rgba(156, 163, 175, 0.3);
+      color: #9ca3af;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-bypass:hover {
+      color: #f3f4f6;
+      border-color: rgba(209, 213, 219, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <div class="interstitial-card">
+    <div class="header-row">
+      <div class="header-left">
+        <div class="shield-icon">🛡️</div>
+        <div>
+          <div class="subheading">Zero-Trust Threat Mitigation</div>
+          <h1 class="main-heading">Phishing Threat Intercepted</h1>
+        </div>
+      </div>
+      <div class="score-badge" id="score-badge">Score: 95/100</div>
+    </div>
+
+    <div class="url-box">
+      <div class="url-label">Target URL</div>
+      <div class="url-text" id="target-url">Loading target...</div>
+    </div>
+
+    <p class="rationale-text">
+      PhishNetra real-time threat intelligence has intercepted navigation to this domain. Multi-layer inspection detected credential theft signatures, brand spoofing, or deceptive domain artifacts.
+    </p>
+
+    <div class="indicators-container" id="indicators-container">
+      <div class="indicators-title">Key Threat Indicators Detected</div>
+      <ul class="indicators-list" id="indicators-list">
+        <!-- Rendered by interstitial.ts -->
+      </ul>
+    </div>
+
+    <div class="actions-grid">
+      <button class="btn-return" id="btn-goback">
+        <span>←</span> Return to Safety (Recommended)
+      </button>
+
+      <div class="secondary-row">
+        <a class="btn-inspect" id="btn-inspect" href="#" target="_blank" rel="noopener noreferrer">
+          <span>🔬</span> Inspect SOC Evidence
+        </a>
+        <button class="btn-bypass" id="btn-bypass">
+          I Understand Risks (Continue)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./interstitial.ts"></script>
+</body>
+</html>

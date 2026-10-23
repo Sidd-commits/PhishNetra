@@ -48,6 +48,7 @@ export default defineConfig({
       input: {
         popup: resolve(__dirname, 'src/popup/popup.html'),
         options: resolve(__dirname, 'src/options/options.html'),
+        interstitial: resolve(__dirname, 'src/interstitial/interstitial.html'),
         background: resolve(__dirname, 'src/background/serviceWorker.ts'),
         contentScript: resolve(__dirname, 'src/content/contentScript.ts')
       },
