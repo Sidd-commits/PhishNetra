@@ -65,3 +65,7 @@ pnpm-debug.log*
 
 # Scratch & Temporary Testing
 scratch/
+
+# Private Viva Preparation & Assessment Guides (Do Not Commit to Public Git)
+viva_prep/
+*.pdf
