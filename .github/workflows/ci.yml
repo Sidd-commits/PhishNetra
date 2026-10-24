@@ -32,14 +32,19 @@ jobs:
         run: npm run build:shared
 
       - name: Generate Prisma Client
-        run: npm --prefix apps/api run prisma:generate
+        run: npx prisma generate --schema=prisma/schema.prisma
+
+      - name: Push Prisma Database Schema for Testing
+        run: npx prisma db push --schema=prisma/schema.prisma --accept-data-loss
+        env:
+          DATABASE_URL: "file:${{ github.workspace }}/prisma/dev.db"
 
       - name: Run API Automated Jest Test Suite
         run: npm --prefix apps/api test
         env:
           NODE_ENV: test
           JWT_SECRET: test_jwt_secret_key_123456789
-          DATABASE_URL: "file:./test.db"
+          DATABASE_URL: "file:${{ github.workspace }}/prisma/dev.db"
 
       - name: Run Extension Automated Jest Test Suite
         run: npm --prefix apps/extension test
@@ -74,3 +79,5 @@ jobs:
       - name: Run ML Unit, Explainability & Adversarial Tests
         run: |
           python -m pytest services/ml/tests
+        env:
+          PYTHONPATH: services/ml
