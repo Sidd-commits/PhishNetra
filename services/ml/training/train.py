@@ -100,12 +100,36 @@ def train_baseline_model(
     base_rf.fit(X_train, y_train)
 
     print("[*] Calibrating model probabilities via CalibratedClassifierCV (sigmoid)...")
-    calibrated_model = CalibratedClassifierCV(
-        estimator=base_rf,
-        method="sigmoid",
-        cv="prefit"
-    )
-    calibrated_model.fit(X_train, y_train)
+    calibrated_model = None
+    try:
+        from sklearn.frozen import FrozenEstimator
+        calibrated_model = CalibratedClassifierCV(
+            estimator=FrozenEstimator(base_rf),
+            method="sigmoid"
+        )
+        calibrated_model.fit(X_train, y_train)
+    except (ImportError, TypeError, ValueError, AttributeError):
+        pass
+
+    if calibrated_model is None:
+        try:
+            calibrated_model = CalibratedClassifierCV(
+                estimator=base_rf,
+                method="sigmoid",
+                cv="prefit"
+            )
+            calibrated_model.fit(X_train, y_train)
+        except Exception as e:
+            try:
+                calibrated_model = CalibratedClassifierCV(
+                    base_estimator=base_rf,
+                    method="sigmoid",
+                    cv="prefit"
+                )
+                calibrated_model.fit(X_train, y_train)
+            except Exception as e2:
+                print(f"[!] Calibration fallback to base RandomForestClassifier: {e2}")
+                calibrated_model = base_rf
 
     # Evaluation
     print("[*] Evaluating calibrated model on test set...")
@@ -137,7 +161,7 @@ def train_baseline_model(
         "model_type": "CalibratedRandomForestClassifier",
         "model_version": "v1.0.0-optimized",
         "trained_at": datetime.utcnow().isoformat() + "Z",
-        "dataset_path": str(data_path),
+        "dataset_path": os.path.relpath(data_path, ml_root).replace("\\", "/") if ml_root in Path(data_path).parents else str(data_path),
         "total_samples": len(df),
         "train_samples": len(X_train),
         "test_samples": len(X_test),
