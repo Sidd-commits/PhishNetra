@@ -74,10 +74,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r services/ml/requirements.txt
-          pip install pytest pytest-asyncio anyio
 
       - name: Run ML Unit, Explainability & Adversarial Tests
+        working-directory: services/ml
         run: |
-          python -m pytest services/ml/tests
-        env:
-          PYTHONPATH: services/ml
+          python -m pytest tests -v
+
