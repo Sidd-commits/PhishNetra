@@ -40,6 +40,9 @@ htmlcov/
 .env.local
 .env.*.local
 *.pem
+*.key
+*.crt
+
 
 # IDEs & OS
 .vscode/
