@@ -101,14 +101,30 @@ export class RiskEngine {
     const hasHighRiskTld = layerEvidences.some(e => e.featureKey === 'high_risk_tld');
     if (hasHighRiskTld) urlScoreAcc += 25;
 
-    const hasHomoglyphBrandSpoof = layerEvidences.some(e => e.featureKey === 'homoglyph_brand_spoofing');
+    const hasHomoglyphBrandSpoof = layerEvidences.some(e => e.featureKey === 'homoglyph_brand_spoofing' || e.featureKey === 'typosquatting_brand_spoofing');
     if (hasHomoglyphBrandSpoof) urlScoreAcc += 50;
+
+    const hasCombosquatting = layerEvidences.some(e => e.featureKey === 'combosquatting_brand_impersonation');
+    if (hasCombosquatting) urlScoreAcc += 40;
+
+    const isDynamicDns = layerEvidences.some(e => e.featureKey === 'dynamic_dns_tunnel');
+    if (isDynamicDns) urlScoreAcc += 25;
+
+    const hasCloudLure = layerEvidences.some(e => e.featureKey === 'cloud_subdomain_credential_lure');
+    if (hasCloudLure) urlScoreAcc += 35;
+
+    const hasEphemeralCloudSubdomain = layerEvidences.some(e => e.featureKey === 'ephemeral_cloud_subdomain');
+    if (hasEphemeralCloudSubdomain) urlScoreAcc += 25;
 
     layerScores.URL = Math.min(100, urlScoreAcc);
 
     // 2. Domain Layer Scoring (0 to 100)
     let domainScoreAcc = 0;
-    if (domainLayer.domainAgeDays !== null && domainLayer.domainAgeDays !== undefined) {
+    if (isDynamicDns || hasCloudLure || hasEphemeralCloudSubdomain) {
+      // Ephemeral tenant under a shared dynamic DNS or free PaaS hosting root;
+      // do not let the root provider's multi-year domain age dilute active threat risk.
+      domainScoreAcc = 40;
+    } else if (domainLayer.domainAgeDays !== null && domainLayer.domainAgeDays !== undefined) {
       if (domainLayer.domainAgeDays < 30) {
         domainScoreAcc = 85;
       } else if (domainLayer.domainAgeDays < 90) {
@@ -237,8 +253,15 @@ export class RiskEngine {
       targetDomain.endsWith('.edu.au')
     );
 
+    const hasVerifiedAuthenticBrand = Boolean(
+      pageLayer &&
+      pageLayer.status === 'COMPLETED' &&
+      (pageLayer.brandFindings || []).length > 0 &&
+      !hasBrandMismatch
+    );
+
     // --- Critical Override Rules (Zero-Trust Synthesis) ---
-    // 1. Homoglyph Brand Spoofing (e.g. xn--gogle-pqa.com)
+    // 1. Homoglyph / Typosquat Brand Spoofing (e.g. xn--gogle-pqa.com, xn--microsft-55a.com)
     if (hasHomoglyphBrandSpoof) {
       compositeScore = Math.max(compositeScore, 85);
     }
@@ -253,8 +276,14 @@ export class RiskEngine {
         compositeScore = Math.max(compositeScore, 45); // Moderate suspicious penalty for established domain
       }
     }
-    // 3. Combosquatting on high-abuse TLD
-    if (hasHighRiskTld && urlLayer.features.tld_in_subdomain === 1) {
+    // 3. Combosquatting on High-Abuse TLDs or with Security Keywords
+    if (hasCombosquatting) {
+      if (hasHighRiskTld || urlLayer.features.tld_in_subdomain === 1 || !tlsLayer.hasTls) {
+        compositeScore = Math.max(compositeScore, 82);
+      } else {
+        compositeScore = Math.max(compositeScore, 75);
+      }
+    } else if (hasHighRiskTld && urlLayer.features.tld_in_subdomain === 1) {
       compositeScore = Math.max(compositeScore, 80);
     }
     // 4. Cross-origin / Raw IP credential submission
@@ -273,14 +302,49 @@ export class RiskEngine {
     if (hasPrivateIp || isSsrfBlocked) {
       compositeScore = Math.max(compositeScore, 95);
     }
+    // 8. High-Confidence AI ML Phishing Signal (Zero-Trust Synthesis)
+    // When the ML classifier identifies phishing with >= 88% probability,
+    // do not allow passive domain age of root providers (e.g. dynamic DNS) to falsely suppress to SAFE.
+    if (mlLayer.phishingProbability >= 0.88) {
+      if (!isInstitutionalDomain && !hasVerifiedAuthenticBrand) {
+        compositeScore = Math.max(compositeScore, 75.0);
+      }
+    } else if (mlLayer.phishingProbability >= 0.70) {
+      if (!isInstitutionalDomain && !hasVerifiedAuthenticBrand) {
+        compositeScore = Math.max(compositeScore, 50.0);
+      }
+    }
+
+    // 9. Dynamic DNS & Ephemeral Tunneling Synthesis
+    if (isDynamicDns && !isInstitutionalDomain && !hasVerifiedAuthenticBrand) {
+      if (mlLayer.phishingProbability >= 0.65 || (urlLayer.features.hyphen_count >= 2)) {
+        compositeScore = Math.max(compositeScore, 75); // PHISHING
+      } else {
+        compositeScore = Math.max(compositeScore, 45); // SUSPICIOUS
+      }
+    }
+
+    // 10. Free Cloud PaaS Tenant Subdomain Phishing & Credential Lures
+    if (hasCloudLure && !isInstitutionalDomain && !hasVerifiedAuthenticBrand) {
+      compositeScore = Math.max(compositeScore, 65); // High SUSPICIOUS
+    }
+
+    if (hasEphemeralCloudSubdomain && !isInstitutionalDomain && !hasVerifiedAuthenticBrand) {
+      if (mlLayer.phishingProbability >= 0.50) {
+        compositeScore = Math.max(compositeScore, 60); // SUSPICIOUS
+      } else {
+        compositeScore = Math.max(compositeScore, 42); // SUSPICIOUS
+      }
+    }
+
+    // 11. Active TLS Certificate Mismatch or Untrusted Root CA on External Host
+    const hasTlsMismatch = layerEvidences.some(e => e.featureKey === 'tls_hostname_mismatch');
+    const hasUntrustedTls = layerEvidences.some(e => e.featureKey === 'untrusted_tls_issuer');
+    if ((hasTlsMismatch || hasUntrustedTls) && !isInstitutionalDomain && !hasVerifiedAuthenticBrand) {
+      compositeScore = Math.max(compositeScore, 48); // SUSPICIOUS
+    }
 
     // --- Negative Risk Dampener for Verified Authentic Brands & Accredited Institutions ---
-    const hasVerifiedAuthenticBrand = Boolean(
-      pageLayer &&
-      pageLayer.status === 'COMPLETED' &&
-      (pageLayer.brandFindings || []).length > 0 &&
-      !hasBrandMismatch
-    );
     if (hasVerifiedAuthenticBrand && !hasCrossOriginCredentialForm && !reputationLayer.isListedMalicious && !hasPrivateIp && !hasHomoglyphBrandSpoof) {
       // Clean authentic brand page; dampen residual background heuristic noise
       compositeScore = Math.min(compositeScore, 18.0);

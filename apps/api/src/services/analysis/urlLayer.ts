@@ -1,9 +1,27 @@
 import { URLIntelligence, EvidenceItem, URLFeatureVector, extractDomainParts } from '@phishnetra/shared';
 import { CanonicalUrlResult } from './canonicalization';
+import { TyposquattingEngine } from './typosquatting';
 
 const KNOWN_SHORTENERS = new Set([
   'bit.ly', 'tinyurl.com', 't.co', 'is.gd', 'buff.ly', 'ow.ly', 'cutt.ly',
   'rb.gy', 'shorturl.at', 'rebrand.ly', 'goo.gl', 'trib.al', 'cli.re'
+]);
+
+const DYNAMIC_DNS_DOMAINS = new Set([
+  'duckdns.org', 'no-ip.biz', 'no-ip.com', 'no-ip.org',
+  'ngrok-free.app', 'ngrok.io', 'free-ddns.com', 'ddns.net',
+  'zapto.org', 'hopto.org', 'servehttp.com', 'dynu.net', 'bounceme.net'
+]);
+
+const FREE_CLOUD_HOSTING_PROVIDERS = new Set([
+  'vercel.app', 'pages.dev', 'framer.app', 'netlify.app',
+  'workers.dev', 'web.app', 'firebaseapp.com', 'glitch.me',
+  'render.com', 'surge.sh', 'herokuapp.com'
+]);
+
+const SENSITIVE_LURE_KEYWORDS = new Set([
+  'auth', 'login', 'signin', 'admin', 'verify', 'account', 'security',
+  'portal', 'wallet', 'bank', 'token', 'session', 'update', 'recover', 'support'
 ]);
 
 const SUSPICIOUS_TLDS = new Set([
@@ -69,7 +87,113 @@ export class URLLayer {
       });
     }
 
-    if (isPunycode) {
+    // Dynamic DNS & Ephemeral Tunneling Detection
+    const { registrableDomain, tld, subdomain } = extractDomainParts(hostname);
+    const isDynamicDns = DYNAMIC_DNS_DOMAINS.has(registrableDomain) || Array.from(DYNAMIC_DNS_DOMAINS).some(d => hostname.endsWith('.' + d));
+    if (isDynamicDns) {
+      evidence.push({
+        layer: 'URL',
+        featureKey: 'dynamic_dns_tunnel',
+        featureValue: registrableDomain,
+        severity: 'HIGH',
+        description: `Domain utilizes a Dynamic DNS or ephemeral tunneling provider (${registrableDomain}), frequently abused for unverified phishing infrastructure.`,
+        contribution: 0.25,
+        source: 'URL_Intelligence',
+        confidence: 0.90
+      });
+    }
+
+    // Free Cloud PaaS & Ephemeral Subdomain Detection
+    const isFreeCloudHosting = FREE_CLOUD_HOSTING_PROVIDERS.has(registrableDomain) || Array.from(FREE_CLOUD_HOSTING_PROVIDERS).some(d => hostname.endsWith('.' + d));
+    if (isFreeCloudHosting && subdomain) {
+      const subTokens = subdomain.toLowerCase().split(/[.-]/).filter(Boolean);
+      const pathTokens = (pathname || '').toLowerCase().split(/[\/._-]/).filter(Boolean);
+      const allTokens = [...subTokens, ...pathTokens];
+      const matchedLure = allTokens.find(token => SENSITIVE_LURE_KEYWORDS.has(token));
+
+      if (matchedLure) {
+        evidence.push({
+          layer: 'URL',
+          featureKey: 'cloud_subdomain_credential_lure',
+          featureValue: `${registrableDomain} / ${matchedLure}`,
+          severity: 'HIGH',
+          description: `Free cloud hosting tenant URL contains sensitive authentication keyword ("${matchedLure}"), a common technique for staging unverified phishing campaigns.`,
+          contribution: 0.35,
+          source: 'URL_Intelligence',
+          confidence: 0.90
+        });
+      }
+
+      // Check for ephemeral, disposable, or machine-generated slug pattern
+      const hyphenSegments = subdomain.split('-');
+      const hasDigitGroup = /\d{4,}/.test(subdomain);
+      const isEphemeralSlug = hyphenSegments.length >= 3 || (hyphenSegments.length >= 2 && hasDigitGroup) || /^[a-z0-9]{12,}$/i.test(subdomain);
+      if (isEphemeralSlug) {
+        evidence.push({
+          layer: 'URL',
+          featureKey: 'ephemeral_cloud_subdomain',
+          featureValue: subdomain,
+          severity: 'MEDIUM',
+          description: `Subdomain exhibits a machine-generated or ephemeral tenant slug pattern (${subdomain}) on a free cloud hosting provider (${registrableDomain}).`,
+          contribution: 0.25,
+          source: 'URL_Intelligence',
+          confidence: 0.85
+        });
+      }
+    }
+
+    // Advanced Typosquatting, Combosquatting, and Homoglyph Inspection
+    const cleanLookup = unicodeHostname || hostname;
+    const typoScan = TyposquattingEngine.inspectDomain(cleanLookup);
+    if (typoScan && typoScan.matches && typoScan.matches.length > 0) {
+      for (const match of typoScan.matches) {
+        if (match.type === 'HOMOGLYPH') {
+          evidence.push({
+            layer: 'URL',
+            featureKey: 'homoglyph_brand_spoofing',
+            featureValue: cleanLookup,
+            severity: 'CRITICAL',
+            description: match.explanation,
+            contribution: 0.45,
+            source: 'URL_TyposquattingEngine',
+            confidence: 0.95
+          });
+        } else if (match.type === 'COMBOSQUAT') {
+          evidence.push({
+            layer: 'URL',
+            featureKey: 'combosquatting_brand_impersonation',
+            featureValue: cleanLookup,
+            severity: 'HIGH',
+            description: match.explanation,
+            contribution: 0.40,
+            source: 'URL_TyposquattingEngine',
+            confidence: 0.90
+          });
+        } else if (match.type === 'SUBDOMAIN') {
+          evidence.push({
+            layer: 'URL',
+            featureKey: 'subdomain_brand_deception',
+            featureValue: cleanLookup,
+            severity: 'CRITICAL',
+            description: match.explanation,
+            contribution: 0.45,
+            source: 'URL_TyposquattingEngine',
+            confidence: 0.95
+          });
+        } else {
+          evidence.push({
+            layer: 'URL',
+            featureKey: 'typosquatting_brand_spoofing',
+            featureValue: cleanLookup,
+            severity: 'CRITICAL',
+            description: match.explanation,
+            contribution: 0.40,
+            source: 'URL_TyposquattingEngine',
+            confidence: 0.92
+          });
+        }
+      }
+    } else if (isPunycode) {
       const decoded = unicodeHostname || hostname;
       const normalizedDecoded = normalizeHomoglyphs(decoded);
       const isTargetingBrand = TARGETED_BRANDS.some(b => normalizedDecoded.includes(b));
@@ -129,8 +253,7 @@ export class URLLayer {
     const specialCharRatio = Math.round((specialCount / totalLen) * 1000) / 1000;
     const hyphenRatio = Math.round((hyphenCount / Math.max(1, hostname.length)) * 1000) / 1000;
 
-    // Multi-part ccTLD and domain parsing
-    const { registrableDomain, tld, subdomain } = extractDomainParts(hostname);
+    // Subdomain count
     const subdomainParts = subdomain ? subdomain.split('.').filter(p => p && p !== 'www') : [];
     const subdomainCount = subdomainParts.length;
 
