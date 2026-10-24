@@ -17,10 +17,10 @@ jobs:
 
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
@@ -62,10 +62,10 @@ jobs:
 
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -75,11 +75,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r services/ml/requirements.txt
 
+      - name: Train ML Model Artifact for Platform
+        working-directory: services/ml
+        run: |
+          python training/train.py
+
       - name: Run ML Unit, Explainability & Adversarial Tests
         working-directory: services/ml
         run: |
-          python -m pytest tests -v
+          python -m pytest tests -v --tb=short
         env:
           PYTHONPATH: .
+
 
 

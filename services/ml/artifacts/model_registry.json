@@ -10,7 +10,7 @@
     "recall": 1.0,
     "f1Score": 1.0,
     "rocAuc": 1.0,
-    "artifactPath": "C:\\Users\\siddh\\OneDrive\\Desktop\\PhishNetra\\services\\ml\\artifacts\\baseline_model.joblib",
+    "artifactPath": "artifacts/baseline_model.joblib",
     "featureCount": 18
   }
 ]

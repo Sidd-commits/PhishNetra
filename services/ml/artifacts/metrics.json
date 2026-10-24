@@ -1,8 +1,8 @@
 {
   "model_type": "CalibratedRandomForestClassifier",
   "model_version": "v1.0.0-optimized",
-  "trained_at": "2026-10-23T10:57:52.652210Z",
-  "dataset_path": "C:\\Users\\siddh\\OneDrive\\Desktop\\PhishNetra\\services\\ml\\data\\url_dataset_v1.csv",
+  "trained_at": "2026-10-24T08:01:44.545241Z",
+  "dataset_path": "data/url_dataset_v1.csv",
   "total_samples": 145,
   "train_samples": 108,
   "test_samples": 37,

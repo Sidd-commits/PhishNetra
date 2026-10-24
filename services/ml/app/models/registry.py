@@ -75,12 +75,20 @@ class ModelRegistryService:
             self._save_registry([default_baseline])
 
     def _load_registry(self) -> List[Dict[str, Any]]:
-        """Loads registry entries from JSON file."""
+        """Loads registry entries from JSON file and resolves portable artifact paths."""
         if not self.registry_file.exists():
             self._ensure_registry_initialized()
         try:
             with open(self.registry_file, "r") as f:
-                return json.load(f)
+                entries = json.load(f)
+            # Resolve artifact paths dynamically across different OS / runner environments
+            for e in entries:
+                path_str = e.get("artifactPath")
+                if path_str and not os.path.exists(path_str):
+                    candidate = self.artifacts_dir / Path(path_str).name
+                    if candidate.exists():
+                        e["artifactPath"] = str(candidate)
+            return entries
         except Exception:
             return []
 
@@ -144,6 +152,11 @@ class ModelRegistryService:
             raise ValueError(f"Model version '{version}' not found in registry")
 
         artifact_path = target_entry.get("artifactPath")
+        if not artifact_path or not os.path.exists(artifact_path):
+            if artifact_path:
+                candidate = self.artifacts_dir / Path(artifact_path).name
+                if candidate.exists():
+                    artifact_path = str(candidate)
         if not artifact_path or not os.path.exists(artifact_path):
             raise FileNotFoundError(f"Model artifact file not found at {artifact_path}")
 
