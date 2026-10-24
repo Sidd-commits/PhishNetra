@@ -79,4 +79,7 @@ jobs:
         working-directory: services/ml
         run: |
           python -m pytest tests -v
+        env:
+          PYTHONPATH: .
+
 
